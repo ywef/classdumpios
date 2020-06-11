@@ -11,7 +11,7 @@
 
 @implementation CDMachOFileDataCursor
 {
-    __weak CDMachOFile *_machOFile;
+    CDMachOFile *_machOFile;
     NSUInteger _ptrSize;
     CDByteOrder _byteOrder;
 }

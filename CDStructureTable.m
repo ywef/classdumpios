@@ -57,7 +57,7 @@ static BOOL debugAnonStructures = NO;
 
 @implementation CDStructureTable
 {
-    __weak CDTypeController *_typeController;
+    CDTypeController *_typeController;
     
     NSString *_identifier;
     NSString *_anonymousBaseName;

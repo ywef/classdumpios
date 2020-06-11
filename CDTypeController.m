@@ -13,7 +13,7 @@
 static BOOL debug = NO;
 
 @interface CDTypeController ()
-@property (weak, readonly) CDClassDump *classDump;
+@property (readonly) CDClassDump *classDump;
 @property (readonly) CDStructureTable *structureTable;
 @property (readonly) CDStructureTable *unionTable;
 @end
@@ -22,8 +22,8 @@ static BOOL debug = NO;
 
 @implementation CDTypeController
 {
-    __weak CDClassDump *_classDump; // passed during formatting, to get at options.
-    __weak id <CDTypeControllerDelegate> _delegate;
+     CDClassDump *_classDump; // passed during formatting, to get at options.
+     id <CDTypeControllerDelegate> _delegate;
     
     CDTypeFormatter *_ivarTypeFormatter;
     CDTypeFormatter *_methodTypeFormatter;

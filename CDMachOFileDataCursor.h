@@ -15,7 +15,7 @@
 
 - (id)initWithSection:(CDSection *)section;
 
-@property (nonatomic, weak, readonly) CDMachOFile *machOFile;
+@property (nonatomic, readonly) CDMachOFile *machOFile;
 
 - (void)setAddress:(NSUInteger)address;
 

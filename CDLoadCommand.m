@@ -37,7 +37,7 @@
 
 @implementation CDLoadCommand
 {
-    __weak CDMachOFile *_machOFile;
+    CDMachOFile *_machOFile;
     NSUInteger _commandOffset;
 }
 
