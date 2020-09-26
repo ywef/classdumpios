@@ -7,7 +7,6 @@ include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = classdumpios
 classdumpios_CFLAGS = -fobjc-arc -include ext.h
-classdumpios_CODESIGN_FLAGS=-Sent.plist
 classdumpios_FILES = $(wildcard *.*m)
 
 include $(THEOS_MAKE_PATH)/tool.mk
