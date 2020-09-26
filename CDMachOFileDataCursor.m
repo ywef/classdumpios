@@ -18,11 +18,17 @@
 
 - (id)initWithFile:(CDMachOFile *)machOFile;
 {
+    NSLog(@"initWithFile: %@", machOFile);
     return [self initWithFile:machOFile offset:0];
 }
 
 - (id)initWithFile:(CDMachOFile *)machOFile offset:(NSUInteger)offset;
 {
+    if (offset == 0){
+        offset = 4096;
+    }
+    NSLog(@"initWithFile: %@ offset: 0x%08lx", machOFile, offset);
+    
     if ((self = [super initWithData:machOFile.data])) {
         self.machOFile = machOFile;
         [self setOffset:offset];
@@ -33,6 +39,7 @@
 
 - (id)initWithFile:(CDMachOFile *)machOFile address:(NSUInteger)address;
 {
+    NSLog(@"initWithFile: %@ address: 0x%08lx", machOFile, address);
     if ((self = [super initWithData:machOFile.data])) {
         self.machOFile = machOFile;
         [self setAddress:address];

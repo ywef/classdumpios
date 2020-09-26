@@ -7,7 +7,7 @@
 
 #import "NSScanner-CDExtensions.h"
 
-static BOOL debug = NO;
+static BOOL debug = YES;
 
 static NSString *CDTypeLexerStateName(CDTypeLexerState state)
 {

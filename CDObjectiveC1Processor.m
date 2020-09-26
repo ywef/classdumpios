@@ -170,15 +170,15 @@ static BOOL debug = NO;
         objcModule.name    = [cursor readInt32];
         objcModule.symtab  = [cursor readInt32];
 
-        //NSLog(@"objcModule.size: %u", objcModule.size);
-        //NSLog(@"sizeof(struct cd_objc_module): %u", sizeof(struct cd_objc_module));
+        NSLog(@"objcModule.size: %u", objcModule.size);
+        NSLog(@"sizeof(struct cd_objc_module): %u", sizeof(struct cd_objc_module));
         assert(objcModule.size == sizeof(struct cd_objc_module)); // Because this is what we're assuming.
 
         NSString *name = [self.machOFile stringAtAddress:objcModule.name];
         if (name != nil && [name length] > 0 && debug)
             NSLog(@"Note: a module name is set: %@", name);
 
-        //NSLog(@"%08x %08x %08x %08x - '%@'", objcModule.version, objcModule.size, objcModule.name, objcModule.symtab, name);
+        NSLog(@"%08x %08x %08x %08x - '%@'", objcModule.version, objcModule.size, objcModule.name, objcModule.symtab, name);
         //NSLog(@"\tsect: %@", [[machOFile segmentContainingAddress:objcModule.name] sectionContainingAddress:objcModule.name]);
         //NSLog(@"symtab: %08x", objcModule.symtab);
 

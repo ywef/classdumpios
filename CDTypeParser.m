@@ -20,7 +20,7 @@ NSString *CDErrorKey_RemainingString          = @"CDErrorKey_RemainingString";
 NSString *CDErrorKey_MethodOrVariable         = @"CDErrorKey_MethodOrVariable";
 NSString *CDErrorKey_LocalizedLongDescription = @"CDErrorKey_LocalizedLongDescription";
 
-static BOOL debug = NO;
+static BOOL debug = YES;
 
 static NSString *CDTokenDescription(int token)
 {
@@ -319,6 +319,7 @@ static NSString *CDTokenDescription(int token)
         CDTypeName *typeName = [[CDTypeName alloc] init];
         typeName.name = @"MISSING_TYPE";
         result = [[CDType alloc] initIDType:typeName];
+        NSLog(@"error: %@", [NSString stringWithFormat:@"expected (many things), got %@ from %i", CDTokenDescription(_lookahead), _lookahead]);
 //        result = nil;
 //        [NSException raise:CDExceptionName_SyntaxError format:@"expected (many things), got %@", CDTokenDescription(_lookahead)];
     }
