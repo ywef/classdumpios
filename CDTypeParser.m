@@ -20,7 +20,7 @@ NSString *CDErrorKey_RemainingString          = @"CDErrorKey_RemainingString";
 NSString *CDErrorKey_MethodOrVariable         = @"CDErrorKey_MethodOrVariable";
 NSString *CDErrorKey_LocalizedLongDescription = @"CDErrorKey_LocalizedLongDescription";
 
-static BOOL debug = YES;
+static BOOL debug = NO;
 
 static NSString *CDTokenDescription(int token)
 {
