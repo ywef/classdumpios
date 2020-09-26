@@ -325,33 +325,36 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 - (NSString *)stringAtAddress:(NSUInteger)address;
 {
     const void *ptr;
-
+    
     if (address == 0)
         return nil;
-
+    
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        NSLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
-        exit(5);
-        return nil;
+        NSLog(@"Warning: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
+        //        exit(5);
+        return @"Swift";
     }
-
+    
     if ([segment isProtected]) {
         NSData *d2 = [segment decryptedData];
         NSUInteger d2Offset = [segment segmentOffsetForAddress:address];
         if (d2Offset == 0)
             return nil;
-
+        
         ptr = (uint8_t *)[d2 bytes] + d2Offset;
         return [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
     }
-
+    
     NSUInteger offset = [self dataOffsetForAddress:address];
     if (offset == 0)
         return nil;
-
+    if (offset == -'S') {
+        NSLog(@"Warning: Meet Swift object at %s",__cmd);
+        return @"Swift";
+    }
     ptr = (uint8_t *)[self.data bytes] + offset;
-
+    
     return [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
 }
 
@@ -359,18 +362,20 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 {
     if (address == 0)
         return 0;
-
+    
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        NSLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
-        exit(5);
+        NSLog(@"Warning: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
+        NSLog(@"Warning: Maybe meet a Swift object at %s",__cmd);
+        //        exit(5);
+        return -'S';
     }
-
-//    if ([segment isProtected]) {
-//        NSLog(@"Error: Segment is protected.");
-//        exit(5);
-//    }
-
+    
+    //    if ([segment isProtected]) {
+    //        NSLog(@"Error: Segment is protected.");
+    //        exit(5);
+    //    }
+    
 #if 0
     NSLog(@"---------->");
     NSLog(@"segment is: %@", segment);
