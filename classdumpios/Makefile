@@ -2,7 +2,7 @@ GO_EASY_ON_ME=1
 THEOS_DEVICE_IP=guest-room.local
 DEBUG=1
 #FINALPACKAGE=0
-target = macosx:10.14:10.12
+target = macosx
 include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = classdumpios
