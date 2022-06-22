@@ -40,7 +40,7 @@
             fprintf(stderr, "Error: Couldn't get local architecture\n");
             return 1;
         }
-        NSLog(@"No arch specified, best match for local arch is: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
+        //NSLog(@"No arch specified, best match for local arch is: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
         classDump.targetArch = targetArch;
         classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
         

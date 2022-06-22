@@ -319,7 +319,7 @@ static NSString *CDTokenDescription(int token)
         CDTypeName *typeName = [[CDTypeName alloc] init];
         typeName.name = @"MISSING_TYPE";
         result = [[CDType alloc] initIDType:typeName];
-        NSLog(@"error: %@", [NSString stringWithFormat:@"expected (many things), got %@ from %i", CDTokenDescription(_lookahead), _lookahead]);
+        //NSLog(@"error: %@", [NSString stringWithFormat:@"expected (many things), got %@ from %i", CDTokenDescription(_lookahead), _lookahead]);
 //        result = nil;
 //        [NSException raise:CDExceptionName_SyntaxError format:@"expected (many things), got %@", CDTokenDescription(_lookahead)];
     }
