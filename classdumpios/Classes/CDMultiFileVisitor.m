@@ -75,7 +75,7 @@
         [self generateStructureHeader];
     } else {
         // TODO: (2007-06-14) Make sure this generates no output files in this case.
-        NSLog(@"Warning: This file does not contain any Objective-C runtime information.");
+        NSLog(@"Warning: This file does not contain any Objective-C runtime information. %@", self.outputPath.lastPathComponent);
     }
 }
 

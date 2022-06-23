@@ -9,7 +9,7 @@
 
 @implementation classdump
 
-+ (NSInteger)performClassDumpOnFile:(NSString *)file toFolder:(NSString *)outputPath {
+- (NSInteger)performClassDumpOnFile:(NSString *)file toFolder:(NSString *)outputPath {
     
     CDClassDump *classDump = [[CDClassDump alloc] init];
     classDump.shouldShowIvarOffsets = true;
