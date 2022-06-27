@@ -175,7 +175,7 @@ static BOOL debug = NO;
         objcModule.symtab  = [cursor readInt32];
 
         DLog(@"objcModule.size: %u", objcModule.size);
-        DLog(@"sizeof(struct cd_objc_module): %u", sizeof(struct cd_objc_module));
+        DLog(@"sizeof(struct cd_objc_module): %lu", sizeof(struct cd_objc_module));
         assert(objcModule.size == sizeof(struct cd_objc_module)); // Because this is what we're assuming.
 
         NSString *name = [self.machOFile stringAtAddress:objcModule.name];

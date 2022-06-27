@@ -360,14 +360,14 @@ static NSString *CDTokenDescription(int token)
 
 - (NSArray *)parseMemberList;
 {
-    //DLog(@" > %s", _cmd);
+    //DLog(@" > %s", _cmds);
 
     NSMutableArray *result = [NSMutableArray array];
 
     while (_lookahead == TK_QUOTED_STRING || [self isTokenInTypeSet:_lookahead])
         [result addObject:[self parseMember]];
 
-    //DLog(@"<  %s", _cmd);
+    //DLog(@"<  %s", _cmds);
 
     return result;
 }
@@ -376,7 +376,7 @@ static NSString *CDTokenDescription(int token)
 {
     CDType *result;
 
-    //DLog(@" > %s", _cmd);
+    //DLog(@" > %s", _cmds);
 
     if (_lookahead == TK_QUOTED_STRING) {
         NSString *identifier = nil;
@@ -399,7 +399,7 @@ static NSString *CDTokenDescription(int token)
         result = [self _parseTypeInStruct:YES];
     }
 
-    //DLog(@"<  %s", _cmd);
+    //DLog(@"<  %s", _cmds);
     return result;
 }
 

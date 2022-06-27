@@ -30,7 +30,7 @@
         [node addDependanciesFromArray:[object dependancies]];
 
         if (nodesByName[node.identifier] != nil)
-            DLog(@"Warning: Duplicate identifier (%@) in %s", node.identifier, _cmd);
+            DLog(@"Warning: Duplicate identifier (%@) in %s", node.identifier, _cmds);
         nodesByName[node.identifier] = node;
     }
 

@@ -137,7 +137,7 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
 
 - (CDSegmentEncryptionType)encryptionType;
 {
-    //DLog(@"%s, isProtected? %u, filesize: %lu, fileoff: %lu", _cmd, [self isProtected], [self filesize], [self fileoff]);
+    //DLog(@"%s, isProtected? %u, filesize: %lu, fileoff: %lu", _cmds, [self isProtected], [self filesize], [self fileoff]);
     if (self.isProtected) {
         if (self.filesize <= 3 * PAGE_SIZE) {
             // First three pages aren't encrypted, so we can't tell.  Let's pretent it's something we can decrypt.
@@ -146,7 +146,7 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
             const void *src = (uint8_t *)[self.machOFile.data bytes] + self.fileoff + 3 * PAGE_SIZE;
 
             uint32_t magic = OSReadLittleInt32(src, 0);
-            //DLog(@"%s, magic= 0x%08x", _cmd, magic);
+            //DLog(@"%s, magic= 0x%08x", _cmds, magic);
             switch (magic) {
                 case CDSegmentProtectedMagic_None:     return CDSegmentEncryptionType_None;
                 case CDSegmentProtectedMagic_AES:      return CDSegmentEncryptionType_AES;

@@ -19,7 +19,7 @@ static BOOL debugExportedSymbols = NO;
 #endif
 
 // Can use dyldinfo(1) to view info.
-
+/*
 static NSString *CDRebaseTypeDescription(uint8_t type)
 {
     switch (type) {
@@ -30,7 +30,7 @@ static NSString *CDRebaseTypeDescription(uint8_t type)
 
     return @"Unknown";
 }
-
+*/
 static NSString *CDBindTypeDescription(uint8_t type)
 {
     switch (type) {
@@ -465,7 +465,7 @@ static NSString *CDBindTypeDescription(uint8_t type)
 
 - (void)printSymbols:(const uint8_t *)start end:(const uint8_t *)end prefix:(NSString *)prefix offset:(uint64_t)offset;
 {
-    //DLog(@" > %s, %p-%p, offset: %lx = %p", _cmd, start, end, offset, start + offset);
+    //DLog(@" > %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
 
     const uint8_t *ptr = start + offset;
     NSParameterAssert(ptr < end);
@@ -507,7 +507,7 @@ static NSString *CDBindTypeDescription(uint8_t type)
         [self printSymbols:start end:end prefix:[NSString stringWithFormat:@"%@%s", prefix, edgeStart] offset:nodeOffset];
     }
 
-    //DLog(@"<  %s, %p-%p, offset: %lx = %p", _cmd, start, end, offset, start + offset);
+    //DLog(@"<  %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
 }
 
 @end

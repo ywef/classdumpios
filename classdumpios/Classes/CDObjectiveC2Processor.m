@@ -68,7 +68,7 @@
     if (protocol == nil) {
         protocol = [[CDOCProtocol alloc] init];
         [self.protocolUniquer setProtocol:protocol withAddress:address];
-        DLog(@"%s, address=%016lx", _cmd, address);
+        DLog(@"%s, address=%016llx", _cmds, address);
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
         
@@ -97,8 +97,8 @@
         }
         
         DLog(@"----------------------------------------");
-        DLog(@"%016lx %016lx %016lx %016lx", objc2Protocol.isa, objc2Protocol.name, objc2Protocol.protocols, objc2Protocol.instanceMethods);
-        DLog(@"%016lx %016lx %016lx %016lx", objc2Protocol.classMethods, objc2Protocol.optionalInstanceMethods, objc2Protocol.optionalClassMethods, objc2Protocol.instanceProperties);
+        DLog(@"%016llx %016llx %016llx %016llx", objc2Protocol.isa, objc2Protocol.name, objc2Protocol.protocols, objc2Protocol.instanceMethods);
+        DLog(@"%016llx %016llx %016llx %016llx", objc2Protocol.classMethods, objc2Protocol.optionalInstanceMethods, objc2Protocol.optionalClassMethods, objc2Protocol.instanceProperties);
         
         NSString *str = [self.machOFile stringAtAddress:objc2Protocol.name];
         [protocol setName:str];
@@ -154,8 +154,8 @@
     objc2Category.v7                 = [cursor readPtr];
     objc2Category.v8                 = [cursor readPtr];
     DLog(@"----------------------------------------");
-    DLog(@"%016lx %016lx %016lx %016lx", objc2Category.name, objc2Category.class, objc2Category.instanceMethods, objc2Category.classMethods);
-    DLog(@"%016lx %016lx %016lx %016lx", objc2Category.protocols, objc2Category.instanceProperties, objc2Category.v7, objc2Category.v8);
+    DLog(@"%016llx %016llx %016llx %016llx", objc2Category.name, objc2Category.class, objc2Category.instanceMethods, objc2Category.classMethods);
+    DLog(@"%016llx %016llx %016llx %016llx", objc2Category.protocols, objc2Category.instanceProperties, objc2Category.v7, objc2Category.v8);
     
     CDOCCategory *category = [[CDOCCategory alloc] init];
     NSString *str = [self.machOFile stringAtAddress:objc2Category.name];
@@ -210,7 +210,7 @@
     if (class)
         return class;
     
-    DLog(@"%s, address=%016lx", _cmd, address);
+    DLog(@"%s, address=%016llx", _cmds, address);
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
@@ -346,7 +346,7 @@
     LOG_CMD;
     if (address == 0)
         return nil;
-    DLog(@"%s, address=%016lx", _cmd, address);
+    DLog(@"%s, address=%016llx", _cmds, address);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
     
@@ -437,7 +437,7 @@
                 types = [self.machOFile stringAtAddress:extendedMethodTypes];
             }
             
-            DLog(@"%3u: %016lx %016lx %016lx", index, objc2Method.name, objc2Method.types, objc2Method.imp);
+            DLog(@"%3u: %016llx %016llx %016llx", index, objc2Method.name, objc2Method.types, objc2Method.imp);
             DLog(@"name: %@", name);
             DLog(@"types: %@", types);
             
@@ -498,7 +498,7 @@
     
     if (address != 0) {
         
-        DLog(@"%s, address=%016lx", _cmd, address);
+        DLog(@"%s, address=%016llx", _cmds, address);
         
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         

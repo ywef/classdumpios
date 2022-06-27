@@ -12,7 +12,7 @@
 #import "ULEB128.h"
 
 #ifdef DEBUG
-static BOOL debugBindOps = YES;
+//static BOOL debugBindOps = YES;
 static BOOL debugExportedSymbols = YES;
 #else
 static BOOL debugBindOps = NO;
@@ -83,7 +83,7 @@ static BOOL debugExportedSymbols = NO;
 
 - (void)printSymbols:(const uint8_t *)start end:(const uint8_t *)end prefix:(NSString *)prefix offset:(uint64_t)offset;
 {
-    //DLog(@" > %s, %p-%p, offset: %lx = %p", _cmd, start, end, offset, start + offset);
+    //DLog(@" > %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
 
     const uint8_t *ptr = start + offset;
     NSParameterAssert(ptr < end);
@@ -125,7 +125,7 @@ static BOOL debugExportedSymbols = NO;
         [self printSymbols:start end:end prefix:[NSString stringWithFormat:@"%@%s", prefix, edgeStart] offset:nodeOffset];
     }
 
-    //DLog(@"<  %s, %p-%p, offset: %lx = %p", _cmd, start, end, offset, start + offset);
+    //DLog(@"<  %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
 }
 
 @end

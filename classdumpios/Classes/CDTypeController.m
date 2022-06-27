@@ -217,7 +217,7 @@ static BOOL debug = NO;
     } else if (structure.primitiveType == '(') {
         [self.unionTable     phase0RegisterStructure:structure usedInMethod:isUsedInMethod];
     } else {
-        DLog(@"%s, unknown structure type: %d", _cmd, structure.primitiveType);
+        DLog(@"%s, unknown structure type: %d", _cmds, structure.primitiveType);
     }
 }
 
@@ -235,14 +235,14 @@ static BOOL debug = NO;
 // It does this by going through all the top level structures we found in phase 0.
 - (void)startPhase1;
 {
-    //DLog(@" > %s", _cmd);
+    //DLog(@" > %s", _cmds);
     // Structures and unions can be nested, so do phase 1 on each table before finishing the phase.
     [self.structureTable runPhase1];
     [self.unionTable     runPhase1];
 
     [self.structureTable finishPhase1];
     [self.unionTable     finishPhase1];
-    //DLog(@"<  %s", _cmd);
+    //DLog(@"<  %s", _cmds);
 }
 
 - (void)phase1RegisterStructure:(CDType *)structure;
@@ -252,7 +252,7 @@ static BOOL debug = NO;
     } else if (structure.primitiveType == '(') {
         [self.unionTable phase1RegisterStructure:structure];
     } else {
-        DLog(@"%s, unknown structure type: %d", _cmd, structure.primitiveType);
+        DLog(@"%s, unknown structure type: %d", _cmds, structure.primitiveType);
     }
 }
 
@@ -312,7 +312,7 @@ static BOOL debug = NO;
     // CDTypeController - (BOOL)shouldExpandType:(CDType *)type;
     // CDTypeController - (NSString *)typedefNameForType:(CDType *)type;
 
-    //DLog(@"<  %s", _cmd);
+    //DLog(@"<  %s", _cmds);
 }
 
 - (CDType *)phase2ReplacementForType:(CDType *)type;
@@ -325,7 +325,7 @@ static BOOL debug = NO;
 
 - (void)phase3RegisterStructure:(CDType *)structure;
 {
-    //DLog(@"%s, type= %@", _cmd, [aStructure typeString]);
+    //DLog(@"%s, type= %@", _cmds, [aStructure typeString]);
     if (structure.primitiveType == '{') [self.structureTable phase3RegisterStructure:structure count:1 usedInMethod:NO];
     if (structure.primitiveType == '(') [self.unionTable     phase3RegisterStructure:structure count:1 usedInMethod:NO];
 }

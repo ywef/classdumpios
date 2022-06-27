@@ -64,7 +64,7 @@ static NSString *CDTypeLexerStateName(CDTypeLexerState state)
     _lexText = nil;
 
     if ([_scanner isAtEnd]) {
-        if (_shouldShowLexing)                       DLog(@"%s [state=%lu], token = TK_EOS", _cmd, _state);
+        if (_shouldShowLexing)                       DLog(@"%s [state=%lu], token = TK_EOS", _cmds, _state);
         return TK_EOS;
     }
 
@@ -72,23 +72,23 @@ static NSString *CDTypeLexerStateName(CDTypeLexerState state)
         // Skip whitespace, scan '<', ',', '>'.  Everything else is lumped together as a string.
         [_scanner setCharactersToBeSkipped:[NSCharacterSet whitespaceCharacterSet]];
         if ([_scanner scanString:@"<" intoString:NULL]) {
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmd, _state, '<', '<');
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmds, _state, '<', '<');
             return '<';
         }
 
         if ([_scanner scanString:@">" intoString:NULL]) {
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmd, _state, '>', '>');
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmds, _state, '>', '>');
             return '>';
         }
 
         if ([_scanner scanString:@"," intoString:NULL]) {
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmd, _state, ',', ',');
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmds, _state, ',', ',');
             return ',';
         }
 
         if ([_scanner my_scanCharactersFromSet:[NSScanner cdTemplateTypeCharacterSet] intoString:&str]) {
             _lexText = str;
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_TEMPLATE_TYPE (%@)", _cmd, _state, _lexText);
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_TEMPLATE_TYPE (%@)", _cmds, _state, _lexText);
             return TK_TEMPLATE_TYPE;
         }
 
@@ -101,7 +101,7 @@ static NSString *CDTypeLexerStateName(CDTypeLexerState state)
 
         if ([_scanner scanIdentifierIntoString:&identifier]) {
             _lexText = identifier;
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_IDENTIFIER (%@)", _cmd, _state, _lexText);
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_IDENTIFIER (%@)", _cmds, _state, _lexText);
             _state = CDTypeLexerState_Normal;
             return TK_IDENTIFIER;
         }
@@ -115,23 +115,23 @@ static NSString *CDTypeLexerStateName(CDTypeLexerState state)
                 _lexText = @"";
 
             [_scanner scanString:@"\"" intoString:NULL];
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_QUOTED_STRING (%@)", _cmd, _state, _lexText);
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_QUOTED_STRING (%@)", _cmds, _state, _lexText);
             return TK_QUOTED_STRING;
         }
 
         if ([_scanner my_scanCharactersFromSet:[NSCharacterSet decimalDigitCharacterSet] intoString:&str]) {
             _lexText = str;
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_NUMBER (%@)", _cmd, _state, _lexText);
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = TK_NUMBER (%@)", _cmds, _state, _lexText);
             return TK_NUMBER;
         }
 
         if ([_scanner scanCharacter:&ch]) {
-            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmd, _state, ch, ch);
+            if (_shouldShowLexing)                   DLog(@"%s [state=%lu], token = %d '%c'", _cmds, _state, ch, ch);
             return ch;
         }
     }
 
-    if (_shouldShowLexing)                           DLog(@"%s [state=%lu], token = TK_EOS", _cmd, _state);
+    if (_shouldShowLexing)                           DLog(@"%s [state=%lu], token = TK_EOS", _cmds, _state);
 
     return TK_EOS;
 }

@@ -542,7 +542,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 - (BOOL)hasRelocationEntryForAddress:(NSUInteger)address;
 {
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    DLog(@"%s, rinfo= %@", _cmd, rinfo);
+    DLog(@"%s, rinfo= %@", _cmds, rinfo);
     return rinfo != nil;
 }
 

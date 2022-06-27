@@ -40,7 +40,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
 
 static void printFixupsInPage(uint8_t *base, uint8_t *fixupBase, struct dyld_chained_fixups_header *header,
     struct dyld_chained_starts_in_segment *startsInSegment, int pageIndex) {
-    uint32_t chain = startsInSegment->segment_offset + startsInSegment->page_size * pageIndex + startsInSegment->page_start[pageIndex];
+    uint32_t chain = (uint32_t)startsInSegment->segment_offset + startsInSegment->page_size * pageIndex + startsInSegment->page_start[pageIndex];
     bool done = false;
     int count = 0;
     while (!done) {
@@ -127,7 +127,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
 
 - (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
 {
-    uint8_t *fixup_base = [[self linkeditData] bytes];
+    uint8_t *fixup_base = (uint8_t *)[[self linkeditData] bytes];
     struct dyld_chained_fixups_header *header = (struct dyld_chained_fixups_header *)fixup_base;
     printChainedFixupsHeader(header);
     struct dyld_chained_starts_in_image *starts_in_image =
@@ -163,7 +163,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
 
             if (page_starts[j] == DYLD_CHAINED_PTR_START_NONE) { continue; }
 
-            printFixupsInPage([self.machOFile bytes], fixup_base, header, startsInSegment, j);
+            printFixupsInPage((uint8_t *)[self.machOFile bytes], fixup_base, header, startsInSegment, j);
 
             pageCount++;
             printf("\n");

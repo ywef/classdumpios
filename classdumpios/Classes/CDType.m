@@ -667,17 +667,17 @@ static BOOL debugMerge = NO;
             DLog(@"other isIDType? %u", otherType.isIDType);
             DLog(@"other isNamedObject? %u", otherType.isNamedObject);
         }
-        if (debugMerge) DLog(@"%s, Can't merge because of type... %@ vs %@", _cmd, self.typeString, otherType.typeString);
+        if (debugMerge) DLog(@"%s, Can't merge because of type... %@ vs %@", _cmds, self.typeString, otherType.typeString);
         return NO;
     }
 
     if (_subtype != nil && [_subtype canMergeWithType:otherType.subtype] == NO) {
-        if (debugMerge) DLog(@"%s, Can't merge subtype", _cmd);
+        if (debugMerge) DLog(@"%s, Can't merge subtype", _cmds);
         return NO;
     }
 
     if (_subtype == nil && otherType.subtype != nil) {
-        if (debugMerge) DLog(@"%s, This subtype is nil, other isn't.", _cmd);
+        if (debugMerge) DLog(@"%s, This subtype is nil, other isn't.", _cmds);
         return NO;
     }
 
@@ -687,15 +687,15 @@ static BOOL debugMerge = NO;
 
     //DLog(@"members: %p", members);
     //DLog(@"otherMembers: %p", otherMembers);
-    //DLog(@"%s, count: %u, otherCount: %u", _cmd, count, otherCount);
+    //DLog(@"%s, count: %u, otherCount: %u", _cmds, count, otherCount);
 
     if (count != 0 && otherCount == 0) {
-        if (debugMerge) DLog(@"%s, count != 0 && otherCount is 0", _cmd);
+        if (debugMerge) DLog(@"%s, count != 0 && otherCount is 0", _cmds);
         return NO;
     }
 
     if (count != 0 && count != otherCount) {
-        if (debugMerge) DLog(@"%s, count != 0 && count != otherCount", _cmd);
+        if (debugMerge) DLog(@"%s, count != 0 && count != otherCount", _cmds);
         return NO;
     }
 
@@ -712,17 +712,17 @@ static BOOL debugMerge = NO;
 
             // It seems to be okay if one of them didn't have a name
             if (thisTypeName != nil && otherTypeName != nil && [thisTypeName isEqual:otherTypeName] == NO) {
-                if (debugMerge) DLog(@"%s, typeName mismatch on member %lu", _cmd, index);
+                if (debugMerge) DLog(@"%s, typeName mismatch on member %lu", _cmds, index);
                 return NO;
             }
 
             if (thisVariableName != nil && otherVariableName != nil && [thisVariableName isEqual:otherVariableName] == NO) {
-                if (debugMerge) DLog(@"%s, variableName mismatch on member %lu", _cmd, index);
+                if (debugMerge) DLog(@"%s, variableName mismatch on member %lu", _cmds, index);
                 return NO;
             }
 
             if ([thisMember canMergeWithType:otherMember] == NO) {
-                if (debugMerge) DLog(@"%s, Can't merge member %lu", _cmd, index);
+                if (debugMerge) DLog(@"%s, Can't merge member %lu", _cmds, index);
                 return NO;
             }
         }
@@ -740,7 +740,7 @@ static BOOL debugMerge = NO;
     NSString *after = self.typeString;
     if (debugMerge) {
         DLog(@"----------------------------------------");
-        DLog(@"%s", _cmd);
+        DLog(@"%s", _cmds);
         DLog(@"before: %@", before);
         DLog(@" after: %@", after);
         DLog(@"----------------------------------------");
@@ -762,7 +762,7 @@ static BOOL debugMerge = NO;
     }
 
     if (_primitiveType != otherType.primitiveType) {
-        DLog(@"Warning: Trying to merge different types in %s", _cmd);
+        DLog(@"Warning: Trying to merge different types in %s", _cmds);
         return;
     }
 
@@ -916,7 +916,7 @@ static BOOL debugMerge = NO;
     [_subtype phase0RecursivelyFixStructureNames:flag];
 
     if ([_typeName.name hasPrefix:@"$"]) {
-        if (flag) DLog(@"%s, changing type name %@ to ?", _cmd, _typeName.name);
+        if (flag) DLog(@"%s, changing type name %@ to ?", _cmds, _typeName.name);
         _typeName.name = @"?";
     }
 
@@ -950,7 +950,7 @@ static BOOL debugMerge = NO;
     NSString *after = self.typeString;
     if (phase2Debug && [before isEqualToString:after] == NO) {
         DLog(@"----------------------------------------");
-        DLog(@"%s, merge changed type", _cmd);
+        DLog(@"%s, merge changed type", _cmds);
         DLog(@"before: %@", before);
         DLog(@" after: %@", after);
     }
@@ -994,11 +994,11 @@ static BOOL debugMerge = NO;
 
 - (void)phase3RegisterMembersWithTypeController:(CDTypeController *)typeController;
 {
-    //DLog(@" > %s %@", _cmd, [self typeString]);
+    //DLog(@" > %s %@", _cmds, [self typeString]);
     for (CDType *member in _members) {
         [member phase3RegisterWithTypeController:typeController];
     }
-    //DLog(@"<  %s", _cmd);
+    //DLog(@"<  %s", _cmds);
 }
 
 // Bottom-up
