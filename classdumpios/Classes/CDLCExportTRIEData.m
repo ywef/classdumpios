@@ -15,7 +15,7 @@
 //static BOOL debugBindOps = YES;
 static BOOL debugExportedSymbols = YES;
 #else
-static BOOL debugBindOps = NO;
+//static BOOL debugBindOps = NO;
 static BOOL debugExportedSymbols = NO;
 #endif
 
