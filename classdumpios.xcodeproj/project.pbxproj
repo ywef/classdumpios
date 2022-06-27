@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -773,7 +773,6 @@
 		4C952D052837E11D00BFE504 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1320;
 				TargetAttributes = {
 					4C952D0C2837E11D00BFE504 = {
@@ -785,7 +784,7 @@
 				};
 			};
 			buildConfigurationList = 4C952D082837E11D00BFE504 /* Build configuration list for PBXProject "classdumpios" */;
-			compatibilityVersion = "Xcode 13.0";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
