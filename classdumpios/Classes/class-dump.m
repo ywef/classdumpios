@@ -301,8 +301,11 @@ int main(int argc, char *argv[])
                 } else {
                     //DLog(@"chosen arch is: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
                 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconditional-uninitialized"
+                //only doing the above because i know in this instance it will be initialized
                 classDump.targetArch = targetArch;
+#pragma clang diagnostic pop
                 classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
 
                 NSError *error;
