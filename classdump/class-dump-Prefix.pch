@@ -5,7 +5,7 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import "CDExtensions.h"
-    #define _cmd __PRETTY_FUNCTION__
     #define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
-    #define LOG_CMD         DLog(@"[%@ %@]",[self class], NSStringFromSelector(_cmd))
+    #define LOG_CMD         DLog(@"%s", __PRETTY_FUNCTION__)
+    #define _cmds __PRETTY_FUNCTION__
 #endif
