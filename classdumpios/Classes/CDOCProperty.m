@@ -12,7 +12,11 @@
 
 // http://developer.apple.com/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html
 
+#ifdef DEBUG
+static BOOL debug = YES;
+#else
 static BOOL debug = NO;
+#endif
 
 @interface CDOCProperty ()
 @end
@@ -135,7 +139,7 @@ static BOOL debug = NO;
             }
         }
     } else {
-        if (debug) NSLog(@"Error: Property attributes should begin with the type ('T') attribute, property name: %@", self.name);
+        if (debug) DLog(@"Error: Property attributes should begin with the type ('T') attribute, property name: %@", self.name);
     }
 
     for (NSString *attr in _attributes) {

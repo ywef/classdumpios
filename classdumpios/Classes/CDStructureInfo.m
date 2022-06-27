@@ -72,7 +72,7 @@
         digest = [digest substringFromIndex:length - 8];
 
     self.typedefName = [NSString stringWithFormat:@"%@%@", baseName, digest];
-    //NSLog(@"typedefName: %@", self.typedefName);
+    //DLog(@"typedefName: %@", self.typedefName);
 }
 
 - (NSString *)name;

@@ -9,11 +9,24 @@
 
 @implementation classdump
 
++ (id)sharedInstance {
+    
+    static dispatch_once_t onceToken;
+    static classdump *shared;
+    if (!shared){
+        dispatch_once(&onceToken, ^{
+            shared = [classdump new];
+        });
+    }
+    return shared;
+}
+
 - (NSInteger)performClassDumpOnFile:(NSString *)file toFolder:(NSString *)outputPath {
     
     CDClassDump *classDump = [[CDClassDump alloc] init];
-    classDump.shouldShowIvarOffsets = true;
-    classDump.shouldShowMethodAddresses = true;
+    classDump.shouldShowIvarOffsets = true; // -a
+    classDump.shouldShowMethodAddresses = true; // -A
+    classDump.shouldSortClassesByInheritance = true; // -I
     NSString *executablePath = [file executablePathForFilename];
     if (executablePath){
         classDump.searchPathState.executablePath = executablePath;
@@ -40,7 +53,7 @@
             fprintf(stderr, "Error: Couldn't get local architecture\n");
             return 1;
         }
-        //NSLog(@"No arch specified, best match for local arch is: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
+        //DLog(@"No arch specified, best match for local arch is: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
         classDump.targetArch = targetArch;
         classDump.searchPathState.executablePath = [executablePath stringByDeletingLastPathComponent];
         
@@ -51,14 +64,14 @@
         } else {
             [classDump processObjectiveCData];
             [classDump registerTypes];
-            CDMultiFileVisitor *multiFileVisitor = [[CDMultiFileVisitor alloc] init];
+            CDMultiFileVisitor *multiFileVisitor = [[CDMultiFileVisitor alloc] init]; // -H
             multiFileVisitor.classDump = classDump;
             classDump.typeController.delegate = multiFileVisitor;
             multiFileVisitor.outputPath = outputPath;
             [classDump recursivelyVisit:multiFileVisitor];
         }
     } else {
-        NSLog(@"no exe path found for: %@", file);
+        fprintf(stderr, "no exe path found for: %s\n", [file UTF8String]);
         return -1;
     }
     return 0;

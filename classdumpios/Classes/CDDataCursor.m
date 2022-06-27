@@ -104,7 +104,7 @@
 
     if (_offset + sizeof(result) <= [_data length]) {
 //        uint8_t *ptr = [_data bytes] + _offset;
-//        NSLog(@"%016llx: %02x %02x %02x %02x %02x %02x %02x %02x", _offset, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7]);
+//        DLog(@"%016llx: %02x %02x %02x %02x %02x %02x %02x %02x", _offset, ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7]);
         result = OSReadLittleInt64([_data bytes], _offset);
         _offset += sizeof(result);
     } else {
@@ -231,7 +231,7 @@
             // Jump through some hoops if the length is padded with zero bytes, as in the case of 10.5's Property List Editor and iSync Plug-in Maker.
             buf = malloc(length + 1);
             if (buf == NULL) {
-                NSLog(@"Error: malloc() failed.");
+                DLog(@"Error: malloc() failed.");
                 return nil;
             }
 

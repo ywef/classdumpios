@@ -49,7 +49,7 @@
         _size       = [cursor readBigInt32];
         _align      = [cursor readBigInt32];
         
-        //NSLog(@"self: %@", self);
+        //DLog(@"self: %@", self);
     }
 
     return self;

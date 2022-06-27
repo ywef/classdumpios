@@ -126,7 +126,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         NSAssert(_uses64BitABI == CDArchUses64BitABI((CDArch){ .cputype = _cputype, .cpusubtype = _cpusubtype }), @"Header magic should match cpu arch", nil);
         
         NSUInteger headerOffset = _uses64BitABI ? sizeof(struct mach_header_64) : sizeof(struct mach_header);
-        //NSLog(@"header offset: %lu", headerOffset);
+        //DLog(@"header offset: %lu", headerOffset);
         CDMachOFileDataCursor *fileCursor = [[CDMachOFileDataCursor alloc] initWithFile:self offset:headerOffset];
         [self _readLoadCommands:fileCursor count:_ncmds];
     }
@@ -167,7 +167,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                 [runPathCommands addObject:loadCommand];
             }
         }
-        //NSLog(@"loadCommand: %@", loadCommand);
+        //DLog(@"loadCommand: %@", loadCommand);
     }
     _loadCommands      = [loadCommands copy];
     _dylibLoadCommands = [dylibLoadCommands copy];
@@ -320,7 +320,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (void)showWarning:(NSString *)warning;
 {
-    NSLog(@"Warning: %@", warning);
+    DLog(@"Warning: %@", warning);
 }
 
 - (NSString *)stringAtAddress:(NSUInteger)address;
@@ -332,7 +332,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        NSLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
+        DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
         exit(5);
         return nil;
     }
@@ -363,23 +363,23 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        NSLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
+        DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
         exit(5);
     }
 
 //    if ([segment isProtected]) {
-//        NSLog(@"Error: Segment is protected.");
+//        DLog(@"Error: Segment is protected.");
 //        exit(5);
 //    }
 
 #if 0
-    NSLog(@"---------->");
-    NSLog(@"segment is: %@", segment);
-    NSLog(@"address: 0x%08x", address);
-    NSLog(@"CDFile offset:    0x%08x", offset);
-    NSLog(@"file off for address: 0x%08x", [segment fileOffsetForAddress:address]);
-    NSLog(@"data offset:      0x%08x", offset + [segment fileOffsetForAddress:address]);
-    NSLog(@"<----------");
+    DLog(@"---------->");
+    DLog(@"segment is: %@", segment);
+    DLog(@"address: 0x%08x", address);
+    DLog(@"CDFile offset:    0x%08x", offset);
+    DLog(@"file off for address: 0x%08x", [segment fileOffsetForAddress:address]);
+    DLog(@"data offset:      0x%08x", offset + [segment fileOffsetForAddress:address]);
+    DLog(@"<----------");
 #endif
     return [segment fileOffsetForAddress:address];
 }
@@ -488,20 +488,20 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     if (address != 0) {
         CDLCSegment *segment = [self segmentContainingAddress:address];
         if (segment == nil) {
-            NSLog(@"No segment contains address: %016lx", address);
+            DLog(@"No segment contains address: %016lx", address);
         } else {
-            //NSLog(@"Found address %016lx in segment, sections= %@", address, [segment sections]);
+            //DLog(@"Found address %016lx in segment, sections= %@", address, [segment sections]);
             CDSection *section = [segment sectionContainingAddress:address];
             if (section == nil) {
-                NSLog(@"Found address %016lx in segment %@, but not in a section", address, [segment name]);
+                DLog(@"Found address %016lx in segment %@, but not in a section", address, [segment name]);
             } else {
-                NSLog(@"Found address %016lx in segment %@, section %@", address, [segment name], [section sectionName]);
+                DLog(@"Found address %016lx in segment %@, section %@", address, [segment name], [section sectionName]);
             }
         }
 
         NSString *str = [self stringAtAddress:address];
-        NSLog(@"      address %016lx as a string: '%@' (length %lu)", address, str, [str length]);
-        NSLog(@"      address %016lx data offset: %lu", address, [self dataOffsetForAddress:address]);
+        DLog(@"      address %016lx as a string: '%@' (length %lu)", address, str, [str length]);
+        DLog(@"      address %016lx data offset: %lu", address, [self dataOffsetForAddress:address]);
     }
 }
 
@@ -511,10 +511,10 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     // It turns out NSMutableArray is in /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation, so...
     // ... it's an undefined symbol, need to look it up.
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    //NSLog(@"rinfo: %@", rinfo);
+    //DLog(@"rinfo: %@", rinfo);
     if (rinfo != nil) {
         CDSymbol *symbol = [[self.symbolTable symbols] objectAtIndex:rinfo.symbolnum];
-        //NSLog(@"symbol: %@", symbol);
+        //DLog(@"symbol: %@", symbol);
 
         // Now we could use GET_LIBRARY_ORDINAL(), look up the the appropriate mach-o file (being sure to have loaded them even without -r),
         // look up the symbol in that mach-o file, get the address, look up the class based on that address, and finally get the class name
@@ -525,7 +525,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         if ([str hasPrefix:ObjCClassSymbolPrefix]) {
             return [str substringFromIndex:[ObjCClassSymbolPrefix length]];
         } else {
-            NSLog(@"Warning: Unknown prefix on symbol name... %@ (addr %lx)", str, address);
+            DLog(@"Warning: Unknown prefix on symbol name... %@ (addr %lx)", str, address);
             return str;
         }
     }
@@ -537,7 +537,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 - (BOOL)hasRelocationEntryForAddress:(NSUInteger)address;
 {
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    //NSLog(@"%s, rinfo= %@", _cmd, rinfo);
+    //DLog(@"%s, rinfo= %@", _cmd, rinfo);
     return rinfo != nil;
 }
 
@@ -554,7 +554,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         if ([str hasPrefix:ObjCClassSymbolPrefix]) {
             return [str substringFromIndex:[ObjCClassSymbolPrefix length]];
         } else {
-            NSLog(@"Warning: Unknown prefix on symbol name... %@ (addr %lx)", str, address);
+            DLog(@"Warning: Unknown prefix on symbol name... %@ (addr %lx)", str, address);
             return str;
         }
     }

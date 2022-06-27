@@ -62,7 +62,7 @@
         _uniqueProtocolsByAddress[key] = uniqueProtocol;
     }
     
-    //NSLog(@"uniqued protocol names: %@", [[[protocolsByName allKeys] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
+    //DLog(@"uniqued protocol names: %@", [[[protocolsByName allKeys] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
     
     // And finally fill in adopted protocols, instance and class methods.  And properties.
     for (NSNumber *key in [[_protocolsByAddress allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
@@ -77,7 +77,7 @@
         [uniqueProtocol mergePropertiesFromProtocol:p1];
     }
     
-    //NSLog(@"protocolsByName: %@", protocolsByName);
+    //DLog(@"protocolsByName: %@", protocolsByName);
 }
 
 #pragma mark - Results

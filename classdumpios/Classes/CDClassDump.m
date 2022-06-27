@@ -118,9 +118,9 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (BOOL)loadFile:(CDFile *)file error:(NSError *__autoreleasing *)error;
 {
-    //NSLog(@"targetArch: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
+    //DLog(@"targetArch: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
     CDMachOFile *machOFile = [file machOFileWithArch:_targetArch];
-    //NSLog(@"machOFile: %@", machOFile);
+    //DLog(@"machOFile: %@", machOFile);
     if (machOFile == nil) {
         if (error != NULL) {
             NSString *failureReason;
@@ -165,7 +165,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
             }
         }
         @catch (NSException *exception) {
-            NSLog(@"Caught exception: %@", exception);
+            DLog(@"Caught exception: %@", exception);
             if (error != NULL) {
                 NSDictionary *userInfo = @{
                 NSLocalizedFailureReasonErrorKey : @"Caught exception",
@@ -212,19 +212,19 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     if ([name hasPrefix:executablePathPrefix]) {
         adjustedName = [name stringByReplacingOccurrencesOfString:executablePathPrefix withString:self.searchPathState.executablePath];
     } else if ([name hasPrefix:rpathPrefix]) {
-        //NSLog(@"Searching for %@ through run paths: %@", name, [searchPathState searchPaths]);
+        //DLog(@"Searching for %@ through run paths: %@", name, [searchPathState searchPaths]);
         for (NSString *searchPath in [self.searchPathState searchPaths]) {
             NSString *str = [name stringByReplacingOccurrencesOfString:rpathPrefix withString:searchPath];
-            //NSLog(@"trying %@", str);
+            //DLog(@"trying %@", str);
             if ([[NSFileManager defaultManager] fileExistsAtPath:str]) {
                 adjustedName = str;
-                //NSLog(@"Found it!");
+                //DLog(@"Found it!");
                 break;
             }
         }
         if (adjustedName == nil) {
             adjustedName = name;
-            //NSLog(@"Did not find it.");
+            //DLog(@"Did not find it.");
         }
     } else if (self.sdkRoot != nil) {
         adjustedName = [self.sdkRoot stringByAppendingPathComponent:name];
@@ -237,11 +237,11 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
         CDFile *file = [CDFile fileWithContentsOfFile:adjustedName searchPathState:self.searchPathState];
 
         if (file == nil || [self loadFile:file error:NULL] == NO)
-            NSLog(@"Warning: Failed to load: %@", adjustedName);
+            DLog(@"Warning: Failed to load: %@", adjustedName);
 
         machOFile = _machOFilesByName[adjustedName];
         if (machOFile == nil) {
-            NSLog(@"Warning: Couldn't load MachOFile with ID: %@, adjustedID: %@", name, adjustedName);
+            DLog(@"Warning: Couldn't load MachOFile with ID: %@, adjustedID: %@", name, adjustedName);
         }
     }
 

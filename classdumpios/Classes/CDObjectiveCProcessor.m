@@ -81,7 +81,7 @@
         
         [cursor readInt32];
         uint32_t v2 = [cursor readInt32];
-        //NSLog(@"%s: %08x %08x", _cmd, v1, v2);
+        //DLog(@"%s: %08x %08x", _cmd, v1, v2);
         // v2 == 0 -> Objective-C Garbage Collection: Unsupported
         // v2 == 2 -> Supported
         // v2 == 6 -> Required

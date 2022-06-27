@@ -6,4 +6,5 @@
     #import <Foundation/Foundation.h>
     #import "CDExtensions.h"
     #define _cmd __PRETTY_FUNCTION__
+    #define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
 #endif

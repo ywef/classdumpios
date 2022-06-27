@@ -42,10 +42,10 @@
         // symoff is at the start of the first section (__pointers) of the __IMPORT segment
         // stroff falls within the __LINKEDIT segment
 #if 0
-        NSLog(@"symtab: %08x %08x  %08x %08x %08x %08x",
+        DLog(@"symtab: %08x %08x  %08x %08x %08x %08x",
               symtabCommand.cmd, symtabCommand.cmdsize,
               symtabCommand.symoff, symtabCommand.nsyms, symtabCommand.stroff, symtabCommand.strsize);
-        NSLog(@"data offset for stroff: %lu", [cursor.machOFile dataOffsetForAddress:symtabCommand.stroff]);
+        DLog(@"data offset for stroff: %lu", [cursor.machOFile dataOffsetForAddress:symtabCommand.stroff]);
 #endif
         
         _symbols = nil;
@@ -90,7 +90,7 @@
             CDLCSegment *segment = (CDLCSegment *)loadCommand;
 
             if (([segment initprot] & CD_VM_PROT_RW) == CD_VM_PROT_RW) {
-                //NSLog(@"segment... initprot = %08x, addr= %016lx *** r/w", [segment initprot], [segment vmaddr]);
+                //DLog(@"segment... initprot = %08x, addr= %016lx *** r/w", [segment initprot], [segment vmaddr]);
                 _baseAddress = [segment vmaddr];
                 _flags.didFindBaseAddress = YES;
                 break;
@@ -103,9 +103,9 @@
     NSMutableDictionary *externalClassSymbols = [[NSMutableDictionary alloc] init];
 
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile offset:_symtabCommand.symoff];
-    //NSLog(@"offset= %lu", [cursor offset]);
-    //NSLog(@"stroff=  %lu", symtabCommand.stroff);
-    //NSLog(@"strsize= %lu", symtabCommand.strsize);
+    //DLog(@"offset= %lu", [cursor offset]);
+    //DLog(@"stroff=  %lu", symtabCommand.stroff);
+    //DLog(@"strsize= %lu", symtabCommand.strsize);
 
     const char *strtab = (char *)[self.machOFile.data bytes] + _symtabCommand.stroff;
     
@@ -122,9 +122,9 @@
     };
 
     if (![self.machOFile uses64BitABI]) {
-        //NSLog(@"32 bit...");
-        //NSLog(@"       str table index  type  sect  desc  value");
-        //NSLog(@"       ---------------  ----  ----  ----  --------");
+        //DLog(@"32 bit...");
+        //DLog(@"       str table index  type  sect  desc  value");
+        //DLog(@"       ---------------  ----  ----  ----  --------");
         for (uint32_t index = 0; index < _symtabCommand.nsyms; index++) {
             struct nlist nlist;
 
@@ -134,7 +134,7 @@
             nlist.n_desc      = [cursor readInt16];
             nlist.n_value     = [cursor readInt32];
 #if 0
-            NSLog(@"%5u: %08x           %02x    %02x  %04x  %08x - %s",
+            DLog(@"%5u: %08x           %02x    %02x  %04x  %08x - %s",
                   index, nlist.n_un.n_strx, nlist.n_type, nlist.n_sect, nlist.n_desc, nlist.n_value, strtab + nlist.n_un.n_strx);
 #endif
 
@@ -145,10 +145,10 @@
             addSymbol(str, symbol);
         }
 
-        //NSLog(@"Loaded %lu 32-bit symbols", [symbols count]);
+        //DLog(@"Loaded %lu 32-bit symbols", [symbols count]);
     } else {
-        //NSLog(@"       str table index  type  sect  desc  value");
-        //NSLog(@"       ---------------  ----  ----  ----  ----------------");
+        //DLog(@"       str table index  type  sect  desc  value");
+        //DLog(@"       ---------------  ----  ----  ----  ----------------");
         for (uint32_t index = 0; index < _symtabCommand.nsyms; index++) {
             struct nlist_64 nlist;
 
@@ -158,7 +158,7 @@
             nlist.n_desc      = [cursor readInt16];
             nlist.n_value     = [cursor readInt64];
 #if 0
-            NSLog(@"%5u: %08x           %02x    %02x  %04x  %016x - %s",
+            DLog(@"%5u: %08x           %02x    %02x  %04x  %016x - %s",
                   index, nlist.n_un.n_strx, nlist.n_type, nlist.n_sect, nlist.n_desc, nlist.n_value, strtab + nlist.n_un.n_strx);
 #endif
             const char *ptr = strtab + nlist.n_un.n_strx;
@@ -168,14 +168,14 @@
             addSymbol(str, symbol);
         }
 
-        //NSLog(@"Loaded %lu 64-bit symbols", [symbols count]);
+        //DLog(@"Loaded %lu 64-bit symbols", [symbols count]);
     }
     
     _symbols = [symbols copy];
     _classSymbols = [classSymbols copy];
     _externalClassSymbols = [externalClassSymbols copy];
 
-    //NSLog(@"symbols: %@", _symbols);
+    //DLog(@"symbols: %@", _symbols);
 }
 
 - (uint32_t)symoff;

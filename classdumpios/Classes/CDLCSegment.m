@@ -137,7 +137,7 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
 
 - (CDSegmentEncryptionType)encryptionType;
 {
-    //NSLog(@"%s, isProtected? %u, filesize: %lu, fileoff: %lu", _cmd, [self isProtected], [self filesize], [self fileoff]);
+    //DLog(@"%s, isProtected? %u, filesize: %lu, fileoff: %lu", _cmd, [self isProtected], [self filesize], [self fileoff]);
     if (self.isProtected) {
         if (self.filesize <= 3 * PAGE_SIZE) {
             // First three pages aren't encrypted, so we can't tell.  Let's pretent it's something we can decrypt.
@@ -146,7 +146,7 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
             const void *src = (uint8_t *)[self.machOFile.data bytes] + self.fileoff + 3 * PAGE_SIZE;
 
             uint32_t magic = OSReadLittleInt32(src, 0);
-            //NSLog(@"%s, magic= 0x%08x", _cmd, magic);
+            //DLog(@"%s, magic= 0x%08x", _cmd, magic);
             switch (magic) {
                 case CDSegmentProtectedMagic_None:     return CDSegmentEncryptionType_None;
                 case CDSegmentProtectedMagic_AES:      return CDSegmentEncryptionType_AES;
@@ -253,7 +253,7 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
         return nil;
 
     if (_decryptedData == nil) {
-        //NSLog(@"filesize: %08x, pagesize: %04x", [self filesize], PAGE_SIZE);
+        //DLog(@"filesize: %08x, pagesize: %04x", [self filesize], PAGE_SIZE);
         NSParameterAssert((self.filesize % PAGE_SIZE) == 0);
         _decryptedData = [[NSMutableData alloc] initWithLength:self.filesize];
 
@@ -346,7 +346,7 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
                 CCCryptorRelease(cryptor1);
                 CCCryptorRelease(cryptor2);
             } else {
-                NSLog(@"Unknown encryption type: 0x%08x", magic);
+                DLog(@"Unknown encryption type: 0x%08x", magic);
                 exit(99);
             }
         }

@@ -80,7 +80,7 @@ CDArch CDArchFromName(NSString *name)
                 && [scanner scanString:@":" intoString:&ignore]
                 && [scanner scanHexInt:(uint32_t *)&arch.cpusubtype]) {
                 // Great!
-                //NSLog(@"scanned 0x%08x : 0x%08x from '%@'", arch.cputype, arch.cpusubtype, name);
+                //DLog(@"scanned 0x%08x : 0x%08x from '%@'", arch.cputype, arch.cpusubtype, name);
             } else {
                 arch.cputype    = CPU_TYPE_ANY;
                 arch.cpusubtype = 0;
