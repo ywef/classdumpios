@@ -184,6 +184,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (void)processObjectiveCData;
 {
+    LOG_CMD;
     for (CDMachOFile *machOFile in self.machOFiles) {
         CDObjectiveCProcessor *processor = [[[machOFile processorClass] alloc] initWithMachOFile:machOFile];
         [processor process];
@@ -269,6 +270,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (void)registerTypes;
 {
+    LOG_CMD;
     for (CDObjectiveCProcessor *processor in self.objcProcessors) {
         [processor registerTypesWithObject:self.typeController phase:0];
     }

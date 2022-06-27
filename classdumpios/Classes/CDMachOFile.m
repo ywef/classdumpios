@@ -126,7 +126,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         NSAssert(_uses64BitABI == CDArchUses64BitABI((CDArch){ .cputype = _cputype, .cpusubtype = _cpusubtype }), @"Header magic should match cpu arch", nil);
         
         NSUInteger headerOffset = _uses64BitABI ? sizeof(struct mach_header_64) : sizeof(struct mach_header);
-        //DLog(@"header offset: %lu", headerOffset);
+        DLog(@"header offset: %lu", headerOffset);
         CDMachOFileDataCursor *fileCursor = [[CDMachOFileDataCursor alloc] initWithFile:self offset:headerOffset];
         [self _readLoadCommands:fileCursor count:_ncmds];
     }
@@ -167,7 +167,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                 [runPathCommands addObject:loadCommand];
             }
         }
-        //DLog(@"loadCommand: %@", loadCommand);
+        DLog(@"loadCommand: %@", loadCommand);
     }
     _loadCommands      = [loadCommands copy];
     _dylibLoadCommands = [dylibLoadCommands copy];
@@ -309,8 +309,11 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (CDLCSegment *)segmentContainingAddress:(NSUInteger)address;
 {
+    LOG_CMD;
+    //DLog(@"_loadCommands: %@", _loadCommands);
     for (id loadCommand in _loadCommands) {
         if ([loadCommand isKindOfClass:[CDLCSegment class]] && [loadCommand containsAddress:address]) {
+            DLog(@"loadCommand: %@ contains address: %lu", loadCommand, address);
             return loadCommand;
         }
     }
@@ -325,6 +328,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (NSString *)stringAtAddress:(NSUInteger)address;
 {
+    LOG_CMD;
     const void *ptr;
 
     if (address == 0)
@@ -358,6 +362,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (NSUInteger)dataOffsetForAddress:(NSUInteger)address;
 {
+    LOG_CMD;
     if (address == 0)
         return 0;
 
@@ -490,7 +495,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         if (segment == nil) {
             DLog(@"No segment contains address: %016lx", address);
         } else {
-            //DLog(@"Found address %016lx in segment, sections= %@", address, [segment sections]);
+            DLog(@"Found address %016lx in segment, sections= %@", address, [segment sections]);
             CDSection *section = [segment sectionContainingAddress:address];
             if (section == nil) {
                 DLog(@"Found address %016lx in segment %@, but not in a section", address, [segment name]);
@@ -511,10 +516,10 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     // It turns out NSMutableArray is in /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation, so...
     // ... it's an undefined symbol, need to look it up.
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    //DLog(@"rinfo: %@", rinfo);
+    DLog(@"rinfo: %@", rinfo);
     if (rinfo != nil) {
         CDSymbol *symbol = [[self.symbolTable symbols] objectAtIndex:rinfo.symbolnum];
-        //DLog(@"symbol: %@", symbol);
+        DLog(@"symbol: %@", symbol);
 
         // Now we could use GET_LIBRARY_ORDINAL(), look up the the appropriate mach-o file (being sure to have loaded them even without -r),
         // look up the symbol in that mach-o file, get the address, look up the class based on that address, and finally get the class name
@@ -537,7 +542,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 - (BOOL)hasRelocationEntryForAddress:(NSUInteger)address;
 {
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    //DLog(@"%s, rinfo= %@", _cmd, rinfo);
+    DLog(@"%s, rinfo= %@", _cmd, rinfo);
     return rinfo != nil;
 }
 

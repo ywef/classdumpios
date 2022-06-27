@@ -26,6 +26,7 @@
 
 - (void)willBeginVisiting;
 {
+    LOG_CMD;
     [super willBeginVisiting];
 
     [self.classDump appendHeaderToString:self.resultString];
@@ -37,6 +38,7 @@
 
 - (void)didEndVisiting;
 {
+    LOG_CMD;
     [super didEndVisiting];
 
     [self writeResultToStandardOutput];
@@ -44,6 +46,7 @@
 
 - (void)visitObjectiveCProcessor:(CDObjectiveCProcessor *)processor;
 {
+    LOG_CMD;
     CDMachOFile *machOFile = processor.machOFile;
 
     [self.resultString appendString:@"#pragma mark -\n\n"];

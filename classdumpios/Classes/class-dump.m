@@ -23,8 +23,6 @@
 #import "CDFatArch.h"
 #import "CDSearchPathState.h"
 
-
-
 void print_usage(void)
 {
     fprintf(stderr,

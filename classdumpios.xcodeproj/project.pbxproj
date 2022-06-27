@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32B1AACC2869458200CDFF07 /* CDLCExportTRIEData.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B1AACA2869458200CDFF07 /* CDLCExportTRIEData.h */; };
+		32B1AACD2869458200CDFF07 /* CDLCExportTRIEData.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */; };
+		32B1AACE2869458200CDFF07 /* CDLCExportTRIEData.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */; };
+		32B1AB12286966C000CDFF07 /* CDLCChainedFixups.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */; };
+		32B1AB13286966C000CDFF07 /* CDLCChainedFixups.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */; };
+		32B1AB14286966C000CDFF07 /* CDLCChainedFixups.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */; };
 		4C952DB72837E18500BFE504 /* CDLCDataInCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D182837E18500BFE504 /* CDLCDataInCode.m */; };
 		4C952DB82837E18500BFE504 /* NSString-CDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D192837E18500BFE504 /* NSString-CDExtensions.m */; };
 		4C952DB92837E18500BFE504 /* NSError-CDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D1A2837E18500BFE504 /* NSError-CDExtensions.m */; };
@@ -256,6 +262,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		32B1AACA2869458200CDFF07 /* CDLCExportTRIEData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCExportTRIEData.h; sourceTree = "<group>"; };
+		32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCExportTRIEData.m; sourceTree = "<group>"; };
+		32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCChainedFixups.h; sourceTree = "<group>"; };
+		32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCChainedFixups.m; sourceTree = "<group>"; };
 		4C952D0D2837E11D00BFE504 /* classdumpios */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = classdumpios; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C952D182837E18500BFE504 /* CDLCDataInCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDLCDataInCode.m; sourceTree = "<group>"; };
 		4C952D192837E18500BFE504 /* NSString-CDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString-CDExtensions.m"; sourceTree = "<group>"; };
@@ -506,6 +516,10 @@
 				4C952D252837E18500BFE504 /* CDLCEncryptionInfo.m */,
 				4C952D2A2837E18500BFE504 /* CDLCFunctionStarts.h */,
 				4C952D6D2837E18500BFE504 /* CDLCFunctionStarts.m */,
+				32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */,
+				32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */,
+				32B1AACA2869458200CDFF07 /* CDLCExportTRIEData.h */,
+				32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */,
 				4C952D562837E18500BFE504 /* CDLCLinkeditData.h */,
 				4C952D992837E18500BFE504 /* CDLCLinkeditData.m */,
 				4C952DA12837E18500BFE504 /* CDLCMain.h */,
@@ -648,6 +662,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CDA2AD52862656700566FBB /* CDBalanceFormatter.h in Headers */,
+				32B1AB12286966C000CDFF07 /* CDLCChainedFixups.h in Headers */,
 				4CDA2AD62862656700566FBB /* CDClassDump.h in Headers */,
 				4CDA2AD72862656700566FBB /* CDClassDumpVisitor.h in Headers */,
 				4CDA2AD82862656700566FBB /* CDClassFrameworkVisitor.h in Headers */,
@@ -677,6 +692,7 @@
 				4CDA2AF02862656700566FBB /* CDLCSubClient.h in Headers */,
 				4CDA2AF12862656700566FBB /* CDLCSubFramework.h in Headers */,
 				4CDA2AF22862656700566FBB /* CDLCSubLibrary.h in Headers */,
+				32B1AACC2869458200CDFF07 /* CDLCExportTRIEData.h in Headers */,
 				4CDA2AF32862656700566FBB /* CDLCSubUmbrella.h in Headers */,
 				4CDA2AF42862656700566FBB /* CDLCSymbolTable.h in Headers */,
 				4CDA2AF52862656700566FBB /* CDLCTwoLevelHints.h in Headers */,
@@ -834,6 +850,7 @@
 				4C952DF42837E18500BFE504 /* CDLCDyldInfo.m in Sources */,
 				4C952DCF2837E18500BFE504 /* CDLCMain.m in Sources */,
 				4C952DC52837E18500BFE504 /* CDTypeLexer.m in Sources */,
+				32B1AB13286966C000CDFF07 /* CDLCChainedFixups.m in Sources */,
 				4C952DBF2837E18500BFE504 /* CDLCSymbolTable.m in Sources */,
 				4C952DB82837E18500BFE504 /* NSString-CDExtensions.m in Sources */,
 				4C952DE12837E18500BFE504 /* CDLCUnknown.m in Sources */,
@@ -880,6 +897,7 @@
 				4C952DFD2837E18500BFE504 /* CDMachOFile.m in Sources */,
 				4C952DBB2837E18500BFE504 /* CDMethodType.m in Sources */,
 				4C952DE42837E18500BFE504 /* CDOCClass.m in Sources */,
+				32B1AACD2869458200CDFF07 /* CDLCExportTRIEData.m in Sources */,
 				4C952DEF2837E18500BFE504 /* CDLCSegment.m in Sources */,
 				4C952DE72837E18500BFE504 /* CDOCCategory.m in Sources */,
 				4C952E002837E18500BFE504 /* CDSection.m in Sources */,
@@ -918,6 +936,7 @@
 				4CDA2A9D2862646B00566FBB /* CDLCSourceVersion.m in Sources */,
 				4CDA2A9B2862646B00566FBB /* CDLCPrebindChecksum.m in Sources */,
 				4CDA2A8B2862646B00566FBB /* CDOCClass.m in Sources */,
+				32B1AB14286966C000CDFF07 /* CDLCChainedFixups.m in Sources */,
 				4CDA2A9F2862646B00566FBB /* CDOCInstanceVariable.m in Sources */,
 				4CDA2AB42862646B00566FBB /* CDLCFunctionStarts.m in Sources */,
 				4CDA2AC52862646B00566FBB /* CDTypeController.m in Sources */,
@@ -964,6 +983,7 @@
 				4CDA2AAB2862646B00566FBB /* CDLCSymbolTable.m in Sources */,
 				4CDA2AC42862646B00566FBB /* CDSearchPathState.m in Sources */,
 				4CDA2AA82862646B00566FBB /* CDLCSubUmbrella.m in Sources */,
+				32B1AACE2869458200CDFF07 /* CDLCExportTRIEData.m in Sources */,
 				4CDA2ACF2862646B00566FBB /* NSArray-CDExtensions.m in Sources */,
 				4CDA2AD32862646B00566FBB /* CDLCSegment.m in Sources */,
 				4CDA2AA52862646B00566FBB /* CDLCUnknown.m in Sources */,
@@ -1093,6 +1113,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$SRCROOT/$PRODUCT_NAME/class-dump-Prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1105,6 +1126,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$SRCROOT/$PRODUCT_NAME/class-dump-Prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

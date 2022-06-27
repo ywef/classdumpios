@@ -10,8 +10,13 @@
 #import "CDLCSegment.h"
 #import "ULEB128.h"
 
+#ifdef DEBUG
+static BOOL debugBindOps = YES;
+static BOOL debugExportedSymbols = YES;
+#else
 static BOOL debugBindOps = NO;
 static BOOL debugExportedSymbols = NO;
+#endif
 
 // Can use dyldinfo(1) to view info.
 
@@ -95,13 +100,13 @@ static NSString *CDBindTypeDescription(uint8_t type)
 
 - (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
 {
-    //[self logRebaseInfo];
+    [self logRebaseInfo];
     [self parseBindInfo];
     [self parseWeakBindInfo];
-    //[self logLazyBindInfo];
-    //[self logExportedSymbols];
+    [self logLazyBindInfo];
+    [self logExportedSymbols];
     
-    //DLog(@"symbolNamesByAddress: %@", symbolNamesByAddress);
+    DLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
 }
 
 #pragma mark -
