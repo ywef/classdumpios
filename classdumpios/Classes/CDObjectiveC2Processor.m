@@ -27,6 +27,7 @@
 
 - (void)loadProtocols;
 {
+    LOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_protolist"];
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
@@ -36,12 +37,20 @@
 
 - (void)loadClasses;
 {
+    LOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_classlist"];
-    
+    DLog(@"section: %@ offset: %lu", section, section.segment.fileoff);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
+    DLog(@"cursor: %@", cursor);
     while ([cursor isAtEnd] == NO) {
         uint64_t val = [cursor readPtr];
+        DLog(@"readPtr: %llu : %#010llx", val, val);
+        
+        if (val > 0x10000000000000){
+            val = val - 0x10000000000000;
+        }
         CDOCClass *aClass = [self loadClassAtAddress:val];
+        DLog(@"aClass: %@", aClass);
         if (aClass != nil) {
             [self addClass:aClass withAddress:val];
         }
@@ -50,6 +59,7 @@
 
 - (void)loadCategories;
 {
+    LOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_catlist"];
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
@@ -202,7 +212,6 @@
 
 - (CDOCClass *)loadClassAtAddress:(uint64_t)address;
 {
-    LOG_CMD;
     if (address == 0)
         return nil;
     
@@ -210,10 +219,11 @@
     if (class)
         return class;
     
-    DLog(@"%s, address=%016llx", _cmds, address);
+    DLog(@"%s, address=%016llx also: %llu", _cmds, address, address);
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
-    NSParameterAssert([cursor offset] != 0);
+    if ([cursor offset] == 0) return nil;
+    //NSParameterAssert([cursor offset] != 0);
     
     struct cd_objc2_class objc2Class;
     objc2Class.isa        = [cursor readPtr];
@@ -228,8 +238,8 @@
     objc2Class.reserved1  = [cursor readPtr];
     objc2Class.reserved2  = [cursor readPtr];
     objc2Class.reserved3  = [cursor readPtr];
-    //DLog(@"%016lx %016lx %016lx %016lx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
-    //DLog(@"%016lx %016lx %016lx %016lx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
+    DLog(@"%016llx %016llx %016llx %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
+    DLog(@"%016llx %016llx %016llx %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
     
     NSParameterAssert(objc2Class.data != 0);
     [cursor setAddress:objc2Class.data];
@@ -251,10 +261,10 @@
     objc2ClassData.weakIvarLayout = [cursor readPtr];
     objc2ClassData.baseProperties = [cursor readPtr];
     
-    //DLog(@"%08x %08x %08x %08x", objc2ClassData.flags, objc2ClassData.instanceStart, objc2ClassData.instanceSize, objc2ClassData.reserved);
+    DLog(@"%08x %08x %08x %08x", objc2ClassData.flags, objc2ClassData.instanceStart, objc2ClassData.instanceSize, objc2ClassData.reserved);
     
-    //DLog(@"%016lx %016lx %016lx %016lx", objc2ClassData.ivarLayout, objc2ClassData.name, objc2ClassData.baseMethods, objc2ClassData.baseProtocols);
-    //DLog(@"%016lx %016lx %016lx %016lx", objc2ClassData.ivars, objc2ClassData.weakIvarLayout, objc2ClassData.baseProperties);
+    DLog(@"%016llx %016llx %016llx %016llx", objc2ClassData.ivarLayout, objc2ClassData.name, objc2ClassData.baseMethods, objc2ClassData.baseProtocols);
+    DLog(@"%016llx %016llx %016llx", objc2ClassData.ivars, objc2ClassData.weakIvarLayout, objc2ClassData.baseProperties);
     NSString *str = [self.machOFile stringAtAddress:objc2ClassData.name];
     DLog(@"name = %@", str);
     

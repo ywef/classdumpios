@@ -11,10 +11,13 @@
 #include <mach-o/loader.h>
 #include <mach-o/fixup-chains.h>
 #import "CDLCSegment.h"
+#import "CDLCSymbolTable.h"
 @implementation CDLCChainedFixups
 {
     struct linkedit_data_command _linkeditDataCommand;
     NSData *_linkeditData;
+    NSUInteger _ptrSize;
+    NSMutableDictionary *_symbolNamesByAddress;
 }
 
 
@@ -26,36 +29,38 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
         case DYLD_CHAINED_IMPORT_ADDEND64: imports_format = "DYLD_CHAINED_IMPORT_ADDEND64"; break;
     }
 
-    printf("  CHAINED FIXUPS HEADER\n");
-    printf("    fixups_version : %d\n", header->fixups_version);
-    printf("    starts_offset  : %#4x (%d)\n", header->starts_offset, header->starts_offset);
-    printf("    imports_offset : %#4x (%d)\n", header->imports_offset, header->imports_offset);
-    printf("    symbols_offset : %#4x (%d)\n", header->symbols_offset, header->symbols_offset);
-    printf("    imports_count  : %d\n", header->imports_count);
-    printf("    imports_format : %d (%s)\n", header->imports_format, imports_format);
-    printf("    symbols_format : %d (%s)\n", header->symbols_format,
+    fprintf(stderr,"  CHAINED FIXUPS HEADER\n");
+    fprintf(stderr,"    fixups_version : %d\n", header->fixups_version);
+    fprintf(stderr,"    starts_offset  : %#4x (%d)\n", header->starts_offset, header->starts_offset);
+    fprintf(stderr,"    imports_offset : %#4x (%d)\n", header->imports_offset, header->imports_offset);
+    fprintf(stderr,"    symbols_offset : %#4x (%d)\n", header->symbols_offset, header->symbols_offset);
+    fprintf(stderr,"    imports_count  : %d\n", header->imports_count);
+    fprintf(stderr,"    imports_format : %d (%s)\n", header->imports_format, imports_format);
+    fprintf(stderr,"    symbols_format : %d (%s)\n", header->symbols_format,
         (header->symbols_format == 0 ? "UNCOMPRESSED" : "ZLIB COMPRESSED"));
-    printf("\n");
+    fprintf(stderr,"\n");
 }
 
-static void printFixupsInPage(uint8_t *base, uint8_t *fixupBase, struct dyld_chained_fixups_header *header,
-    struct dyld_chained_starts_in_segment *startsInSegment, int pageIndex) {
-    uint32_t chain = (uint32_t)startsInSegment->segment_offset + startsInSegment->page_size * pageIndex + startsInSegment->page_start[pageIndex];
+- (void)printFixupsInPage:(uint8_t *)base fixupBase:(uint8_t*)fixupBase header:(struct dyld_chained_fixups_header *)header startsIn:(struct dyld_chained_starts_in_segment *)segment page:(int)pageIndex {
+    DLog(@"fixupBase: %p, segment_offset: %llu, page_size: %hu, page_start[%i]: %hu", fixupBase, segment->segment_offset, segment->page_size, pageIndex, segment->page_start[pageIndex]);
+    uint32_t chain = (uint32_t)segment->segment_offset + segment->page_size * pageIndex + segment->page_start[pageIndex];
     bool done = false;
     int count = 0;
     while (!done) {
-        if (startsInSegment->pointer_format == DYLD_CHAINED_PTR_64
-            || startsInSegment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET) {
+        if (segment->pointer_format == DYLD_CHAINED_PTR_64
+            || segment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET) {
             struct dyld_chained_ptr_64_bind bind = *(struct dyld_chained_ptr_64_bind *)(base + chain);
             if (bind.bind) {
                 struct dyld_chained_import import = ((struct dyld_chained_import *)(fixupBase + header->imports_offset))[bind.ordinal];
                 char *symbol = (char *)(fixupBase + header->symbols_offset + import.name_offset);
-                printf("        0x%08x BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
+                fprintf(stderr,"        0x%08x BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
                     chain, bind.ordinal, bind.addend, bind.reserved, symbol);
+                [self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
+                
             } else {
-                // rebase
+                // rebase 0x%08lx
                 struct dyld_chained_ptr_64_rebase rebase = *(struct dyld_chained_ptr_64_rebase *)&bind;
-                printf("        %#010x REBASE   target: %#010llx   high8: %d\n",
+                fprintf(stderr,"        %#010x REBASE   target: %#010llx   high8: %#010x\n",
                     chain, rebase.target, rebase.high8);
             }
 
@@ -66,12 +71,13 @@ static void printFixupsInPage(uint8_t *base, uint8_t *fixupBase, struct dyld_cha
             }
 
         } else {
-            printf("Unsupported pointer format: 0x%x", startsInSegment->pointer_format);
+            printf("Unsupported pointer format: 0x%x", segment->pointer_format);
             break;
         }
         count++;
     }
 }
+
 
 static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     switch(pointer_format) {
@@ -99,6 +105,9 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         
         _linkeditDataCommand.dataoff  = [cursor readInt32];
         _linkeditDataCommand.datasize = [cursor readInt32];
+        _ptrSize = [[cursor machOFile] ptrSize];
+        //[[self.machOFile symbolTable] baseAddress];
+        _symbolNamesByAddress = [[NSMutableDictionary alloc] init];
     }
 
     return self;
@@ -125,8 +134,22 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     return _linkeditData;
 }
 
+- (void)bindAddress:(uint64_t)address type:(uint8_t)type symbolName:(const char *)symbolName flags:(uint8_t)flags
+             addend:(int64_t)addend libraryOrdinal:(int64_t)libraryOrdinal;
+{
+#if 0
+    DLog(@"    Bind address: %016lx, type: 0x%02x, flags: %02x, addend: %016lx, libraryOrdinal: %ld, symbolName: %s",
+          address, type, flags, addend, libraryOrdinal, symbolName);
+#endif
+
+    NSNumber *key = [NSNumber numberWithUnsignedInteger:address]; // I don't think 32-bit will dump 64-bit stuff.
+    NSString *str = [[NSString alloc] initWithUTF8String:symbolName];
+    _symbolNamesByAddress[key] = str;
+}
+
 - (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
 {
+    DLog(@"baseAddress: %lu", [[self.machOFile symbolTable] baseAddress]);
     uint8_t *fixup_base = (uint8_t *)[[self linkeditData] bytes];
     struct dyld_chained_fixups_header *header = (struct dyld_chained_fixups_header *)fixup_base;
     printChainedFixupsHeader(header);
@@ -137,9 +160,9 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     for (int i = 0; i < starts_in_image->seg_count; ++i) {
         CDLCSegment *segCmd = self.machOFile.segments[i];
         //struct segment_command_64 *segCmd = machoBinary.segmentCommands[i];
-        printf("  SEGMENT %.16s (offset: %d)\n", [segCmd.name UTF8String], offsets[i]);
+        fprintf(stderr,"  SEGMENT %.16s (offset: %d)\n", [segCmd.name UTF8String], offsets[i]);
         if (offsets[i] == 0) {
-            printf("\n");
+            fprintf(stderr,"\n");
             continue;
         }
 
@@ -147,31 +170,30 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         char formatted_pointer_format[256];
         formatPointerFormat(startsInSegment->pointer_format, formatted_pointer_format);
 
-        printf("    size: %d\n", startsInSegment->size);
-        printf("    page_size: 0x%x\n", startsInSegment->page_size);
-        printf("    pointer_format: %d (%s)\n", startsInSegment->pointer_format, formatted_pointer_format);
-        printf("    segment_offset: 0x%llx\n", startsInSegment->segment_offset);
-        printf("    max_valid_pointer: %d\n", startsInSegment->max_valid_pointer);
-        printf("    page_count: %d\n", startsInSegment->page_count);
-        printf("    page_start: %d\n", startsInSegment-> page_start[0]);
+        fprintf(stderr,"    size: %d\n", startsInSegment->size);
+        fprintf(stderr,"    page_size: 0x%x\n", startsInSegment->page_size);
+        fprintf(stderr,"    pointer_format: %d (%s)\n", startsInSegment->pointer_format, formatted_pointer_format);
+        fprintf(stderr,"    segment_offset: 0x%llx\n", startsInSegment->segment_offset);
+        fprintf(stderr,"    max_valid_pointer: %d\n", startsInSegment->max_valid_pointer);
+        fprintf(stderr,"    page_count: %d\n", startsInSegment->page_count);
+        fprintf(stderr,"    page_start: %d\n", startsInSegment-> page_start[0]);
         
         uint16_t *page_starts = startsInSegment->page_start;
         uint16_t maxPageNum = UINT16_MAX;
         int pageCount = 0;
         for (int j = 0; j < MIN(startsInSegment->page_count, maxPageNum); ++j) {
-            printf("      PAGE %d (offset: %d)\n", j, page_starts[j]);
+            fprintf(stderr,"      PAGE %d (offset: %d)\n", j, page_starts[j]);
 
             if (page_starts[j] == DYLD_CHAINED_PTR_START_NONE) { continue; }
-
-            printFixupsInPage((uint8_t *)[self.machOFile bytes], fixup_base, header, startsInSegment, j);
+            
+            [self printFixupsInPage:(uint8_t *)[self.machOFile bytes] fixupBase:fixup_base header:header startsIn:startsInSegment page:j];
+            //printFixupsInPage((uint8_t *)[self.machOFile bytes], fixup_base, header, startsInSegment, j);
 
             pageCount++;
-            printf("\n");
+            fprintf(stderr,"\n");
         }
 
-        if (pageCount < startsInSegment->page_count) {
-            printf("      ... %d more pages ...\n\n", startsInSegment->page_count - pageCount);
-        }
+        DLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
     }
 }
 

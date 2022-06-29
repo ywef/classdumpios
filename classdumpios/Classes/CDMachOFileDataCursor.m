@@ -68,7 +68,7 @@
 
 - (void)setAddress:(NSUInteger)address;
 {
-    LOG_CMD;
+    DLog(@"%s 0x%08lx", _cmds, address);
     NSUInteger dataOffset = [_machOFile dataOffsetForAddress:address];
     DLog(@"dataOffset: 0x%08lx for address: 0x%08lx", dataOffset, address);
     [self setOffset:dataOffset];

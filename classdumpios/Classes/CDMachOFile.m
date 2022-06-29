@@ -312,8 +312,9 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     LOG_CMD;
     //DLog(@"_loadCommands: %@", _loadCommands);
     for (id loadCommand in _loadCommands) {
+        //DLog(@"processing load command: %@", loadCommand);
         if ([loadCommand isKindOfClass:[CDLCSegment class]] && [loadCommand containsAddress:address]) {
-            DLog(@"loadCommand: %@ contains address: %lu", loadCommand, address);
+            //DLog(@"loadCommand: %@ contains address: %lu", loadCommand, address);
             return loadCommand;
         }
     }
@@ -336,9 +337,15 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
-        exit(5);
-        return nil;
+        if (address > 0x10000000000000){
+            address = address - 0x10000000000000;
+            segment = [self segmentContainingAddress:address];
+        }
+        if (segment == nil) {
+            DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
+            exit(5);
+            return nil;
+        }
     }
 
     if ([segment isProtected]) {
@@ -368,22 +375,42 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
-        exit(5);
+        if (address > 0x80000000000000){
+            address = address - 0x80000000000000;
+            segment = [self segmentContainingAddress:address];
+        }
+        if (segment == nil){
+            if (address > 0x40000000000000){
+                address = address - 0x40000000000000;
+                segment = [self segmentContainingAddress:address];
+            }
+            if (segment == nil) {
+                if (address > 0x10000000000000){
+                    address = address - 0x10000000000000;
+                    segment = [self segmentContainingAddress:address];
+                    if (segment == nil){
+                        DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
+                        return 0;
+                        //exit(5);
+                    }
+                }
+       
+            }
+        }
     }
 
 //    if ([segment isProtected]) {
 //        DLog(@"Error: Segment is protected.");
 //        exit(5);
 //    }
-
+    //[self logInfoForAddress:address];
 #if 0
     DLog(@"---------->");
     DLog(@"segment is: %@", segment);
     DLog(@"address: 0x%08x", address);
-    DLog(@"CDFile offset:    0x%08x", offset);
+    DLog(@"CDFile offset:    0x%08x", segment.fileoff);
     DLog(@"file off for address: 0x%08x", [segment fileOffsetForAddress:address]);
-    DLog(@"data offset:      0x%08x", offset + [segment fileOffsetForAddress:address]);
+    //DLog(@"data offset:      0x%08x", offset + [segment fileOffsetForAddress:address]);
     DLog(@"<----------");
 #endif
     return [segment fileOffsetForAddress:address];

@@ -88,8 +88,8 @@
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile offset:_dysymtab.extreloff];
 
-    //DLog(@"indirectsymoff: %lu", dysymtab.indirectsymoff);
-    //DLog(@"nindirectsyms:  %lu", dysymtab.nindirectsyms);
+    DLog(@"indirectsymoff: %u", _dysymtab.indirectsymoff);
+    DLog(@"nindirectsyms:  %u", _dysymtab.nindirectsyms);
 #if 0
     [cursor setOffset:[self.machOFile offset] + dysymtab.indirectsymoff];
     for (uint32_t index = 0; index < dysymtab.nindirectsyms; index++) {
@@ -99,11 +99,11 @@
     }
 #endif
 
-    //DLog(@"extreloff: %lu", dysymtab.extreloff);
-    //DLog(@"nextrel:   %lu", dysymtab.nextrel);
+    DLog(@"extreloff: %u", _dysymtab.extreloff);
+    DLog(@"nextrel:   %u", _dysymtab.nextrel);
 
-    //DLog(@"     address   val       symbolnum  pcrel  len  ext  type");
-    //DLog(@"---  --------  --------  ---------  -----  ---  ---  ----");
+    DLog(@"     address   val       symbolnum  pcrel  len  ext  type");
+    DLog(@"---  --------  --------  ---------  -----  ---  ---  ----");
     for (uint32_t index = 0; index < _dysymtab.nextrel; index++) {
         struct relocation_info rinfo;
 
@@ -115,10 +115,10 @@
         rinfo.r_length    = (val & 0x06000000) >> 25;
         rinfo.r_extern    = (val & 0x08000000) >> 27;
         rinfo.r_type      = (val & 0xf0000000) >> 28;
-#if 0
+//#ifdef DEBUG
         DLog(@"%3d: %08x  %08x   %08x      %01x    %01x    %01x     %01x", index, rinfo.r_address, val,
               rinfo.r_symbolnum, rinfo.r_pcrel, rinfo.r_length, rinfo.r_extern, rinfo.r_type);
-#endif
+//#endif
 
         CDRelocationInfo *ri = [[CDRelocationInfo alloc] initWithInfo:rinfo];
         [externalRelocationEntries addObject:ri];

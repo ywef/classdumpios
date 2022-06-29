@@ -135,8 +135,10 @@
 
 - (void)process;
 {
+    LOG_CMD;
     if (self.machOFile.isEncrypted == NO && self.machOFile.canDecryptAllSegments) {
         [self.machOFile.symbolTable loadSymbols];
+        DLog(@"SymbolTable: %@", self.machOFile.symbolTable);
         [self.machOFile.dynamicSymbolTable loadSymbols];
 
         [self loadProtocols];
