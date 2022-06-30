@@ -29,6 +29,7 @@
 #import "CDSearchPathState.h"
 #import "CDLCSourceVersion.h"
 #import "CDLCBuildVersion.h"
+#import "CDLCChainedFixups.h"
 
 static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 {
@@ -162,6 +163,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             else if ([loadCommand isKindOfClass:[CDLCSymbolTable class]])        self.symbolTable = (CDLCSymbolTable *)loadCommand;
             else if ([loadCommand isKindOfClass:[CDLCDynamicSymbolTable class]]) self.dynamicSymbolTable = (CDLCDynamicSymbolTable *)loadCommand;
             else if ([loadCommand isKindOfClass:[CDLCDyldInfo class]])           self.dyldInfo = (CDLCDyldInfo *)loadCommand;
+            else if ([loadCommand isKindOfClass:[CDLCChainedFixups class]])      self.chainedFixups = (CDLCChainedFixups *)loadCommand;
             else if ([loadCommand isKindOfClass:[CDLCRunPath class]]) {
                 [runPaths addObject:[(CDLCRunPath *)loadCommand resolvedRunPath]];
                 [runPathCommands addObject:loadCommand];
@@ -379,6 +381,12 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             address = address - 0x80000000000000;
             segment = [self segmentContainingAddress:address];
         }
+        if (segment == nil) {
+            if (address > 0x60000000000000){
+                address = address - 0x60000000000000;
+                segment = [self segmentContainingAddress:address];
+            }
+        }
         if (segment == nil){
             if (address > 0x40000000000000){
                 address = address - 0x40000000000000;
@@ -390,8 +398,8 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                     segment = [self segmentContainingAddress:address];
                     if (segment == nil){
                         DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
-                        return 0;
-                        //exit(5);
+                        //return 0;
+                        exit(5);
                     }
                 }
        

@@ -262,6 +262,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		32624D2B286D0DD700571352 /* class-dump-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "class-dump-Prefix.pch"; sourceTree = "<group>"; };
 		32B1AACA2869458200CDFF07 /* CDLCExportTRIEData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCExportTRIEData.h; sourceTree = "<group>"; };
 		32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCExportTRIEData.m; sourceTree = "<group>"; };
 		32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCChainedFixups.h; sourceTree = "<group>"; };
@@ -452,6 +453,7 @@
 		4C952D042837E11D00BFE504 = {
 			isa = PBXGroup;
 			children = (
+				32624D2B286D0DD700571352 /* class-dump-Prefix.pch */,
 				4C952D0F2837E11D00BFE504 /* classdumpios */,
 				4CDA2A81286263F800566FBB /* classdump */,
 				4C952D0E2837E11D00BFE504 /* Products */,
@@ -1112,7 +1114,7 @@
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$SRCROOT/$PRODUCT_NAME/class-dump-Prefix.pch";
+				GCC_PREFIX_HEADER = "$SRCROOT/class-dump-Prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1125,7 +1127,7 @@
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$SRCROOT/$PRODUCT_NAME/class-dump-Prefix.pch";
+				GCC_PREFIX_HEADER = "$SRCROOT/class-dump-Prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1137,7 +1139,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREFIX_HEADER = "$SRCROOT/$PRODUCT_NAME/class-dump-Prefix.pch";
+				GCC_PREFIX_HEADER = "$SRCROOT/class-dump-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1150,7 +1152,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREFIX_HEADER = "$SRCROOT/$PRODUCT_NAME/class-dump-Prefix.pch";
+				GCC_PREFIX_HEADER = "$SRCROOT/class-dump-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

@@ -20,6 +20,7 @@
 #import "cd_objc2.h"
 #import "CDProtocolUniquer.h"
 #import "CDOCClassReference.h"
+#import "CDLCChainedFixups.h"
 
 @implementation CDObjectiveC2Processor
 {
@@ -40,6 +41,10 @@
     LOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_classlist"];
     DLog(@"section: %@ offset: %lu", section, section.segment.fileoff);
+    if (self.machOFile.chainedFixups != nil){
+        NSUInteger based = [self.machOFile.chainedFixups rebaseTargetFromAddress:section.addr];
+        DLog(@"based???: %lu", based);
+    }
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     DLog(@"cursor: %@", cursor);
     while ([cursor isAtEnd] == NO) {
@@ -80,7 +85,8 @@
         [self.protocolUniquer setProtocol:protocol withAddress:address];
         DLog(@"%s, address=%016llx", _cmds, address);
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
-        NSParameterAssert([cursor offset] != 0);
+        if ([cursor offset] == 0 ) return nil;
+        //NSParameterAssert([cursor offset] != 0);
         
         struct cd_objc2_protocol objc2Protocol;
         objc2Protocol.isa                     = [cursor readPtr];
@@ -232,14 +238,15 @@
     objc2Class.vtable     = [cursor readPtr];
 
     uint64_t value        = [cursor readPtr];
+    
     class.isSwiftClass    = (value & 0x1) != 0;
     objc2Class.data       = value & ~7;
-
+    DBLog(@"value: %016llx data: %016llx", value, objc2Class.data);
     objc2Class.reserved1  = [cursor readPtr];
     objc2Class.reserved2  = [cursor readPtr];
     objc2Class.reserved3  = [cursor readPtr];
-    DLog(@"%016llx %016llx %016llx %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
-    DLog(@"%016llx %016llx %016llx %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
+    DBLog(@"isa: %016llx superclass: %016llx cache: %016llx vtable: %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
+    DBLog(@"data: %016llx r1: %016llx r2: %016llx r3: %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
     
     NSParameterAssert(objc2Class.data != 0);
     [cursor setAddress:objc2Class.data];
@@ -261,19 +268,20 @@
     objc2ClassData.weakIvarLayout = [cursor readPtr];
     objc2ClassData.baseProperties = [cursor readPtr];
     
-    DLog(@"%08x %08x %08x %08x", objc2ClassData.flags, objc2ClassData.instanceStart, objc2ClassData.instanceSize, objc2ClassData.reserved);
+    DBLog(@"flags: %08x instanceStart: %08x instanceSize: %08x reserved: %08x", objc2ClassData.flags, objc2ClassData.instanceStart, objc2ClassData.instanceSize, objc2ClassData.reserved);
     
-    DLog(@"%016llx %016llx %016llx %016llx", objc2ClassData.ivarLayout, objc2ClassData.name, objc2ClassData.baseMethods, objc2ClassData.baseProtocols);
-    DLog(@"%016llx %016llx %016llx", objc2ClassData.ivars, objc2ClassData.weakIvarLayout, objc2ClassData.baseProperties);
+    DBLog(@"ivarLayout: %016llx name: %016llx  baseMethods: %016llx baseProtocols: %016llx", objc2ClassData.ivarLayout, objc2ClassData.name, objc2ClassData.baseMethods, objc2ClassData.baseProtocols);
+    DBLog(@"ivars: %016llx weakIvarLayout: %016llx baseProperties: %016llx", objc2ClassData.ivars, objc2ClassData.weakIvarLayout, objc2ClassData.baseProperties);
     NSString *str = [self.machOFile stringAtAddress:objc2ClassData.name];
-    DLog(@"name = %@", str);
+    DBLog(@"name = %@", str);
     
     CDOCClass *aClass = [[CDOCClass alloc] init];
     [aClass setName:str];
-    
+    DBLog(@"Loading methods...");
     for (CDOCMethod *method in [self loadMethodsAtAddress:objc2ClassData.baseMethods])
         [aClass addInstanceMethod:method];
     
+    DBLog(@"Loading ivars...");
     aClass.instanceVariables = [self loadIvarsAtAddress:objc2ClassData.ivars];
     
     {
@@ -289,13 +297,17 @@
         NSString *superClassName = nil;
         if ([self.machOFile hasRelocationEntryForAddress2:classNameAddress]) {
             superClassName = [self.machOFile externalClassNameForAddress2:classNameAddress];
-            DLog(@"class: got external class name (2): %@", [aClass superClassName]);
+            if (superClassName){
+                DBLog(@"class: got external class name (2): %@", superClassName);
+                //aClass.superClassName = superClassName;
+            }
         } else if ([self.machOFile hasRelocationEntryForAddress:classNameAddress]) {
             superClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
-            DLog(@"class: got external class name (1): %@", [aClass superClassName]);
+            DBLog(@"class: got external class name (1): %@", [aClass superClassName]);
         } else if (objc2Class.superclass != 0) {
-            CDOCClass *sc = [self loadClassAtAddress:objc2Class.superclass];
-            aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
+            DBLog(@"superclass !=0: %llu",objc2Class.superclass);
+            //CDOCClass *sc = [self loadClassAtAddress:objc2Class.superclass];
+            //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
         }
         
         if (superClassName) {
@@ -307,13 +319,17 @@
         }
     }
     
+    DBLog(@"Loading metaclass methods...");
+    
     for (CDOCMethod *method in [self loadMethodsOfMetaClassAtAddress:objc2Class.isa])
         [aClass addClassMethod:method];
     
+    DBLog(@"Processing protocols...");
     // Process protocols
     for (CDOCProtocol *protocol in [self.protocolUniquer uniqueProtocolsAtAddresses:[self protocolAddressListAtAddress:objc2ClassData.baseProtocols]])
         [aClass addProtocol:protocol];
     
+    DBLog(@"Processing properties...");
     for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2ClassData.baseProperties])
         [aClass addProperty:property];
     
@@ -353,10 +369,9 @@
 // This just gets the methods.
 - (NSArray *)loadMethodsOfMetaClassAtAddress:(uint64_t)address;
 {
-    LOG_CMD;
     if (address == 0)
         return nil;
-    DLog(@"%s, address=%016llx", _cmds, address);
+    DBLog(@"%s, address=%016llx", _cmds, address);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
     
@@ -369,8 +384,8 @@
     objc2Class.reserved1  = [cursor readPtr];
     objc2Class.reserved2  = [cursor readPtr];
     objc2Class.reserved3  = [cursor readPtr];
-    //DLog(@"%016lx %016lx %016lx %016lx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
-    //DLog(@"%016lx %016lx %016lx %016lx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
+    DBLog(@"isa: %016llx superclass: %016llx cache: %016llx vtable: %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
+    DBLog(@"data: %016llx r1: %016llx r2: %016llx r3: %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
     
     NSParameterAssert(objc2Class.data != 0);
     [cursor setAddress:objc2Class.data];

@@ -11,6 +11,8 @@
 #import "CDLCSegment.h"
 #import "CDLCDylib.h"
 
+//#define VERBOSE_TABLES
+
 @implementation CDLCSymbolTable
 {
     struct symtab_command _symtabCommand;
@@ -41,7 +43,7 @@
         
         // symoff is at the start of the first section (__pointers) of the __IMPORT segment
         // stroff falls within the __LINKEDIT segment
-#if DEBUG
+#ifdef DEBUG
         DLog(@"symtab: %08x %08x  %08x %08x %08x %08x",
               _symtabCommand.cmd, _symtabCommand.cmdsize,
               _symtabCommand.symoff, _symtabCommand.nsyms, _symtabCommand.stroff, _symtabCommand.strsize);
@@ -90,7 +92,9 @@
             CDLCSegment *segment = (CDLCSegment *)loadCommand;
 
             if (([segment initprot] & CD_VM_PROT_RW) == CD_VM_PROT_RW) {
+#ifdef DEBUG
                 DLog(@"segment... initprot = %08x, addr= %016lx *** r/w", [segment initprot], [segment vmaddr]);
+#endif
                 _baseAddress = [segment vmaddr];
                 _flags.didFindBaseAddress = YES;
                 break;
@@ -103,9 +107,11 @@
     NSMutableDictionary *externalClassSymbols = [[NSMutableDictionary alloc] init];
 
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile offset:_symtabCommand.symoff];
+#ifdef DEBUG
     DLog(@"offset= %lu", [cursor offset]);
     DLog(@"stroff=  %u", _symtabCommand.stroff);
     DLog(@"strsize= %u", _symtabCommand.strsize);
+#endif
 
     const char *strtab = (char *)[self.machOFile.data bytes] + _symtabCommand.stroff;
     
@@ -114,7 +120,7 @@
         
         NSString *className = [CDSymbol classNameFromSymbolName:symbol.name];
         if (className != nil) {
-            DLog(@"className: %@ from symbolName: %@", className, symbol.name);
+            //DLog(@"className: %@ from symbolName: %@", className, symbol.name);
             if (symbol.value != 0)
                 classSymbols[className] = symbol;
             else
@@ -148,8 +154,12 @@
 
         //DLog(@"Loaded %lu 32-bit symbols", [symbols count]);
     } else {
+#ifdef DEBUG
+#ifdef VERBOSE_TABLES
         DLog(@"       str table index  type  sect  desc  value");
         DLog(@"       ---------------  ----  ----  ----  ----------------");
+#endif
+#endif
         for (uint32_t index = 0; index < _symtabCommand.nsyms; index++) {
             struct nlist_64 nlist;
 
@@ -158,10 +168,12 @@
             nlist.n_sect      = [cursor readByte];
             nlist.n_desc      = [cursor readInt16];
             nlist.n_value     = [cursor readInt64];
-//#if 0
+#ifdef DEBUG
+#ifdef VERBOSE_TABLES
             DLog(@"%5u: %08x           %02x    %02x  %04x  %016llx - %s",
                   index, nlist.n_un.n_strx, nlist.n_type, nlist.n_sect, nlist.n_desc, nlist.n_value, strtab + nlist.n_un.n_strx);
-//#endif
+#endif
+#endif
             const char *ptr = strtab + nlist.n_un.n_strx;
             NSString *str = [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
 
@@ -176,9 +188,9 @@
     _classSymbols = [classSymbols copy];
     _externalClassSymbols = [externalClassSymbols copy];
 
-    DLog(@"symbols: %@", _symbols);
-    DLog(@"classSymbols: %@", _classSymbols);
-    DLog(@"baseAddress: %016llx : %lu",[self baseAddress], [self baseAddress]);
+    DBLog(@"symbols: %@", _symbols);
+    DBLog(@"classSymbols: %@", _classSymbols);
+    DBLog(@"baseAddress: %016llx : %lu",[self baseAddress], [self baseAddress]);
 }
 
 - (uint32_t)symoff;

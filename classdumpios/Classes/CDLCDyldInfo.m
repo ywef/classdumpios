@@ -100,13 +100,13 @@ static NSString *CDBindTypeDescription(uint8_t type)
 
 - (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
 {
-    /*
+    
     [self logRebaseInfo];
     [self parseBindInfo];
     [self parseWeakBindInfo];
     [self logLazyBindInfo];
     [self logExportedSymbols];
-    */
+    
     DLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
 }
 

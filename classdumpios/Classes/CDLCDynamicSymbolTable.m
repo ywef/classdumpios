@@ -101,9 +101,12 @@
 
     DLog(@"extreloff: %u", _dysymtab.extreloff);
     DLog(@"nextrel:   %u", _dysymtab.nextrel);
-
-    DLog(@"     address   val       symbolnum  pcrel  len  ext  type");
-    DLog(@"---  --------  --------  ---------  -----  ---  ---  ----");
+#ifdef DEBUG
+    if (_dysymtab.nextrel > 0){
+        DLog(@"     address   val       symbolnum  pcrel  len  ext  type");
+        DLog(@"---  --------  --------  ---------  -----  ---  ---  ----");
+    }
+#endif
     for (uint32_t index = 0; index < _dysymtab.nextrel; index++) {
         struct relocation_info rinfo;
 
@@ -115,10 +118,10 @@
         rinfo.r_length    = (val & 0x06000000) >> 25;
         rinfo.r_extern    = (val & 0x08000000) >> 27;
         rinfo.r_type      = (val & 0xf0000000) >> 28;
-//#ifdef DEBUG
+#ifdef DEBUG
         DLog(@"%3d: %08x  %08x   %08x      %01x    %01x    %01x     %01x", index, rinfo.r_address, val,
               rinfo.r_symbolnum, rinfo.r_pcrel, rinfo.r_length, rinfo.r_extern, rinfo.r_type);
-//#endif
+#endif
 
         CDRelocationInfo *ri = [[CDRelocationInfo alloc] initWithInfo:rinfo];
         [externalRelocationEntries addObject:ri];

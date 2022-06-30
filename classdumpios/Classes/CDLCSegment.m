@@ -187,7 +187,7 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
 - (BOOL)containsAddress:(NSUInteger)address;
 {
     BOOL contains = (address >= _segmentCommand.vmaddr) && (address < _segmentCommand.vmaddr + _segmentCommand.vmsize);
-    DLog(@"%d containsAddress: %lu >= %llu && %lu < (%llu + %llu)", contains, address, _segmentCommand.vmaddr, address, _segmentCommand.vmaddr, _segmentCommand.vmsize);
+    //DLog(@"%d containsAddress: %lu >= %llu && %lu < (%llu + %llu)", contains, address, _segmentCommand.vmaddr, address, _segmentCommand.vmaddr, _segmentCommand.vmsize);
     return contains;
 }
 

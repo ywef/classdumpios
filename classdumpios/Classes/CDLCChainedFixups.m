@@ -18,6 +18,7 @@
     NSData *_linkeditData;
     NSUInteger _ptrSize;
     NSMutableDictionary *_symbolNamesByAddress;
+    NSMutableDictionary *_based;
 }
 
 
@@ -42,7 +43,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
 }
 
 - (void)printFixupsInPage:(uint8_t *)base fixupBase:(uint8_t*)fixupBase header:(struct dyld_chained_fixups_header *)header startsIn:(struct dyld_chained_starts_in_segment *)segment page:(int)pageIndex {
-    DLog(@"fixupBase: %p, segment_offset: %llu, page_size: %hu, page_start[%i]: %hu", fixupBase, segment->segment_offset, segment->page_size, pageIndex, segment->page_start[pageIndex]);
+    DLog(@"fixupBase: %p, segment_offset: %#010llx, page_size: %hu, page_start[%i]: %hu", fixupBase, segment->segment_offset, segment->page_size, pageIndex, segment->page_start[pageIndex]);
     uint32_t chain = (uint32_t)segment->segment_offset + segment->page_size * pageIndex + segment->page_start[pageIndex];
     bool done = false;
     int count = 0;
@@ -62,6 +63,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 struct dyld_chained_ptr_64_rebase rebase = *(struct dyld_chained_ptr_64_rebase *)&bind;
                 fprintf(stderr,"        %#010x REBASE   target: %#010llx   high8: %#010x\n",
                     chain, rebase.target, rebase.high8);
+                [self rebaseAddress:chain target:rebase.target];
             }
 
             if (bind.next == 0) {
@@ -107,7 +109,8 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         _linkeditDataCommand.datasize = [cursor readInt32];
         _ptrSize = [[cursor machOFile] ptrSize];
         //[[self.machOFile symbolTable] baseAddress];
-        _symbolNamesByAddress = [[NSMutableDictionary alloc] init];
+        _symbolNamesByAddress = [NSMutableDictionary new];
+        _based = [NSMutableDictionary new];
     }
 
     return self;
@@ -132,6 +135,19 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     }
     
     return _linkeditData;
+}
+
+- (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address {
+    DLog(@"address: %lu", address);
+    NSNumber *key = [NSNumber numberWithUnsignedInteger:address]; // I don't think 32-bit will dump 64-bit stuff.
+    return [_based[key] unsignedIntegerValue];
+}
+
+- (void)rebaseAddress:(uint64_t)address target:(uint64_t)target
+{
+    NSNumber *key = [NSNumber numberWithUnsignedInteger:address]; // I don't think 32-bit will dump 64-bit stuff.
+    NSNumber *val = [NSNumber numberWithUnsignedInteger:target];
+    _based[key] = val;
 }
 
 - (void)bindAddress:(uint64_t)address type:(uint8_t)type symbolName:(const char *)symbolName flags:(uint8_t)flags
@@ -194,6 +210,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         }
 
         DLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
+        DLog(@"based: %@", _based);
     }
 }
 

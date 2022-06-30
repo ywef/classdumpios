@@ -5,6 +5,11 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import "CDExtensions.h"
+#ifdef DEBUG
+#define DBLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
+#else
+#define DBLog(format, ...)
+#endif
     #define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
     #define LOG_CMD         DLog(@"%s", __PRETTY_FUNCTION__)
     #define _cmds __PRETTY_FUNCTION__
