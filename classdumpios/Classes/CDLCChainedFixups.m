@@ -12,6 +12,7 @@
 #include <mach-o/fixup-chains.h>
 #import "CDLCSegment.h"
 #import "CDLCSymbolTable.h"
+#import "NSData+Flip.h"
 @implementation CDLCChainedFixups
 {
     struct linkedit_data_command _linkeditDataCommand;
@@ -63,8 +64,13 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 
                 uint64_t val = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
                 
-                fprintf(stderr,"        %#010x REBASE   target: %#010llx   high8: %#010x val: %#010llx \n",
-                    chain, rebase.target, rebase.high8, val);
+                NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
+                //DBLog(@"RAW: %@", [data reverse]);
+                //DBLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
+                uint64_t raw = [[data decimalString] integerValue];
+                //ODLog(@"RAW", [[data reverse] stringFromHexData]);
+                fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x val: %#010llx \n",
+                    chain, raw, rebase.target, rebase.high8, val);
                 [self rebaseAddress:chain target:rebase.target];
             }
 
@@ -210,8 +216,8 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
             fprintf(stderr,"\n");
         }
 
-        //DBLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
-        //DBLog(@"based: %@", _based);
+        DBLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
+        DBLog(@"based: %@", _based);
     }
 }
 

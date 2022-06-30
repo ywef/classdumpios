@@ -50,7 +50,7 @@
         DBLog(@"based: %#010llx (%lu)", based, based);
     }
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
-    //DBLog(@"cursor: %@", cursor);
+    DBLog(@"cursor: %#010llx", cursor.offset);
     while ([cursor isAtEnd] == NO) {
         uint64_t val = [cursor readPtr];
         if (based != 0) {

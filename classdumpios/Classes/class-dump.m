@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
             { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
             { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
             { "hide",                    required_argument, NULL, CD_OPT_HIDE },
+            { "verbose",                 no_argument,       NULL, 'v'},
             { NULL,                      0,                 NULL, 0 },
         };
 
@@ -102,10 +103,13 @@ int main(int argc, char *argv[])
             print_usage();
             exit(0);
         }
-
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"verbose"]; //reset it every time
+#ifdef DEBUG
+        [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:@"verbose"]; //make it easier to avoid hardcoded macros to enable logging
+#endif
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsSt", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStv", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -173,6 +177,11 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
+                
+                case 'v':
+                    [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:@"verbose"];
+                    classDump.verbose = YES;
+                    break;
                     
                 case 'a':
                     classDump.shouldShowIvarOffsets = YES;

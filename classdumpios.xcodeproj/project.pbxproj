@@ -13,6 +13,9 @@
 		32B1AB12286966C000CDFF07 /* CDLCChainedFixups.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */; };
 		32B1AB13286966C000CDFF07 /* CDLCChainedFixups.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */; };
 		32B1AB14286966C000CDFF07 /* CDLCChainedFixups.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */; };
+		4C0F4069286E301800C2E934 /* NSData+Flip.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C0F4067286E301800C2E934 /* NSData+Flip.h */; };
+		4C0F406A286E301800C2E934 /* NSData+Flip.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F4068286E301800C2E934 /* NSData+Flip.mm */; };
+		4C0F406B286E301800C2E934 /* NSData+Flip.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F4068286E301800C2E934 /* NSData+Flip.mm */; };
 		4C952DB72837E18500BFE504 /* CDLCDataInCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D182837E18500BFE504 /* CDLCDataInCode.m */; };
 		4C952DB82837E18500BFE504 /* NSString-CDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D192837E18500BFE504 /* NSString-CDExtensions.m */; };
 		4C952DB92837E18500BFE504 /* NSError-CDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D1A2837E18500BFE504 /* NSError-CDExtensions.m */; };
@@ -267,6 +270,8 @@
 		32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCExportTRIEData.m; sourceTree = "<group>"; };
 		32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCChainedFixups.h; sourceTree = "<group>"; };
 		32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCChainedFixups.m; sourceTree = "<group>"; };
+		4C0F4067286E301800C2E934 /* NSData+Flip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Flip.h"; sourceTree = "<group>"; };
+		4C0F4068286E301800C2E934 /* NSData+Flip.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSData+Flip.mm"; sourceTree = "<group>"; };
 		4C952D0D2837E11D00BFE504 /* classdumpios */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = classdumpios; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C952D182837E18500BFE504 /* CDLCDataInCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDLCDataInCode.m; sourceTree = "<group>"; };
 		4C952D192837E18500BFE504 /* NSString-CDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString-CDExtensions.m"; sourceTree = "<group>"; };
@@ -631,6 +636,8 @@
 				4C952D4D2837E18500BFE504 /* CDVisitorPropertyState.m */,
 				4C952D4C2837E18500BFE504 /* class-dump.m */,
 				4C952DA72837E18500BFE504 /* ext.h */,
+				4C0F4067286E301800C2E934 /* NSData+Flip.h */,
+				4C0F4068286E301800C2E934 /* NSData+Flip.mm */,
 				4C952D1B2837E18500BFE504 /* NSArray-CDExtensions.h */,
 				4C952D7D2837E18500BFE504 /* NSArray-CDExtensions.m */,
 				4C952D6E2837E18500BFE504 /* NSData-CDExtensions.h */,
@@ -718,6 +725,7 @@
 				4CDA2B072862656700566FBB /* CDOCModule.h in Headers */,
 				4CDA2B082862656700566FBB /* CDOCProperty.h in Headers */,
 				4CDA2B092862656700566FBB /* CDOCProtocol.h in Headers */,
+				4C0F4069286E301800C2E934 /* NSData+Flip.h in Headers */,
 				4CDA2B0A2862656700566FBB /* CDOCSymtab.h in Headers */,
 				4CDA2B0B2862656700566FBB /* CDProtocolUniquer.h in Headers */,
 				4CDA2B0C2862656700566FBB /* CDRelocationInfo.h in Headers */,
@@ -880,6 +888,7 @@
 				4C952DC02837E18500BFE504 /* NSData-CDExtensions.m in Sources */,
 				4C952DF52837E18500BFE504 /* CDLCLinkeditData.m in Sources */,
 				4C952DE82837E18500BFE504 /* CDLCSubFramework.m in Sources */,
+				4C0F406A286E301800C2E934 /* NSData+Flip.mm in Sources */,
 				4C952DF12837E18500BFE504 /* CDOCModule.m in Sources */,
 				4C952DCA2837E18500BFE504 /* CDOCMethod.m in Sources */,
 				4C952DD12837E18500BFE504 /* CDClassDumpVisitor.m in Sources */,
@@ -966,6 +975,7 @@
 				4CDA2AD22862646B00566FBB /* CDLCRunPath.m in Sources */,
 				4CDA2A972862646B00566FBB /* CDFile.m in Sources */,
 				4CDA2ABD2862646B00566FBB /* CDClassDump.m in Sources */,
+				4C0F406B286E301800C2E934 /* NSData+Flip.mm in Sources */,
 				4CDA2AD42862646B00566FBB /* CDOCCategory.m in Sources */,
 				4CDA2AD02862646B00566FBB /* CDVisitorPropertyState.m in Sources */,
 				4CDA2A85286263F800566FBB /* classdump.m in Sources */,
