@@ -5,12 +5,18 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import "CDExtensions.h"
-#ifdef DEBUG
-#define DBLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
-#else
-#define DBLog(format, ...)
-#endif
     #define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
+//#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat"
+    #define OLog(a,b) DLog(@"%@: %016llx (%lu)", a, b, b)
+//#pragma clang diagnostic pop
+#ifdef DEBUG
+    #define DBLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
+    #define ODLog(a,b) OLog(a,b)
+#else
+    #define DBLog(format, ...)
+    #define ODLog(a,b)
+#endif
     #define LOG_CMD         DLog(@"%s", __PRETTY_FUNCTION__)
     #define _cmds __PRETTY_FUNCTION__
 #endif

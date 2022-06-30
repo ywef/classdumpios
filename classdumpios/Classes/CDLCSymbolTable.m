@@ -191,8 +191,10 @@
     DBLog(@"symbols: %@", _symbols);
     DBLog(@"classSymbols: %@", _classSymbols);
     DBLog(@"externalClassSymbols: %@", _externalClassSymbols);
-    DBLog(@"baseAddress: %016llx : %lu",[self baseAddress], [self baseAddress]);
+    ODLog(@"baseAddress", [self baseAddress]);
+    //DBLog(@"baseAddress: %016llx : %lu",[self baseAddress], [self baseAddress]);
 }
+
 
 - (uint32_t)symoff;
 {
