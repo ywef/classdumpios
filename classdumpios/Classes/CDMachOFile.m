@@ -169,7 +169,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                 [runPathCommands addObject:loadCommand];
             }
         }
-        DLog(@"loadCommand: %@", loadCommand);
+        //DBLog(@"loadCommand: %@", loadCommand);
     }
     _loadCommands      = [loadCommands copy];
     _dylibLoadCommands = [dylibLoadCommands copy];
@@ -311,7 +311,6 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (CDLCSegment *)segmentContainingAddress:(NSUInteger)address;
 {
-    LOG_CMD;
     //DLog(@"_loadCommands: %@", _loadCommands);
     for (id loadCommand in _loadCommands) {
         //DLog(@"processing load command: %@", loadCommand);
@@ -331,7 +330,6 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (NSString *)stringAtAddress:(NSUInteger)address;
 {
-    LOG_CMD;
     const void *ptr;
 
     if (address == 0)
@@ -371,28 +369,31 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (NSUInteger)dataOffsetForAddress:(NSUInteger)address;
 {
-    LOG_CMD;
     if (address == 0)
         return 0;
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
+        DBLog(@"nil segment");
         if (address > 0x80000000000000){
             address = address - 0x80000000000000;
             segment = [self segmentContainingAddress:address];
         }
         if (segment == nil) {
+            DBLog(@"nil segment");
             if (address > 0x60000000000000){
                 address = address - 0x60000000000000;
                 segment = [self segmentContainingAddress:address];
             }
         }
         if (segment == nil){
+            DBLog(@"nil segment");
             if (address > 0x40000000000000){
                 address = address - 0x40000000000000;
                 segment = [self segmentContainingAddress:address];
             }
             if (segment == nil) {
+                DBLog(@"nil segment");
                 if (address > 0x10000000000000){
                     address = address - 0x10000000000000;
                     segment = [self segmentContainingAddress:address];

@@ -120,6 +120,10 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
     return _segmentCommand.filesize;
 }
 
+- (NSUInteger)baselineAdjustment {
+    return _segmentCommand.vmaddr - _segmentCommand.fileoff;
+}
+
 - (vm_prot_t)initprot;
 {
     return _segmentCommand.initprot;

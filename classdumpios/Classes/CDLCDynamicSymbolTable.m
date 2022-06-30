@@ -88,8 +88,8 @@
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile offset:_dysymtab.extreloff];
 
-    DLog(@"indirectsymoff: %u", _dysymtab.indirectsymoff);
-    DLog(@"nindirectsyms:  %u", _dysymtab.nindirectsyms);
+    DBLog(@"indirectsymoff: %u", _dysymtab.indirectsymoff);
+    DBLog(@"nindirectsyms:  %u", _dysymtab.nindirectsyms);
 #if 0
     [cursor setOffset:[self.machOFile offset] + dysymtab.indirectsymoff];
     for (uint32_t index = 0; index < dysymtab.nindirectsyms; index++) {
@@ -99,8 +99,8 @@
     }
 #endif
 
-    DLog(@"extreloff: %u", _dysymtab.extreloff);
-    DLog(@"nextrel:   %u", _dysymtab.nextrel);
+    DBLog(@"extreloff: %u", _dysymtab.extreloff);
+    DBLog(@"nextrel:   %u", _dysymtab.nextrel);
 #ifdef DEBUG
     if (_dysymtab.nextrel > 0){
         DLog(@"     address   val       symbolnum  pcrel  len  ext  type");

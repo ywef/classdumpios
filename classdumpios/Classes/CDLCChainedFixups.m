@@ -43,7 +43,6 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
 }
 
 - (void)printFixupsInPage:(uint8_t *)base fixupBase:(uint8_t*)fixupBase header:(struct dyld_chained_fixups_header *)header startsIn:(struct dyld_chained_starts_in_segment *)segment page:(int)pageIndex {
-    DLog(@"fixupBase: %p, segment_offset: %#010llx, page_size: %hu, page_start[%i]: %hu", fixupBase, segment->segment_offset, segment->page_size, pageIndex, segment->page_start[pageIndex]);
     uint32_t chain = (uint32_t)segment->segment_offset + segment->page_size * pageIndex + segment->page_start[pageIndex];
     bool done = false;
     int count = 0;
@@ -61,8 +60,11 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
             } else {
                 // rebase 0x%08lx
                 struct dyld_chained_ptr_64_rebase rebase = *(struct dyld_chained_ptr_64_rebase *)&bind;
-                fprintf(stderr,"        %#010x REBASE   target: %#010llx   high8: %#010x\n",
-                    chain, rebase.target, rebase.high8);
+                
+                uint64_t val = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
+                
+                fprintf(stderr,"        %#010x REBASE   target: %#010llx   high8: %#010x val: %#010llx \n",
+                    chain, rebase.target, rebase.high8, val);
                 [self rebaseAddress:chain target:rebase.target];
             }
 
@@ -137,9 +139,9 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     return _linkeditData;
 }
 
-- (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address {
-    DLog(@"address: %lu", address);
-    NSNumber *key = [NSNumber numberWithUnsignedInteger:address]; // I don't think 32-bit will dump 64-bit stuff.
+- (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address adjustment:(NSUInteger)adj {
+    DLog(@"address: %#010llx (%lu)", address-adj, address-adj);
+    NSNumber *key = [NSNumber numberWithUnsignedInteger:address-adj]; // I don't think 32-bit will dump 64-bit stuff.
     return [_based[key] unsignedIntegerValue];
 }
 
@@ -165,7 +167,6 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
 
 - (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
 {
-    DLog(@"baseAddress: %lu", [[self.machOFile symbolTable] baseAddress]);
     uint8_t *fixup_base = (uint8_t *)[[self linkeditData] bytes];
     struct dyld_chained_fixups_header *header = (struct dyld_chained_fixups_header *)fixup_base;
     printChainedFixupsHeader(header);
@@ -209,8 +210,8 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
             fprintf(stderr,"\n");
         }
 
-        DLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
-        DLog(@"based: %@", _based);
+        //DBLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
+        //DBLog(@"based: %@", _based);
     }
 }
 

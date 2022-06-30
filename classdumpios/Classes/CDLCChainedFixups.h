@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CDLCChainedFixups : CDLoadCommand
-- (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address;
+- (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address adjustment:(NSUInteger)adj;
 @end
 
 NS_ASSUME_NONNULL_END
