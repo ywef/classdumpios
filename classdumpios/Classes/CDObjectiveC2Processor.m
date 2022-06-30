@@ -21,6 +21,7 @@
 #import "CDProtocolUniquer.h"
 #import "CDOCClassReference.h"
 #import "CDLCChainedFixups.h"
+#import "NSData+Flip.h"
 
 @implementation CDObjectiveC2Processor
 {
@@ -45,14 +46,15 @@
     NSUInteger adjustment = segment.vmaddr - segment.fileoff;
     NSUInteger based = 0;
     DBLog(@"segment addr: %#010llx section: %@ offset: %#010llx adj: %#010llx", segment.vmaddr, section, section.segment.fileoff, adjustment);
-    if (self.machOFile.chainedFixups != nil){
-        based = [self.machOFile.chainedFixups rebaseTargetFromAddress:section.addr adjustment:segment.baselineAdjustment];
-        DBLog(@"based: %#010llx (%lu)", based, based);
-    }
+    
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     DBLog(@"cursor: %#010llx", cursor.offset);
     while ([cursor isAtEnd] == NO) {
         uint64_t val = [cursor readPtr];
+        if (self.machOFile.chainedFixups != nil){
+            based = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
+            DBLog(@"based: %#010llx (%lu)", based, based);
+        }
         if (based != 0) {
             fixupAdjustment = val - based;
             DBLog(@"fixup: %#010llx (%llu)", fixupAdjustment, fixupAdjustment);
@@ -290,11 +292,31 @@
     CDOCClass *aClass = [[CDOCClass alloc] init];
     [aClass setName:str];
     DBLog(@"\nLoading methods...\n");
-    for (CDOCMethod *method in [self loadMethodsAtAddress:objc2ClassData.baseMethods])
+    uint64_t methodAddress = objc2ClassData.baseMethods;
+    uint64_t ivarsAddress = objc2ClassData.ivars;
+    uint64_t isaAddress = objc2Class.isa;
+    if (self.machOFile.chainedFixups){
+        uint64_t based = [self.machOFile.chainedFixups rebaseTargetFromAddress:methodAddress adjustment:0];
+        if (based != 0) {
+            ODLog(@"baaaaased", based);
+            methodAddress = based;
+        }
+        based = [self.machOFile.chainedFixups rebaseTargetFromAddress:ivarsAddress adjustment:0];
+        if (based != 0) {
+            ODLog(@"baaaaased ivars", based);
+            ivarsAddress = based;
+        }
+        based = [self.machOFile.chainedFixups rebaseTargetFromAddress:isaAddress adjustment:0];
+        if (based != 0) {
+            ODLog(@"baaaaased isa", based);
+            isaAddress = based;
+        }
+    }
+    for (CDOCMethod *method in [self loadMethodsAtAddress:methodAddress])
         [aClass addInstanceMethod:method];
     
     DBLog(@"\nLoading ivars...\n");
-    aClass.instanceVariables = [self loadIvarsAtAddress:objc2ClassData.ivars];
+    aClass.instanceVariables = [self loadIvarsAtAddress:ivarsAddress];
     
     {
         CDSymbol *classSymbol = [[self.machOFile symbolTable] symbolForClassName:str];
@@ -317,12 +339,19 @@
             superClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
             DBLog(@"class: got external class name (1): %@", [aClass superClassName]);
         } else if (objc2Class.superclass != 0) {
-            DBLog(@"superclass !=0: %016llx (%llu)", objc2Class.superclass, objc2Class.superclass);
-            //CDOCClass *sc = [self loadClassAtAddress:objc2Class.superclass];
+            NSNumber *num = [NSNumber numberWithUnsignedInteger:OSSwapInt64(objc2Class.superclass)];
+            DBLog(@"superclass !=0: %016llx (%llu) num: %@", objc2Class.superclass, objc2Class.superclass, num);
+            //NSString *thing = [[NSData littleEndianHexFromInt:objc2Class.superclass] decimalString];
+            //NSString *symbolName = [self.machOFile.chainedFixups symbolNameForAddress:OSSwapInt64(objc2Class.superclass)];
+            //DBLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
+            //CDOCClass *sc = [self loadClassAtAddress:OSSwapInt64(objc2Class.superclass)];
+            //DBLog(@"super class: %@", sc);
             //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
+            superClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Class.superclass)];
         }
         
         if (superClassName) {
+            DBLog(@"super class name: %@", superClassName);
             CDSymbol *superClassSymbol = [[self.machOFile symbolTable] symbolForExternalClassName:superClassName];
             if (superClassSymbol)
                 aClass.superClassRef = [[CDOCClassReference alloc] initWithClassSymbol:superClassSymbol];
@@ -333,7 +362,7 @@
     
     DBLog(@"\nLoading metaclass methods...\n");
     
-    for (CDOCMethod *method in [self loadMethodsOfMetaClassAtAddress:objc2Class.isa])
+    for (CDOCMethod *method in [self loadMethodsOfMetaClassAtAddress:isaAddress])
         [aClass addClassMethod:method];
     
     DBLog(@"\nProcessing protocols...\n");

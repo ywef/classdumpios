@@ -371,10 +371,25 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 {
     if (address == 0)
         return 0;
-
+    
+    DBLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
         DBLog(@"nil segment");
+        uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
+        if (based != 0){
+            ODLog(@"based", based);
+            address = based;
+            segment = [self segmentContainingAddress:based];
+            //DBLog(@"science?? %@", segment);
+        }
+        //DBLog(@"science?? %@", segment);
+        if (segment == nil){
+            DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
+            //return 0;
+            exit(5);
+        }
+        /*
         if (address > 0x80000000000000){
             address = address - 0x80000000000000;
             segment = [self segmentContainingAddress:address];
@@ -406,6 +421,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
        
             }
         }
+        */
     }
 
 //    if ([segment isProtected]) {

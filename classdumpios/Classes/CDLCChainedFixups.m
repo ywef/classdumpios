@@ -13,6 +13,8 @@
 #import "CDLCSegment.h"
 #import "CDLCSymbolTable.h"
 #import "NSData+Flip.h"
+#import "CDSymbol.h"
+
 @implementation CDLCChainedFixups
 {
     struct linkedit_data_command _linkeditDataCommand;
@@ -54,24 +56,28 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
             if (bind.bind) {
                 struct dyld_chained_import import = ((struct dyld_chained_import *)(fixupBase + header->imports_offset))[bind.ordinal];
                 char *symbol = (char *)(fixupBase + header->symbols_offset + import.name_offset);
-                fprintf(stderr,"        0x%08x BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
-                    chain, bind.ordinal, bind.addend, bind.reserved, symbol);
+                NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
+                //DLog(@"BIND data: %@", data);
+                uint64_t raw = [[[data reverse] decimalString] integerValue];
+                //DBLog(@"raw: %lu", raw);
+                fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
+                    chain, raw, bind.ordinal, bind.addend, bind.reserved, symbol);
+                [self bindAddress:raw type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
                 [self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
-                
+                [self rebaseAddress:raw target:chain];
             } else {
                 // rebase 0x%08lx
                 struct dyld_chained_ptr_64_rebase rebase = *(struct dyld_chained_ptr_64_rebase *)&bind;
                 
-                uint64_t val = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
-                
+            
                 NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
                 //DBLog(@"RAW: %@", [data reverse]);
                 //DBLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
                 uint64_t raw = [[data decimalString] integerValue];
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
-                fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x val: %#010llx \n",
-                    chain, raw, rebase.target, rebase.high8, val);
-                [self rebaseAddress:chain target:rebase.target];
+                fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",
+                    chain, raw, rebase.target, rebase.high8);
+                [self rebaseAddress:raw target:rebase.target];
             }
 
             if (bind.next == 0) {
@@ -143,6 +149,27 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     }
     
     return _linkeditData;
+}
+
+- (NSString *)externalClassNameForAddress:(NSUInteger)address;
+{
+    NSString *str = [self symbolNameForAddress:address];
+
+    if (str != nil) {
+        if ([str hasPrefix:ObjCClassSymbolPrefix]) {
+            return [str substringFromIndex:[ObjCClassSymbolPrefix length]];
+        } else {
+            DLog(@"Warning: Unknown prefix on symbol name... %@ (addr %lx)", str, address);
+            return str;
+        }
+    }
+
+    return nil;
+}
+
+- (NSString *)symbolNameForAddress:(NSUInteger)address;
+{
+    return [_symbolNamesByAddress objectForKey:[NSNumber numberWithUnsignedInteger:address]];
 }
 
 - (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address adjustment:(NSUInteger)adj {
