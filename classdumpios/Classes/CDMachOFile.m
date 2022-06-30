@@ -127,7 +127,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         NSAssert(_uses64BitABI == CDArchUses64BitABI((CDArch){ .cputype = _cputype, .cpusubtype = _cpusubtype }), @"Header magic should match cpu arch", nil);
         
         NSUInteger headerOffset = _uses64BitABI ? sizeof(struct mach_header_64) : sizeof(struct mach_header);
-        DLog(@"header offset: %lu", headerOffset);
+        DBLog(@"header offset: %lu", headerOffset);
         CDMachOFileDataCursor *fileCursor = [[CDMachOFileDataCursor alloc] initWithFile:self offset:headerOffset];
         [self _readLoadCommands:fileCursor count:_ncmds];
     }
@@ -552,10 +552,10 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     // It turns out NSMutableArray is in /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation, so...
     // ... it's an undefined symbol, need to look it up.
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    DLog(@"rinfo: %@", rinfo);
+    DBLog(@"rinfo: %@", rinfo);
     if (rinfo != nil) {
         CDSymbol *symbol = [[self.symbolTable symbols] objectAtIndex:rinfo.symbolnum];
-        DLog(@"symbol: %@", symbol);
+        DBLog(@"symbol: %@", symbol);
 
         // Now we could use GET_LIBRARY_ORDINAL(), look up the the appropriate mach-o file (being sure to have loaded them even without -r),
         // look up the symbol in that mach-o file, get the address, look up the class based on that address, and finally get the class name

@@ -41,27 +41,27 @@
         _dysymtab.locreloff      = [cursor readInt32];
         _dysymtab.nlocrel        = [cursor readInt32];
 #if 0
-        DLog(@"ilocalsym:      0x%08x  %d", dysymtab.ilocalsym, dysymtab.ilocalsym);
-        DLog(@"nlocalsym:      0x%08x  %d", dysymtab.nlocalsym, dysymtab.nlocalsym);
-        DLog(@"iextdefsym:     0x%08x  %d", dysymtab.iextdefsym, dysymtab.iextdefsym);
-        DLog(@"nextdefsym:     0x%08x  %d", dysymtab.nextdefsym, dysymtab.nextdefsym);
-        DLog(@"iundefsym:      0x%08x  %d", dysymtab.iundefsym, dysymtab.iundefsym);
-        DLog(@"nundefsym:      0x%08x  %d", dysymtab.nundefsym, dysymtab.nundefsym);
+        DBLog(@"ilocalsym:      0x%08x  %d", dysymtab.ilocalsym, dysymtab.ilocalsym);
+        DBLog(@"nlocalsym:      0x%08x  %d", dysymtab.nlocalsym, dysymtab.nlocalsym);
+        DBLog(@"iextdefsym:     0x%08x  %d", dysymtab.iextdefsym, dysymtab.iextdefsym);
+        DBLog(@"nextdefsym:     0x%08x  %d", dysymtab.nextdefsym, dysymtab.nextdefsym);
+        DBLog(@"iundefsym:      0x%08x  %d", dysymtab.iundefsym, dysymtab.iundefsym);
+        DBLog(@"nundefsym:      0x%08x  %d", dysymtab.nundefsym, dysymtab.nundefsym);
         
-        DLog(@"tocoff:         0x%08x  %d", dysymtab.tocoff, dysymtab.tocoff);
-        DLog(@"ntoc:           0x%08x  %d", dysymtab.ntoc, dysymtab.ntoc);
-        DLog(@"modtaboff:      0x%08x  %d", dysymtab.modtaboff, dysymtab.modtaboff);
-        DLog(@"nmodtab:        0x%08x  %d", dysymtab.nmodtab, dysymtab.nmodtab);
+        DBLog(@"tocoff:         0x%08x  %d", dysymtab.tocoff, dysymtab.tocoff);
+        DBLog(@"ntoc:           0x%08x  %d", dysymtab.ntoc, dysymtab.ntoc);
+        DBLog(@"modtaboff:      0x%08x  %d", dysymtab.modtaboff, dysymtab.modtaboff);
+        DBLog(@"nmodtab:        0x%08x  %d", dysymtab.nmodtab, dysymtab.nmodtab);
         
-        DLog(@"extrefsymoff:   0x%08x  %d", dysymtab.extrefsymoff, dysymtab.extrefsymoff);
-        DLog(@"nextrefsyms:    0x%08x  %d", dysymtab.nextrefsyms, dysymtab.nextrefsyms);
-        DLog(@"indirectsymoff: 0x%08x  %d", dysymtab.indirectsymoff, dysymtab.indirectsymoff);
-        DLog(@"nindirectsyms:  0x%08x  %d", dysymtab.nindirectsyms, dysymtab.nindirectsyms);
+        DBLog(@"extrefsymoff:   0x%08x  %d", dysymtab.extrefsymoff, dysymtab.extrefsymoff);
+        DBLog(@"nextrefsyms:    0x%08x  %d", dysymtab.nextrefsyms, dysymtab.nextrefsyms);
+        DBLog(@"indirectsymoff: 0x%08x  %d", dysymtab.indirectsymoff, dysymtab.indirectsymoff);
+        DBLog(@"nindirectsyms:  0x%08x  %d", dysymtab.nindirectsyms, dysymtab.nindirectsyms);
         
-        DLog(@"extreloff:      0x%08x  %d", dysymtab.extreloff, dysymtab.extreloff);
-        DLog(@"nextrel:        0x%08x  %d", dysymtab.nextrel, dysymtab.nextrel);
-        DLog(@"locreloff:      0x%08x  %d", dysymtab.locreloff, dysymtab.locreloff);
-        DLog(@"nlocrel:        0x%08x  %d", dysymtab.nlocrel, dysymtab.nlocrel);
+        DBLog(@"extreloff:      0x%08x  %d", dysymtab.extreloff, dysymtab.extreloff);
+        DBLog(@"nextrel:        0x%08x  %d", dysymtab.nextrel, dysymtab.nextrel);
+        DBLog(@"locreloff:      0x%08x  %d", dysymtab.locreloff, dysymtab.locreloff);
+        DBLog(@"nlocrel:        0x%08x  %d", dysymtab.nlocrel, dysymtab.nlocrel);
 #endif
         
         _externalRelocationEntries = [[NSMutableArray alloc] init];
@@ -95,7 +95,7 @@
     for (uint32_t index = 0; index < dysymtab.nindirectsyms; index++) {
         // From loader.h: An indirect symbol table entry is simply a 32bit index into the symbol table to the symbol that the pointer or stub is referring to.
         uint32_t val = [cursor readInt32];
-        DLog(@"%3u: %08x (%u)", index, val, val);
+        DBLog(@"%3u: %08x (%u)", index, val, val);
     }
 #endif
 
@@ -103,8 +103,8 @@
     DBLog(@"nextrel:   %u", _dysymtab.nextrel);
 #ifdef DEBUG
     if (_dysymtab.nextrel > 0){
-        DLog(@"     address   val       symbolnum  pcrel  len  ext  type");
-        DLog(@"---  --------  --------  ---------  -----  ---  ---  ----");
+        DBLog(@"     address   val       symbolnum  pcrel  len  ext  type");
+        DBLog(@"---  --------  --------  ---------  -----  ---  ---  ----");
     }
 #endif
     for (uint32_t index = 0; index < _dysymtab.nextrel; index++) {
@@ -119,7 +119,7 @@
         rinfo.r_extern    = (val & 0x08000000) >> 27;
         rinfo.r_type      = (val & 0xf0000000) >> 28;
 #ifdef DEBUG
-        DLog(@"%3d: %08x  %08x   %08x      %01x    %01x    %01x     %01x", index, rinfo.r_address, val,
+        DBLog(@"%3d: %08x  %08x   %08x      %01x    %01x    %01x     %01x", index, rinfo.r_address, val,
               rinfo.r_symbolnum, rinfo.r_pcrel, rinfo.r_length, rinfo.r_extern, rinfo.r_type);
 #endif
 
@@ -127,7 +127,7 @@
         [externalRelocationEntries addObject:ri];
     }
 
-    //DLog(@"externalRelocationEntries: %@", externalRelocationEntries);
+    //DBLog(@"externalRelocationEntries: %@", externalRelocationEntries);
 
     // r_address is purported to be the offset from the vmaddr of the first segment, but...
     // It seems to be from the first segment with r/w initprot.

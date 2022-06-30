@@ -150,31 +150,31 @@ static BOOL debugAnonStructures = NO;
 
 - (void)finishPhase0;
 {
-    if (debug) DLog(@"[%@] %s, changing struct names that start with $", self.identifier, _cmds);
+    if (debug) DBLog(@"[%@] %s, changing struct names that start with $", self.identifier, _cmds);
     for (CDStructureInfo *info in [_phase0_structureInfo allValues]) {
         [info.type phase0RecursivelyFixStructureNames:debug];
     }
 
     if ([_debugNames count] > 0) {
-        DLog(@"======================================================================");
-        DLog(@"[%@] %s", self.identifier, _cmds);
-        DLog(@"debug names: %@", [[_debugNames allObjects] componentsJoinedByString:@", "]);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@] %s", self.identifier, _cmds);
+        DBLog(@"debug names: %@", [[_debugNames allObjects] componentsJoinedByString:@", "]);
         for (CDStructureInfo *info in [[_phase0_structureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
             if ([_debugNames containsObject:[info.type.typeName description]])
-                DLog(@"%@", [info shortDescription]);
+                DBLog(@"%@", [info shortDescription]);
         }
-        DLog(@"======================================================================");
+        DBLog(@"======================================================================");
     }
 
     if ([_debugAnon count] > 0) {
-        DLog(@"======================================================================");
-        DLog(@"[%@] %s", self.identifier, _cmds);
-        DLog(@"debug anon: %@", [[_debugAnon allObjects] componentsJoinedByString:@", "]);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@] %s", self.identifier, _cmds);
+        DBLog(@"debug anon: %@", [[_debugAnon allObjects] componentsJoinedByString:@", "]);
         for (CDStructureInfo *info in [[_phase0_structureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
             if ([_debugAnon containsObject:info.type.reallyBareTypeString])
-                DLog(@"%@", [info shortDescription]);
+                DBLog(@"%@", [info shortDescription]);
         }
-        DLog(@"======================================================================");
+        DBLog(@"======================================================================");
     }
 }
 
@@ -203,8 +203,8 @@ static BOOL debugAnonStructures = NO;
 - (void)finishPhase1;
 {
     if (debug) {
-        DLog(@"======================================================================");
-        DLog(@"[%@] %s", self.identifier, _cmds);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@] %s", self.identifier, _cmds);
     }
 
     // The deepest union may not be at the top level (buried in a structure instead), so need to get the depth here.
@@ -215,7 +215,7 @@ static BOOL debugAnonStructures = NO;
         if (_phase1_maxDepth < depth)
             _phase1_maxDepth = depth;
     }
-    if (debug) DLog(@"[%@] Maximum structure depth is: %lu", self.identifier, _phase1_maxDepth);
+    if (debug) DBLog(@"[%@] Maximum structure depth is: %lu", self.identifier, _phase1_maxDepth);
 
     for (CDStructureInfo *info in [_phase1_structureInfo allValues]) {
         NSNumber *key = [NSNumber numberWithUnsignedInteger:info.type.structureDepth];
@@ -229,7 +229,7 @@ static BOOL debugAnonStructures = NO;
         }
     }
 
-    if (debug) DLog(@"depth groups: %@", [[_phase1_groupedByDepth allKeys] sortedArrayUsingSelector:@selector(compare:)]);
+    if (debug) DBLog(@"depth groups: %@", [[_phase1_groupedByDepth allKeys] sortedArrayUsingSelector:@selector(compare:)]);
 }
 
 - (NSUInteger)phase1_maxDepth;
@@ -246,14 +246,14 @@ static BOOL debugAnonStructures = NO;
 
 - (void)runPhase2AtDepth:(NSUInteger)depth;
 {
-    //DLog(@"[%@] %s, depth: %u", identifier, _cmds, depth);
+    //DBLog(@"[%@] %s, depth: %u", identifier, _cmds, depth);
     NSNumber *depthKey = [NSNumber numberWithUnsignedInteger:depth];
     NSArray *infos = _phase1_groupedByDepth[depthKey];
 
     for (CDStructureInfo *info in infos) {
         // recursively (bottom up) try to merge substructures into that type, to get names/full types
-        //DLog(@"----------------------------------------");
-        //DLog(@"Trying phase2Merge with on %@", [[info type] typeString]);
+        //DBLog(@"----------------------------------------");
+        //DBLog(@"Trying phase2Merge with on %@", [[info type] typeString]);
         [info.type phase2MergeWithTypeController:self.typeController debug:debug];
     }
 
@@ -293,14 +293,14 @@ static BOOL debugAnonStructures = NO;
     for (NSString *key in [nameDict allKeys]) {
         CDStructureInfo *combined = nil;
 
-        //DLog(@"key... %@", key);
+        //DBLog(@"key... %@", key);
         NSMutableArray *group = nameDict[key];
         for (CDStructureInfo *info in group) {
             if (combined == nil) {
                 combined = [info copy];
             } else {
-                //DLog(@"old: %@", [[combined type] typeString]);
-                //DLog(@"new: %@", [[info type] typeString]);
+                //DBLog(@"old: %@", [[combined type] typeString]);
+                //DBLog(@"new: %@", [[info type] typeString]);
                 if ([combined.type canMergeWithType:info.type]) {
                     [combined.type mergeWithType:info.type];
                     [combined addReferenceCount:info.referenceCount];
@@ -324,37 +324,37 @@ static BOOL debugAnonStructures = NO;
                 [_phase2_nameExceptions addObject:combined];
                 [_phase2_namedStructureInfo removeObjectForKey:key];
                 if (debugNamedStructures) {
-                    DLog(@"[%@] %s, WARNING: depth %lu name %@ has conflict(?) at lower level", self.identifier, _cmds, depth, key);
-                    DLog(@"previous: %@", [_phase2_namedStructureInfo[key] shortDescription]);
-                    DLog(@" current: %@", [combined shortDescription]);
+                    DBLog(@"[%@] %s, WARNING: depth %lu name %@ has conflict(?) at lower level", self.identifier, _cmds, depth, key);
+                    DBLog(@"previous: %@", [_phase2_namedStructureInfo[key] shortDescription]);
+                    DBLog(@" current: %@", [combined shortDescription]);
                 }
             } else {
                 _phase2_namedStructureInfo[key] = combined;
             }
         } else {
             if (debugNamedStructures) {
-                DLog(@"----------------------------------------");
-                DLog(@"Can't be combined: %@", key);
-                DLog(@"group: %@", group);
+                DBLog(@"----------------------------------------");
+                DBLog(@"Can't be combined: %@", key);
+                DBLog(@"group: %@", group);
             }
             [_phase2_nameExceptions addObjectsFromArray:group];
         }
     }
 
-    //DLog(@"======================================================================");
+    //DBLog(@"======================================================================");
     for (NSString *key in [anonDict allKeys]) {
         CDStructureInfo *combined = nil;
 
-        //DLog(@"key... %@", key);
+        //DBLog(@"key... %@", key);
         NSMutableArray *group = anonDict[key];
         for (CDStructureInfo *info in group) {
             if (combined == nil) {
                 combined = [info copy];
-                //DLog(@"info: %@", [info shortDescription]);
-                //DLog(@"combined: %@", [combined shortDescription]);
+                //DBLog(@"info: %@", [info shortDescription]);
+                //DBLog(@"combined: %@", [combined shortDescription]);
             } else {
-                //DLog(@"old: %@", [combined shortDescription]);
-                //DLog(@"new: %@", [info shortDescription]);
+                //DBLog(@"old: %@", [combined shortDescription]);
+                //DBLog(@"new: %@", [info shortDescription]);
                 if ([combined.type canMergeWithType:info.type]) {
                     [combined.type mergeWithType:info.type];
                     [combined addReferenceCount:info.referenceCount];
@@ -364,8 +364,8 @@ static BOOL debugAnonStructures = NO;
 #endif
                 } else {
                     if (debugAnonStructures) {
-                        DLog(@"previous: %@", combined.type.typeString);
-                        DLog(@"    This: %@", info.type.typeString);
+                        DBLog(@"previous: %@", combined.type.typeString);
+                        DBLog(@"    This: %@", info.type.typeString);
                     }
                     combined = nil;
                     break;
@@ -376,16 +376,16 @@ static BOOL debugAnonStructures = NO;
         if (combined != nil) {
             if (_phase2_anonStructureInfo[key] != nil) {
                 // This shouldn't happen, but the named case might.
-                DLog(@"[%@] %s, WARNING: depth %lu type %@ has conflict(?) at lower level", self.identifier, _cmds, depth, key);
-                DLog(@"previous: %@", [_phase2_anonStructureInfo[key] shortDescription]);
-                DLog(@" current: %@", [combined shortDescription]);
+                DBLog(@"[%@] %s, WARNING: depth %lu type %@ has conflict(?) at lower level", self.identifier, _cmds, depth, key);
+                DBLog(@"previous: %@", [_phase2_anonStructureInfo[key] shortDescription]);
+                DBLog(@" current: %@", [combined shortDescription]);
             }
             _phase2_anonStructureInfo[key] = combined;
         } else {
             if (debugAnonStructures) {
-                DLog(@"----------------------------------------");
-                DLog(@"Can't be combined: %@", key);
-                DLog(@"group: %@", group);
+                DBLog(@"----------------------------------------");
+                DBLog(@"Can't be combined: %@", key);
+                DBLog(@"group: %@", group);
             }
             [_phase2_anonExceptions addObjectsFromArray:group];
         }
@@ -409,25 +409,25 @@ static BOOL debugAnonStructures = NO;
 - (void)finishPhase2;
 {
     if ([_debugNames count] > 0) {
-        DLog(@"======================================================================");
-        DLog(@"[%@] %s", self.identifier, _cmds);
-        DLog(@"debug names: %@", [[_debugNames allObjects] componentsJoinedByString:@", "]);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@] %s", self.identifier, _cmds);
+        DBLog(@"debug names: %@", [[_debugNames allObjects] componentsJoinedByString:@", "]);
         for (CDStructureInfo *info in [[_phase2_namedStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
             if ([_debugNames containsObject:[info.type.typeName description]])
-                DLog(@"%@", [info shortDescription]);
+                DBLog(@"%@", [info shortDescription]);
         }
-        DLog(@"======================================================================");
+        DBLog(@"======================================================================");
     }
 
     if ([_debugAnon count] > 0) {
-        DLog(@"======================================================================");
-        DLog(@"[%@] %s", self.identifier, _cmds);
-        DLog(@"debug anon: %@", [[_debugAnon allObjects] componentsJoinedByString:@", "]);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@] %s", self.identifier, _cmds);
+        DBLog(@"debug anon: %@", [[_debugAnon allObjects] componentsJoinedByString:@", "]);
         for (CDStructureInfo *info in [[_phase2_anonStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
             if ([_debugAnon containsObject:info.type.reallyBareTypeString])
-                DLog(@"%@", [info shortDescription]);
+                DBLog(@"%@", [info shortDescription]);
         }
-        DLog(@"======================================================================");
+        DBLog(@"======================================================================");
     }
 
     //[self logPhase2Info];
@@ -438,15 +438,15 @@ static BOOL debugAnonStructures = NO;
 - (void)phase2ReplacementOnPhase0;
 {
     if (debug) {
-        DLog(@"======================================================================");
-        DLog(@"[%@]  > %s", self.identifier, _cmds);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@]  > %s", self.identifier, _cmds);
     }
 
     for (CDStructureInfo *info in [_phase0_structureInfo allValues]) {
         [info.type phase2MergeWithTypeController:self.typeController debug:debug];
     }
 
-    if (debug) DLog(@"[%@] <  %s", self.identifier, _cmds);
+    if (debug) DBLog(@"[%@] <  %s", self.identifier, _cmds);
 }
 
 // Go through all updated phase0_structureInfo types
@@ -473,35 +473,35 @@ static BOOL debugAnonStructures = NO;
         _phase3_anonExceptions[newInfo.type.typeString] = newInfo;
     }
 
-    //DLog(@"phase3 name exceptions: %@", [[phase3_nameExceptions allKeys] componentsJoinedByString:@", "]);
-    //DLog(@"phase3 anon exceptions: %@", [[phase3_anonExceptions allKeys] componentsJoinedByString:@"\n"]);
+    //DBLog(@"phase3 name exceptions: %@", [[phase3_nameExceptions allKeys] componentsJoinedByString:@", "]);
+    //DBLog(@"phase3 anon exceptions: %@", [[phase3_anonExceptions allKeys] componentsJoinedByString:@"\n"]);
     //exit(99);
 }
 
 - (void)runPhase3;
 {
-    //DLog(@"[%@]  > %s", identifier, _cmds);
+    //DBLog(@"[%@]  > %s", identifier, _cmds);
 
     for (CDStructureInfo *info in [[_phase0_structureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
         [self phase3RegisterStructure:info.type count:info.referenceCount usedInMethod:info.isUsedInMethod];
     }
 
-    //DLog(@"[%@] <  %s", identifier, _cmds);
+    //DBLog(@"[%@] <  %s", identifier, _cmds);
 }
 
 - (void)phase3RegisterStructure:(CDType *)structure
                           count:(NSUInteger)referenceCount
                    usedInMethod:(BOOL)isUsedInMethod
 {
-    //DLog(@"[%@]  > %s", identifier, _cmds);
+    //DBLog(@"[%@]  > %s", identifier, _cmds);
 
     NSString *name = [structure.typeName description];
     if ([@"?" isEqualToString:name]) {
         NSString *key = structure.reallyBareTypeString;
-        //DLog(@"key: %@, isUsedInMethod: %u", key, isUsedInMethod);
+        //DBLog(@"key: %@, isUsedInMethod: %u", key, isUsedInMethod);
         CDStructureInfo *info = _phase3_anonExceptions[structure.typeString];
         if (info != nil) {
-            if (debugAnonStructures) DLog(@"%s, anon key %@ has exception from phase 2", _cmds, structure.typeString);
+            if (debugAnonStructures) DBLog(@"%s, anon key %@ has exception from phase 2", _cmds, structure.typeString);
             [info addReferenceCount:referenceCount];
             if (isUsedInMethod)
                 info.isUsedInMethod = YES;
@@ -528,10 +528,10 @@ static BOOL debugAnonStructures = NO;
             }
         }
     } else {
-        if ([_debugNames containsObject:name]) DLog(@"[%@] %s, type= %@", self.identifier, _cmds, structure.typeString);
-        //DLog(@"[%@] %s, name: %@", identifier, _cmds, name);
+        if ([_debugNames containsObject:name]) DBLog(@"[%@] %s, type= %@", self.identifier, _cmds, structure.typeString);
+        //DBLog(@"[%@] %s, name: %@", identifier, _cmds, name);
         if ([_phase3_exceptionalNames containsObject:name]) {
-            if (debugNamedStructures) DLog(@"%s, name %@ has exception from phase 2", _cmds, name);
+            if (debugNamedStructures) DBLog(@"%s, name %@ has exception from phase 2", _cmds, name);
             CDStructureInfo *info = _phase3_nameExceptions[structure.typeString];
             // Info can be nil.  For example, from {_CommandStackEntry}
             if (info != nil) {
@@ -547,7 +547,7 @@ static BOOL debugAnonStructures = NO;
         } else {
             CDStructureInfo *info = _phase3_namedStructureInfo[name];
             if (info == nil) {
-                if ([_debugNames containsObject:name]) DLog(@"[%@] %s, info was nil for %@", self.identifier, _cmds, name);
+                if ([_debugNames containsObject:name]) DBLog(@"[%@] %s, info was nil for %@", self.identifier, _cmds, name);
                 info = [[CDStructureInfo alloc] initWithType:structure];
                 [info setReferenceCount:referenceCount];
                 if (isUsedInMethod)
@@ -557,7 +557,7 @@ static BOOL debugAnonStructures = NO;
                 // And then... add 1 reference for each substructure, stopping recursion when we've encountered a previous structure
                 [structure phase3RegisterMembersWithTypeController:self.typeController];
             } else {
-                if ([_debugNames containsObject:name]) DLog(@"[%@] %s, info before: %@", self.identifier, _cmds, [info shortDescription]);
+                if ([_debugNames containsObject:name]) DBLog(@"[%@] %s, info before: %@", self.identifier, _cmds, [info shortDescription]);
                 // Handle the case where {foo} occurs before {foo=iii}
                 if ([info.type.members count] == 0) {
                     [info.type mergeWithType:structure];
@@ -569,45 +569,45 @@ static BOOL debugAnonStructures = NO;
                 if (isUsedInMethod)
                     info.isUsedInMethod = YES;
                 if ([_debugNames containsObject:name]) {
-                    DLog(@"[%@] %s, added ref count: %lu, isUsedInMethod: %u", self.identifier, _cmds, referenceCount, isUsedInMethod);
-                    DLog(@"[%@] %s, info after: %@", self.identifier, _cmds, [info shortDescription]);
+                    DBLog(@"[%@] %s, added ref count: %lu, isUsedInMethod: %u", self.identifier, _cmds, referenceCount, isUsedInMethod);
+                    DBLog(@"[%@] %s, info after: %@", self.identifier, _cmds, [info shortDescription]);
                 }
             }
         }
     }
 
-    //DLog(@"[%@] <  %s", identifier, _cmds);
+    //DBLog(@"[%@] <  %s", identifier, _cmds);
 }
 
 - (void)finishPhase3;
 {
     if ([_debugNames count] > 0) {
-        DLog(@"======================================================================");
-        DLog(@"[%@] %s", self.identifier, _cmds);
-        DLog(@"names: %@", [[_debugNames allObjects] componentsJoinedByString:@", "]);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@] %s", self.identifier, _cmds);
+        DBLog(@"names: %@", [[_debugNames allObjects] componentsJoinedByString:@", "]);
         for (CDStructureInfo *info in [[_phase3_namedStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
             if ([_debugNames containsObject:[info.type.typeName description]])
-                DLog(@"%@", [info shortDescription]);
+                DBLog(@"%@", [info shortDescription]);
         }
         for (CDStructureInfo *info in [_phase3_nameExceptions allValues]) {
             if ([_debugNames containsObject:[info name]])
-                DLog(@"%@ is in the name exceptions", info.name);
+                DBLog(@"%@ is in the name exceptions", info.name);
         }
-        DLog(@"======================================================================");
+        DBLog(@"======================================================================");
     }
 
     if ([_debugAnon count] > 0) {
-        DLog(@"======================================================================");
-        DLog(@"[%@] %s", self.identifier, _cmds);
-        DLog(@"debug anon: %@", [[_debugAnon allObjects] componentsJoinedByString:@", "]);
+        DBLog(@"======================================================================");
+        DBLog(@"[%@] %s", self.identifier, _cmds);
+        DBLog(@"debug anon: %@", [[_debugAnon allObjects] componentsJoinedByString:@", "]);
         for (CDStructureInfo *info in [[_phase3_anonStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
             if ([_debugAnon containsObject:info.type.reallyBareTypeString])
-                DLog(@"%@", [info shortDescription]);
+                DBLog(@"%@", [info shortDescription]);
         }
         for (NSString *str in _debugAnon)
             if (_phase3_anonExceptions[str] != nil)
-                DLog(@"%@ is in the anon exceptions", str);
-        DLog(@"======================================================================");
+                DBLog(@"%@ is in the anon exceptions", str);
+        DBLog(@"======================================================================");
     }
 
     //[self logPhase3Info];
@@ -855,7 +855,7 @@ static BOOL debugAnonStructures = NO;
         if (info == nil) {
             info = _phase3_nameExceptions[type.typeString];
             if (info != nil) {
-                //DLog(@"[%@] %s, found phase3 name exception... %@", identifier, _cmds, [info shortDescription]);
+                //DBLog(@"[%@] %s, found phase3 name exception... %@", identifier, _cmds, [info shortDescription]);
                 //return NO;
             }
         }
@@ -869,7 +869,7 @@ static BOOL debugAnonStructures = NO;
     CDStructureInfo *info = _phase3_anonStructureInfo[type.reallyBareTypeString];
     if (info == nil) {
         info = _phase3_anonExceptions[type.typeString];
-        //DLog(@"fallback typedef info? %@ -- %@", [info shortDescription], info.typedefName);
+        //DBLog(@"fallback typedef info? %@ -- %@", [info shortDescription], info.typedefName);
     }
 
     if (info == nil) {
@@ -877,7 +877,7 @@ static BOOL debugAnonStructures = NO;
         info = _phase3_nameExceptions[type.typeString];
 #if 0
         if (info != nil)
-            DLog(@"Got typedef name for phase3 name exception: %@", info.typedefName);
+            DBLog(@"Got typedef name for phase3 name exception: %@", info.typedefName);
 #endif
     }
 
@@ -886,7 +886,7 @@ static BOOL debugAnonStructures = NO;
     }
 #if 0
     if (type.isTemplateType && info.typedefName == nil) {
-        DLog(@"Warning: no typedef name for type: %@", type.typeString);
+        DBLog(@"Warning: no typedef name for type: %@", type.typeString);
     }
 #endif
 
@@ -907,70 +907,70 @@ static BOOL debugAnonStructures = NO;
 
 - (void)logPhase0Info;
 {
-    DLog(@"======================================================================");
-    DLog(@"[%@] %s", self.identifier, _cmds);
+    DBLog(@"======================================================================");
+    DBLog(@"[%@] %s", self.identifier, _cmds);
     for (CDStructureInfo *info in [[_phase0_structureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
-    DLog(@"======================================================================");
+    DBLog(@"======================================================================");
 }
 
 - (void)logPhase2Info;
 {
 #if 0
-    DLog(@"======================================================================");
-    DLog(@"[%@] %s, named:", identifier, _cmds);
+    DBLog(@"======================================================================");
+    DBLog(@"[%@] %s, named:", identifier, _cmds);
     for (CDStructureInfo *info in [[phase2_namedStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
 #endif
 #if 0
-    DLog(@"======================================================================");
-    DLog(@"[%@] %s, anon:", identifier, _cmds);
+    DBLog(@"======================================================================");
+    DBLog(@"[%@] %s, anon:", identifier, _cmds);
     for (CDStructureInfo *info in [[phase2_anonStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
 #endif
 #if 1
-    DLog(@"======================================================================");
-    DLog(@"[%@] %s, named exceptions:", self.identifier, _cmds);
+    DBLog(@"======================================================================");
+    DBLog(@"[%@] %s, named exceptions:", self.identifier, _cmds);
     for (CDStructureInfo *info in [_phase2_nameExceptions sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
 #endif
 #if 0
-    DLog(@"======================================================================");
-    DLog(@"[%@] %s, anon exceptions:", identifier, _cmds);
+    DBLog(@"======================================================================");
+    DBLog(@"[%@] %s, anon exceptions:", identifier, _cmds);
     for (CDStructureInfo *info in [phase2_anonExceptions sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
 #endif
 }
 
 - (void)logPhase3Info;
 {
-    DLog(@"[%@]  > %s", self.identifier, _cmds);
+    DBLog(@"[%@]  > %s", self.identifier, _cmds);
 #if 0
-    DLog(@"----------------------------------------------------------------------");
-    DLog(@"named:");
+    DBLog(@"----------------------------------------------------------------------");
+    DBLog(@"named:");
     for (NSString *name in [[phase3_namedStructureInfo allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
         CDStructureInfo *info = phase3_namedStructureInfo[name];
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
     
-    DLog(@"----------------------------------------------------------------------");
-    DLog(@"anon:");
+    DBLog(@"----------------------------------------------------------------------");
+    DBLog(@"anon:");
     for (CDStructureInfo *info in [[phase3_anonStructureInfo allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
 #endif
-    DLog(@"======================================================================");
-    DLog(@"[%@] %s, anon exceptions:", self.identifier, _cmds);
+    DBLog(@"======================================================================");
+    DBLog(@"[%@] %s, anon exceptions:", self.identifier, _cmds);
     for (CDStructureInfo *info in [[_phase3_anonExceptions allValues] sortedArrayUsingSelector:@selector(ascendingCompareByStructureDepth:)]) {
-        DLog(@"%@", [info shortDescription]);
+        DBLog(@"%@", [info shortDescription]);
     }
     
-    DLog(@"[%@] <  %s", self.identifier, _cmds);
+    DBLog(@"[%@] <  %s", self.identifier, _cmds);
 }
 
 @end
