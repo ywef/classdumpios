@@ -337,10 +337,17 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
+        uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
+        if (based != 0){
+            ODLog(@"stringAtAddress: based", based);
+            address = based;
+            segment = [self segmentContainingAddress:based];
+        }
+        /*
         if (address > 0x10000000000000){
             address = address - 0x10000000000000;
             segment = [self segmentContainingAddress:address];
-        }
+        }*/
         if (segment == nil) {
             DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
             exit(5);

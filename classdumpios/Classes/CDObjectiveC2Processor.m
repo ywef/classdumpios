@@ -125,11 +125,13 @@
         }
         
         DBLog(@"----------------------------------------");
-        DBLog(@"%016llx %016llx %016llx %016llx", objc2Protocol.isa, objc2Protocol.name, objc2Protocol.protocols, objc2Protocol.instanceMethods);
-        DBLog(@"%016llx %016llx %016llx %016llx", objc2Protocol.classMethods, objc2Protocol.optionalInstanceMethods, objc2Protocol.optionalClassMethods, objc2Protocol.instanceProperties);
+        DBLog(@"isa: %016llx name: %016llx protocols: %016llx  instance methods: %016llx", objc2Protocol.isa, objc2Protocol.name, objc2Protocol.protocols, objc2Protocol.instanceMethods);
+        DBLog(@"classMethods: %016llx optionalInstanceMethods: %016llx optionalClassMethods: %016llx instanceProperties: %016llx", objc2Protocol.classMethods, objc2Protocol.optionalInstanceMethods, objc2Protocol.optionalClassMethods, objc2Protocol.instanceProperties);
         
         NSString *str = [self.machOFile stringAtAddress:objc2Protocol.name];
         [protocol setName:str];
+        
+        DBLog(@"protocol name: %@", str);
         
         if (objc2Protocol.protocols != 0) {
             [cursor setAddress:objc2Protocol.protocols];
@@ -244,7 +246,7 @@
     //NSParameterAssert([cursor offset] != 0);
     
     struct cd_objc2_class objc2Class;
-    objc2Class.isa        = [cursor readPtr]-fixupAdjustment;
+    objc2Class.isa        = [cursor readPtr];
     objc2Class.superclass = [cursor readPtr];
     objc2Class.cache      = [cursor readPtr];
     objc2Class.vtable     = [cursor readPtr];
@@ -261,7 +263,7 @@
     
     NSParameterAssert(objc2Class.data != 0);
     if (self.machOFile.chainedFixups){
-        [cursor setAddress:objc2Class.data-fixupAdjustment];
+        [cursor setAddress:objc2Class.data];
     } else {
         [cursor setAddress:objc2Class.data];
     }
