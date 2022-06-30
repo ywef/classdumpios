@@ -317,7 +317,7 @@
             superClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
             DBLog(@"class: got external class name (1): %@", [aClass superClassName]);
         } else if (objc2Class.superclass != 0) {
-            DBLog(@"superclass !=0: %llu",objc2Class.superclass);
+            DBLog(@"superclass !=0: %016llx (%llu)", objc2Class.superclass, objc2Class.superclass);
             //CDOCClass *sc = [self loadClassAtAddress:objc2Class.superclass];
             //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
         }

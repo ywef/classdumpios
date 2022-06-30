@@ -169,7 +169,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                 [runPathCommands addObject:loadCommand];
             }
         }
-        //DBLog(@"loadCommand: %@", loadCommand);
+        DBLog(@"loadCommand: %@", loadCommand);
     }
     _loadCommands      = [loadCommands copy];
     _dylibLoadCommands = [dylibLoadCommands copy];
