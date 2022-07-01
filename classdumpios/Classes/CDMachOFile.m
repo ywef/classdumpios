@@ -340,7 +340,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             if ([CDClassDump isVerbose]){
-                ODLog(@"stringAtAddress: based", based);
+                //ODLog(@"stringAtAddress: based", based);
             }
             address = based;
             segment = [self segmentContainingAddress:based];
@@ -378,6 +378,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (NSUInteger)dataOffsetForAddress:(NSUInteger)address;
 {
+    LOG_CMD;
     if (address == 0)
         return 0;
     

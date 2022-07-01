@@ -122,6 +122,16 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     return vb || [[[NSProcessInfo processInfo] arguments] containsObject:@"-v"];
 }
 
++ (void)logLevel:(NSInteger)level string:(NSString *)string {
+    if (level == 0){ //info level
+        DLog(@"%@", string);
+    } else {
+        if ([self isVerbose]){
+            DLog(@"%@", string);
+        }
+    }
+}
+
 + (void)logLevel:(NSInteger)level stringWithFormat:(NSString *)fmt, ... {
     //DLog(@"logLevel: %lu", level);
     //return;
