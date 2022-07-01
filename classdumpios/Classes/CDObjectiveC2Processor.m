@@ -190,7 +190,7 @@
     CDOCCategory *category = [[CDOCCategory alloc] init];
     NSString *str = [self.machOFile stringAtAddress:objc2Category.name];
     [category setName:str];
-    
+    DBLog(@"Category Name: %@", str);
     for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Category.instanceMethods])
         [category addInstanceMethod:method];
     
@@ -209,13 +209,24 @@
         NSString *externalClassName = nil;
         if ([self.machOFile hasRelocationEntryForAddress2:classNameAddress]) {
             externalClassName = [self.machOFile externalClassNameForAddress2:classNameAddress];
-            //DBLog(@"category: got external class name (2): %@", [category className]);
+            DBLog(@"category: got external class name (2): %@ %@", [category className], externalClassName);
         } else if ([self.machOFile hasRelocationEntryForAddress:classNameAddress]) {
             externalClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
-            //DBLog(@"category: got external class name (1): %@", externalClassName);
+            DBLog(@"category: got external class name (1): %@ %@", externalClassName, externalClassName);
         } else if (objc2Category.class != 0) {
+            NSNumber *num = [NSNumber numberWithUnsignedInteger:OSSwapInt64(objc2Category.class)];
+            DBLog(@"category external class !=0: %016llx (%llu) num: %@", objc2Category.class, objc2Category.class, num);
+            //NSString *thing = [[NSData littleEndianHexFromInt:objc2Class.superclass] decimalString];
+            //NSString *symbolName = [self.machOFile.chainedFixups symbolNameForAddress:OSSwapInt64(objc2Class.superclass)];
+            //DBLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
+            //CDOCClass *sc = [self loadClassAtAddress:OSSwapInt64(objc2Class.superclass)];
+            //DBLog(@"super class: %@", sc);
+            //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
+            externalClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Category.class)];
+            /*
             CDOCClass *aClass = [self classWithAddress:objc2Category.class];
             category.classRef = [[CDOCClassReference alloc] initWithClassObject:aClass];
+             */
         }
         
         if (externalClassName != nil) {

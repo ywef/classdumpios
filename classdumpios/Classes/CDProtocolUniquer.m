@@ -51,6 +51,10 @@
     
     for (NSNumber *key in [[_protocolsByAddress allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
         CDOCProtocol *p1 = _protocolsByAddress[key];
+        DBLog(@"p1 name: %@", p1);
+        if (p1.name == nil) {
+            continue;
+        }
         CDOCProtocol *uniqueProtocol = _uniqueProtocolsByName[p1.name];
         if (uniqueProtocol == nil) {
             uniqueProtocol = [[CDOCProtocol alloc] init];
@@ -59,7 +63,11 @@
             // adopted protocols still not set, will want uniqued instances
         } else {
         }
-        _uniqueProtocolsByAddress[key] = uniqueProtocol;
+        if (key){
+            _uniqueProtocolsByAddress[key] = uniqueProtocol;
+        } else {
+            DBLog(@"no key for %@", uniqueProtocol);
+        }
     }
     
     //DLog(@"uniqued protocol names: %@", [[[protocolsByName allKeys] sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
