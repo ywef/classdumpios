@@ -455,34 +455,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4C952D042837E11D00BFE504 = {
+		4C0F406C286F741200C2E934 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				32624D2B286D0DD700571352 /* class-dump-Prefix.pch */,
-				4C952D0F2837E11D00BFE504 /* classdumpios */,
-				4CDA2A81286263F800566FBB /* classdump */,
-				4C952D0E2837E11D00BFE504 /* Products */,
+				4C952DA72837E18500BFE504 /* ext.h */,
+				4C952D1B2837E18500BFE504 /* NSArray-CDExtensions.h */,
+				4C952D7D2837E18500BFE504 /* NSArray-CDExtensions.m */,
+				4C952D6E2837E18500BFE504 /* NSData-CDExtensions.h */,
+				4C952D2B2837E18500BFE504 /* NSData-CDExtensions.m */,
+				4C0F4067286E301800C2E934 /* NSData+Flip.h */,
+				4C0F4068286E301800C2E934 /* NSData+Flip.mm */,
+				4C952D7E2837E18500BFE504 /* NSError-CDExtensions.h */,
+				4C952D1A2837E18500BFE504 /* NSError-CDExtensions.m */,
+				4C952D5A2837E18500BFE504 /* NSScanner-CDExtensions.h */,
+				4C952D962837E18500BFE504 /* NSScanner-CDExtensions.m */,
+				4C952D7F2837E18500BFE504 /* NSString-CDExtensions.h */,
+				4C952D192837E18500BFE504 /* NSString-CDExtensions.m */,
 			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
-		4C952D0E2837E11D00BFE504 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				4C952D0D2837E11D00BFE504 /* classdumpios */,
-				4CDA2A80286263F800566FBB /* libclassdump.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		4C952D0F2837E11D00BFE504 /* classdumpios */ = {
-			isa = PBXGroup;
-			children = (
-				4C952D172837E18500BFE504 /* Classes */,
-			);
-			path = classdumpios;
-			sourceTree = "<group>";
-		};
-		4C952D172837E18500BFE504 /* Classes */ = {
+		4C0F406D286F743400C2E934 /* Core */ = {
 			isa = PBXGroup;
 			children = (
 				4C952D742837E18500BFE504 /* blowfish.c */,
@@ -634,20 +627,43 @@
 				4C952D9B2837E18500BFE504 /* CDVisitor.m */,
 				4C952DA22837E18500BFE504 /* CDVisitorPropertyState.h */,
 				4C952D4D2837E18500BFE504 /* CDVisitorPropertyState.m */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		4C952D042837E11D00BFE504 = {
+			isa = PBXGroup;
+			children = (
+				32624D2B286D0DD700571352 /* class-dump-Prefix.pch */,
+				4C952D0F2837E11D00BFE504 /* classdumpios */,
+				4CDA2A81286263F800566FBB /* classdump */,
+				4C952D0E2837E11D00BFE504 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4C952D0E2837E11D00BFE504 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4C952D0D2837E11D00BFE504 /* classdumpios */,
+				4CDA2A80286263F800566FBB /* libclassdump.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4C952D0F2837E11D00BFE504 /* classdumpios */ = {
+			isa = PBXGroup;
+			children = (
+				4C952D172837E18500BFE504 /* Classes */,
+			);
+			path = classdumpios;
+			sourceTree = "<group>";
+		};
+		4C952D172837E18500BFE504 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				4C0F406D286F743400C2E934 /* Core */,
 				4C952D4C2837E18500BFE504 /* class-dump.m */,
-				4C952DA72837E18500BFE504 /* ext.h */,
-				4C0F4067286E301800C2E934 /* NSData+Flip.h */,
-				4C0F4068286E301800C2E934 /* NSData+Flip.mm */,
-				4C952D1B2837E18500BFE504 /* NSArray-CDExtensions.h */,
-				4C952D7D2837E18500BFE504 /* NSArray-CDExtensions.m */,
-				4C952D6E2837E18500BFE504 /* NSData-CDExtensions.h */,
-				4C952D2B2837E18500BFE504 /* NSData-CDExtensions.m */,
-				4C952D7E2837E18500BFE504 /* NSError-CDExtensions.h */,
-				4C952D1A2837E18500BFE504 /* NSError-CDExtensions.m */,
-				4C952D5A2837E18500BFE504 /* NSScanner-CDExtensions.h */,
-				4C952D962837E18500BFE504 /* NSScanner-CDExtensions.m */,
-				4C952D7F2837E18500BFE504 /* NSString-CDExtensions.h */,
-				4C952D192837E18500BFE504 /* NSString-CDExtensions.m */,
+				4C0F406C286F741200C2E934 /* Extensions */,
 				4C952DAB2837E18500BFE504 /* ULEB128.h */,
 				4C952D662837E18500BFE504 /* ULEB128.m */,
 			);

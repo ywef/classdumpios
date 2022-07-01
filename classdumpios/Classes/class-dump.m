@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
         BOOL shouldPrintVersion = NO;
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
+        BOOL suppressAllHeaderOutput = NO;
         NSString *outputPath;
         NSMutableSet *hiddenSections = [NSMutableSet set];
 
@@ -96,6 +97,8 @@ int main(int argc, char *argv[])
             { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
             { "hide",                    required_argument, NULL, CD_OPT_HIDE },
             { "verbose",                 no_argument,       NULL, 'v'},
+            { "fixups",                  no_argument,       NULL, 'F'},
+            { "silent",                  no_argument,       NULL, 'x'},
             { NULL,                      0,                 NULL, 0 },
         };
 
@@ -109,7 +112,7 @@ int main(int argc, char *argv[])
 #endif
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStv", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFx", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -178,6 +181,11 @@ int main(int argc, char *argv[])
                     break;
                 }
                 
+                case 'F':
+                    break;
+                case 'x':
+                    suppressAllHeaderOutput = YES;
+                    break;
                 case 'v':
                     [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:@"verbose"];
                     classDump.verbose = YES;
@@ -337,6 +345,9 @@ int main(int argc, char *argv[])
                         multiFileVisitor.outputPath = outputPath;
                         [classDump recursivelyVisit:multiFileVisitor];
                     } else {
+                        if (suppressAllHeaderOutput){
+                            exit(0);
+                        }
                         CDClassDumpVisitor *visitor = [[CDClassDumpVisitor alloc] init];
                         visitor.classDump = classDump;
                         if ([hiddenSections containsObject:@"structures"]) visitor.shouldShowStructureSection = NO;

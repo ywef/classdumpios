@@ -116,6 +116,10 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     return self.containsObjectiveCData || self.hasEncryptedFiles;
 }
 
++ (BOOL)printFixupData {
+    return [[[NSProcessInfo processInfo] arguments] containsObject:@"-F"];
+}
+
 + (BOOL)isVerbose {
     BOOL vb = [[NSUserDefaults standardUserDefaults] boolForKey:@"verbose"];
     //DLog(@"vb: %d, contains: %d",vb, [[[NSProcessInfo processInfo] arguments] containsObject:@"-v"] );

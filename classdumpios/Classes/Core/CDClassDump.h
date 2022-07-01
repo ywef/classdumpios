@@ -61,6 +61,7 @@
 + (void)logLevel:(NSInteger)level stringWithFormat:(NSString *)fmt, ...;
 + (void)logLevel:(NSInteger)level string:(NSString *)string;
 + (BOOL)isVerbose;
++ (BOOL)printFixupData;
 @end
 
 extern NSString *CDErrorDomain_ClassDump;

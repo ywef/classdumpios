@@ -32,7 +32,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
         case DYLD_CHAINED_IMPORT_ADDEND: imports_format = "DYLD_CHAINED_IMPORT_ADDEND"; break;
         case DYLD_CHAINED_IMPORT_ADDEND64: imports_format = "DYLD_CHAINED_IMPORT_ADDEND64"; break;
     }
-    if ([CDClassDump isVerbose]){
+    if ([CDClassDump printFixupData]){
         fprintf(stderr,"  CHAINED FIXUPS HEADER\n");
         fprintf(stderr,"    fixups_version : %d\n", header->fixups_version);
         fprintf(stderr,"    starts_offset  : %#4x (%d)\n", header->starts_offset, header->starts_offset);
@@ -62,7 +62,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //DLog(@"BIND data: %@", data);
                 uint64_t raw = [[[data reverse] decimalString] integerValue];
                 //VerboseLog(@"raw: %lu", raw);
-                if ([CDClassDump isVerbose]){
+                if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
                             chain, raw, bind.ordinal, bind.addend, bind.reserved, symbol);
                 }
@@ -81,7 +81,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //VerboseLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
                 uint64_t raw = [[data decimalString] integerValue];
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
-                if ([CDClassDump isVerbose]){
+                if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",
                             chain, raw, rebase.target, rebase.high8);
                 }
@@ -219,11 +219,11 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     for (int i = 0; i < starts_in_image->seg_count; ++i) {
         CDLCSegment *segCmd = self.machOFile.segments[i];
         //struct segment_command_64 *segCmd = machoBinary.segmentCommands[i];
-        if ([CDClassDump isVerbose]){
+        if ([CDClassDump printFixupData]){
             fprintf(stderr,"  SEGMENT %.16s (offset: %d)\n", [segCmd.name UTF8String], offsets[i]);
         }
         if (offsets[i] == 0) {
-            if ([CDClassDump isVerbose]){
+            if ([CDClassDump printFixupData]){
                 fprintf(stderr,"\n");
             }
             continue;
@@ -232,7 +232,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         struct dyld_chained_starts_in_segment* startsInSegment = (struct dyld_chained_starts_in_segment*)(fixup_base + header->starts_offset + offsets[i]);
         char formatted_pointer_format[256];
         formatPointerFormat(startsInSegment->pointer_format, formatted_pointer_format);
-        if ([CDClassDump isVerbose]){
+        if ([CDClassDump printFixupData]){
             fprintf(stderr,"    size: %d\n", startsInSegment->size);
             fprintf(stderr,"    page_size: 0x%x\n", startsInSegment->page_size);
             fprintf(stderr,"    pointer_format: %d (%s)\n", startsInSegment->pointer_format, formatted_pointer_format);
@@ -245,7 +245,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         uint16_t maxPageNum = UINT16_MAX;
         int pageCount = 0;
         for (int j = 0; j < MIN(startsInSegment->page_count, maxPageNum); ++j) {
-            if ([CDClassDump isVerbose]){
+            if ([CDClassDump printFixupData]){
                 fprintf(stderr,"      PAGE %d (offset: %d)\n", j, page_starts[j]);
             }
             if (page_starts[j] == DYLD_CHAINED_PTR_START_NONE) { continue; }
@@ -254,13 +254,14 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
             //printFixupsInPage((uint8_t *)[self.machOFile bytes], fixup_base, header, startsInSegment, j);
             
             pageCount++;
-            if ([CDClassDump isVerbose]){
+            if ([CDClassDump printFixupData]){
                 fprintf(stderr,"\n");
             }
         }
-        
-        VerboseLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
-        VerboseLog(@"based: %@", _based);
+        if ([CDClassDump printFixupData]){
+            DLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
+            DLog(@"based: %@", _based);
+        }
     }
 }
 
