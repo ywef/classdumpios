@@ -68,6 +68,8 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 }
                 [self bindAddress:raw type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
                 [self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
+                [self bindAddress:(uint64_t)[data bytes] type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
+                [self rebaseAddress:(uint64_t)[data bytes] target:chain];
                 [self rebaseAddress:raw target:chain];
             } else {
                 // rebase 0x%08lx
@@ -84,6 +86,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                             chain, raw, rebase.target, rebase.high8);
                 }
                 [self rebaseAddress:raw target:rebase.target];
+                [self rebaseAddress:(uint64_t)[data bytes] target:rebase.target];
             }
             
             if (bind.next == 0) {
