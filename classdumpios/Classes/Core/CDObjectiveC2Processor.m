@@ -494,11 +494,28 @@
             struct cd_objc2_method objc2Method;
             
             if(small) {
+                VerboseLog(@"biggie smalls is the illest");
                 uint64_t baseAddress = address + index * 12 + 8;
                 uint64_t name = baseAddress + (int64_t)(int32_t) [cursor readInt32];
                 uint64_t types = baseAddress + 4 + (int64_t)(int32_t) [cursor readInt32];
                 uint64_t imp = baseAddress + 8 + (int64_t)(int32_t) [cursor readInt32];
-                
+                if(self.machOFile.chainedFixups){
+                    uint64_t basedName = [self.machOFile.chainedFixups rebaseTargetFromAddress:name adjustment:0];
+                    if (basedName != 0) {
+                        ODLog(@"basedName", basedName);
+                        name = basedName;
+                    } else {
+                        ODLog(@"size check", name);
+                        ODLog(@"peek",[cursor peekPtr]);
+                        while (name > fixupAdjustment){
+                            VerboseLog(@"name was > %lu", fixupAdjustment);
+                            name-= fixupAdjustment;
+                            ODLog(@"fixupAdjustment", name);
+                        }
+                        //name-= fixupAdjustment;
+                        //ODLog(@"fixupAdjustment", name);
+                    }
+                }
                 [nameCursor setAddress:name];
                 objc2Method.name = [nameCursor readPtr];
                 objc2Method.types = types;

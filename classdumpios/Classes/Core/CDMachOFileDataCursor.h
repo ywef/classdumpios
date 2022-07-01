@@ -28,5 +28,5 @@
 
 // Read using the current byteOrder and ptrSize (from the machOFile)
 - (uint64_t)readPtr;
-
+- (uint64_t)peekPtr;
 @end

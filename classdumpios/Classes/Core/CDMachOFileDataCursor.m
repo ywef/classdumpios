@@ -109,6 +109,19 @@
     return val;
 }
 
+- (uint64_t)peekPtr {
+    NSUInteger savedOffset = self.offset;
+    uint64_t val = 0;
+    switch (_ptrSize) {
+        case sizeof(uint32_t): val = [self readInt32];
+        case sizeof(uint64_t): val = [self readInt64];
+    }
+    //uint32_t val = [self readInt32];
+    self.offset = savedOffset;
+    
+    return val;
+}
+
 - (uint64_t)readPtr;
 {
     switch (_ptrSize) {

@@ -330,6 +330,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (NSString *)stringAtAddress:(NSUInteger)address;
 {
+    VLOG_CMD;
     const void *ptr;
 
     if (address == 0)
@@ -340,16 +341,17 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             if ([CDClassDump isVerbose]){
-                //ODLog(@"stringAtAddress: based", based);
+                ODLog(@"stringAtAddress: based", based);
             }
             address = based;
             segment = [self segmentContainingAddress:based];
         }
-        /*
-        if (address > 0x10000000000000){
+        
+        while (address > 0x10000000000000){
+            VerboseLog(@"h4xxxxxxxx %lu", address);
             address = address - 0x10000000000000;
             segment = [self segmentContainingAddress:address];
-        }*/
+        }
         if (segment == nil) {
             DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
             exit(5);
@@ -372,8 +374,9 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         return nil;
 
     ptr = (uint8_t *)[self.data bytes] + offset;
-
-    return [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
+    NSString *returnString = [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
+    VerboseLog(@"stringAtAddress: %@", returnString);
+    return returnString;
 }
 
 - (NSUInteger)dataOffsetForAddress:(NSUInteger)address;

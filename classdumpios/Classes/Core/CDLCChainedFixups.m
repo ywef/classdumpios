@@ -182,7 +182,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
 }
 
 - (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address adjustment:(NSUInteger)adj {
-    VerboseLog(@"address: %#010llx (%lu)", address-adj, address-adj);
+    VerboseLog(@"rebaseTargetFromAddress: %#010llx (%lu)", address-adj, address-adj);
     NSNumber *key = [NSNumber numberWithUnsignedInteger:address-adj]; // I don't think 32-bit will dump 64-bit stuff.
     return [_based[key] unsignedIntegerValue];
 }
