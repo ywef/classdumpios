@@ -14,9 +14,9 @@
 //#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat"
     #define OLog(a,b) DLog(@"%@: %016llx (%lu)", a, b, b)
-    #define ODLog(a,b) OLog(a,b)//VerboseLog(@"%@: %016llx (%lu)", a, b, b)
+    #define ODLog(a,b) VerboseLog(@"%@: %016llx (%lu)", a, b, b)
 //#pragma clang diagnostic pop
-    #define VLOG_CMD        DLog(@"%s", __PRETTY_FUNCTION__)
+    #define VLOG_CMD        VerboseLog(@"%s", __PRETTY_FUNCTION__)
     #define LOG_CMD         DLog(@"%s", __PRETTY_FUNCTION__)
     #define _cmds __PRETTY_FUNCTION__
 #endif

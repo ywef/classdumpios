@@ -378,7 +378,6 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
 - (NSUInteger)dataOffsetForAddress:(NSUInteger)address;
 {
-    LOG_CMD;
     if (address == 0)
         return 0;
     
