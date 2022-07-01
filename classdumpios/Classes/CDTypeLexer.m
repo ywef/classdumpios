@@ -47,7 +47,7 @@ static NSString *CDTypeLexerStateName(CDTypeLexerState state)
 
 - (void)setState:(CDTypeLexerState)newState;
 {
-    if (debug) DLog(@"CDTypeLexer - changing state from %lu (%@) to %lu (%@)", _state, CDTypeLexerStateName(_state), newState, CDTypeLexerStateName(newState));
+     VerboseLog(@"CDTypeLexer - changing state from %lu (%@) to %lu (%@)", _state, CDTypeLexerStateName(_state), newState, CDTypeLexerStateName(newState));
     _state = newState;
 }
 

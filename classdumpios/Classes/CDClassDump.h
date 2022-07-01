@@ -58,10 +58,10 @@
 
 - (void)showHeader;
 - (void)showLoadCommands;
-
++ (void)logLevel:(NSInteger)level stringWithFormat:(NSString *)fmt, ...;
++ (BOOL)isVerbose;
 @end
 
 extern NSString *CDErrorDomain_ClassDump;
 extern NSString *CDErrorKey_Exception;
-
 

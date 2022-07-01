@@ -135,10 +135,10 @@
 
 - (void)process;
 {
-    LOG_CMD;
+    VLOG_CMD;
     if (self.machOFile.isEncrypted == NO && self.machOFile.canDecryptAllSegments) {
         [self.machOFile.symbolTable loadSymbols];
-        //DBLog(@"SymbolTable: %@", self.machOFile.symbolTable);
+        //VerboseLog(@"SymbolTable: %@", self.machOFile.symbolTable);
         [self.machOFile.dynamicSymbolTable loadSymbols];
 
         [self loadProtocols];

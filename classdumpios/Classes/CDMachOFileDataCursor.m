@@ -18,7 +18,7 @@
 
 - (id)initWithFile:(CDMachOFile *)machOFile;
 {
-    DBLog(@"initWithFile: %@", machOFile);
+    VerboseLog(@"initWithFile: %@", machOFile);
     return [self initWithFile:machOFile offset:0];
 }
 
@@ -27,7 +27,7 @@
     if (offset == 0){
         offset = 4096;
     }
-    DBLog(@"initWithFile: %@ offset: 0x%08lx", machOFile, offset);
+    VerboseLog(@"initWithFile: %@ offset: 0x%08lx", machOFile, offset);
     
     if ((self = [super initWithData:machOFile.data])) {
         self.machOFile = machOFile;
@@ -39,7 +39,7 @@
 
 - (id)initWithFile:(CDMachOFile *)machOFile address:(NSUInteger)address;
 {
-    DBLog(@"initWithFile: %@ address: 0x%08lx", machOFile, address);
+    VerboseLog(@"initWithFile: %@ address: 0x%08lx", machOFile, address);
     if ((self = [super initWithData:machOFile.data])) {
         self.machOFile = machOFile;
         [self setAddress:address];
@@ -68,9 +68,9 @@
 
 - (void)setAddress:(NSUInteger)address;
 {
-    DBLog(@"%s 0x%08lx", _cmds, address);
+    VerboseLog(@"%s 0x%08lx", _cmds, address);
     NSUInteger dataOffset = [_machOFile dataOffsetForAddress:address];
-    DBLog(@"dataOffset: 0x%08lx for address: 0x%08lx", dataOffset, address);
+    VerboseLog(@"dataOffset: 0x%08lx for address: 0x%08lx", dataOffset, address);
     [self setOffset:dataOffset];
 }
 

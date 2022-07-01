@@ -174,17 +174,17 @@ static BOOL debug = NO;
         objcModule.name    = [cursor readInt32];
         objcModule.symtab  = [cursor readInt32];
 
-        DBLog(@"objcModule.size: %u", objcModule.size);
-        DBLog(@"sizeof(struct cd_objc_module): %lu", sizeof(struct cd_objc_module));
+        VerboseLog(@"objcModule.size: %u", objcModule.size);
+        VerboseLog(@"sizeof(struct cd_objc_module): %lu", sizeof(struct cd_objc_module));
         assert(objcModule.size == sizeof(struct cd_objc_module)); // Because this is what we're assuming.
 
         NSString *name = [self.machOFile stringAtAddress:objcModule.name];
         if (name != nil && [name length] > 0 && debug)
             DLog(@"Note: a module name is set: %@", name);
 
-        DBLog(@"%08x %08x %08x %08x - '%@'", objcModule.version, objcModule.size, objcModule.name, objcModule.symtab, name);
-        //DBLog(@"\tsect: %@", [[machOFile segmentContainingAddress:objcModule.name] sectionContainingAddress:objcModule.name]);
-        //DBLog(@"symtab: %08x", objcModule.symtab);
+        VerboseLog(@"%08x %08x %08x %08x - '%@'", objcModule.version, objcModule.size, objcModule.name, objcModule.symtab, name);
+        //VerboseLog(@"\tsect: %@", [[machOFile segmentContainingAddress:objcModule.name] sectionContainingAddress:objcModule.name]);
+        //VerboseLog(@"symtab: %08x", objcModule.symtab);
 
         CDOCModule *module = [[CDOCModule alloc] init];
         module.version = objcModule.version;
@@ -211,13 +211,13 @@ static BOOL debug = NO;
     objcSymtab.refs          = [cursor readInt32];
     objcSymtab.cls_def_count = [cursor readInt16];
     objcSymtab.cat_def_count = [cursor readInt16];
-    //DBLog(@"[@ %08x]: %08x %08x %04x %04x", address, objcSymtab.sel_ref_cnt, objcSymtab.refs, objcSymtab.cls_def_count, objcSymtab.cat_def_count);
+    //VerboseLog(@"[@ %08x]: %08x %08x %04x %04x", address, objcSymtab.sel_ref_cnt, objcSymtab.refs, objcSymtab.cls_def_count, objcSymtab.cat_def_count);
 
     CDOCSymtab *symtab = [[CDOCSymtab alloc] init];
     
     for (unsigned int index = 0; index < objcSymtab.cls_def_count; index++) {
         uint32_t val = [cursor readInt32];
-        //DBLog(@"%4d: %08x", index, val);
+        //VerboseLog(@"%4d: %08x", index, val);
 
         CDOCClass *aClass = [self processClassDefinitionAtAddress:val];
         if (aClass != nil)
@@ -226,7 +226,7 @@ static BOOL debug = NO;
 
     for (unsigned int index = 0; index < objcSymtab.cat_def_count; index++) {
         uint32_t val = [cursor readInt32];
-        //DBLog(@"%4d: %08x", index, val);
+        //VerboseLog(@"%4d: %08x", index, val);
 
         CDOCCategory *category = [self processCategoryDefinitionAtAddress:val];
         if (category != nil)
@@ -254,8 +254,8 @@ static BOOL debug = NO;
     objcClass.protocols     = [cursor readInt32];
 
     NSString *className = [self.machOFile stringAtAddress:objcClass.name];
-    //DBLog(@"name: %08x", objcClass.name);
-    //DBLog(@"className = %@", className);
+    //VerboseLog(@"name: %08x", objcClass.name);
+    //VerboseLog(@"className = %@", className);
     if (className == nil) {
         DLog(@"Note: objcClass.name was %08x, returning nil.", objcClass.name);
         return nil;
@@ -302,7 +302,7 @@ static BOOL debug = NO;
     // Process meta class
     {
         NSParameterAssert(objcClass.isa != 0);
-        //DBLog(@"meta class, isa = %08x", objcClass.isa);
+        //VerboseLog(@"meta class, isa = %08x", objcClass.isa);
 
         [cursor setAddress:objcClass.isa];
 
@@ -321,7 +321,7 @@ static BOOL debug = NO;
 
 #if 0
         // TODO: (2009-06-23) See if there's anything else interesting here.
-        DBLog(@"metaclass= isa:%08x super:%08x  name:%08x ver:%08x  info:%08x isize:%08x  ivar:%08x meth:%08x  cache:%08x proto:%08x",
+        VerboseLog(@"metaclass= isa:%08x super:%08x  name:%08x ver:%08x  info:%08x isize:%08x  ivar:%08x meth:%08x  cache:%08x proto:%08x",
               metaClass.isa, metaClass.super_class, metaClass.name, metaClass.version, metaClass.info, metaClass.instance_size,
               metaClass.ivars, metaClass.methods, metaClass.cache, metaClass.protocols);
 #endif
@@ -448,7 +448,7 @@ static BOOL debug = NO;
 {
     CDOCProtocol *protocol = [self.protocolUniquer protocolWithAddress:address];
     if (protocol == nil) {
-        //DBLog(@"Creating new protocol from address: 0x%08x", address);
+        //VerboseLog(@"Creating new protocol from address: 0x%08x", address);
         protocol = [[CDOCProtocol alloc] init];
         [self.protocolUniquer setProtocol:protocol withAddress:address];
 
@@ -461,8 +461,8 @@ static BOOL debug = NO;
         uint32_t v5 = [cursor readInt32];
         NSString *name = [self.machOFile stringAtAddress:v2];
         protocol.name = name; // Need to set name before adding to another protocol
-        //DBLog(@"data offset for %08x: %08x", v2, [machOFile dataOffsetForAddress:v2]);
-        //DBLog(@"[@ %08x] v1-5: 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x (%@)", address, v1, v2, v3, v4, v5, name);
+        //VerboseLog(@"data offset for %08x: %08x", v2, [machOFile dataOffsetForAddress:v2]);
+        //VerboseLog(@"[@ %08x] v1-5: 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x (%@)", address, v1, v2, v3, v4, v5, name);
 
         {
             // Protocols
@@ -470,12 +470,12 @@ static BOOL debug = NO;
                 [cursor setAddress:v3];
                 uint32_t val = [cursor readInt32];
                 NSParameterAssert(val == 0); // next pointer, let me know if it's ever not zero
-                //DBLog(@"val: 0x%08x", val);
+                //VerboseLog(@"val: 0x%08x", val);
                 uint32_t count = [cursor readInt32];
-                //DBLog(@"protocol count: %08x", count);
+                //VerboseLog(@"protocol count: %08x", count);
                 for (uint32_t index = 0; index < count; index++) {
                     val = [cursor readInt32];
-                    //DBLog(@"val[%2d]: 0x%08x", index, val);
+                    //VerboseLog(@"val[%2d]: 0x%08x", index, val);
                     CDOCProtocol *anotherProtocol = [self protocolAtAddress:val];
                     if (anotherProtocol != nil) {
                         [protocol addProtocol:anotherProtocol];
@@ -494,7 +494,7 @@ static BOOL debug = NO;
                 [protocol addClassMethod:method];
         }
     } else {
-        //DBLog(@"Found existing protocol at address: 0x%08x", address);
+        //VerboseLog(@"Found existing protocol at address: 0x%08x", address);
     }
 
     return protocol;

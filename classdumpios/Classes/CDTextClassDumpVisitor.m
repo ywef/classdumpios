@@ -231,7 +231,7 @@ static BOOL debug = NO;
     
     for (NSString *attr in attrs) {
         if ([attr hasPrefix:@"T"]) {
-            if (debug) DLog(@"Warning: Property attribute 'T' should occur only occur at the beginning");
+            VerboseLog(@"Warning: Property attribute 'T' should occur only occur at the beginning");
         } else if ([attr hasPrefix:@"R"]) {
             [alist addObject:@"readonly"];
         } else if ([attr hasPrefix:@"C"]) {
@@ -260,7 +260,7 @@ static BOOL debug = NO;
             // @property int prop; // @dynamic prop;
             isDynamic = YES;
         } else {
-            if (debug) DLog(@"Warning: Unknown property attribute '%@'", attr);
+            VerboseLog(@"Warning: Unknown property attribute '%@'", attr);
             [unknownAttrs addObject:attr];
         }
     }

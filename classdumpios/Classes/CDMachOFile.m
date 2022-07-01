@@ -127,7 +127,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         NSAssert(_uses64BitABI == CDArchUses64BitABI((CDArch){ .cputype = _cputype, .cpusubtype = _cpusubtype }), @"Header magic should match cpu arch", nil);
         
         NSUInteger headerOffset = _uses64BitABI ? sizeof(struct mach_header_64) : sizeof(struct mach_header);
-        DBLog(@"header offset: %lu", headerOffset);
+        VerboseLog(@"header offset: %lu", headerOffset);
         CDMachOFileDataCursor *fileCursor = [[CDMachOFileDataCursor alloc] initWithFile:self offset:headerOffset];
         [self _readLoadCommands:fileCursor count:_ncmds];
     }
@@ -169,7 +169,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                 [runPathCommands addObject:loadCommand];
             }
         }
-        DBLog(@"loadCommand: %@", loadCommand);
+        VerboseLog(@"loadCommand: %@", loadCommand);
     }
     _loadCommands      = [loadCommands copy];
     _dylibLoadCommands = [dylibLoadCommands copy];
@@ -339,7 +339,9 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     if (segment == nil) {
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
-            ODLog(@"stringAtAddress: based", based);
+            if ([CDClassDump isVerbose]){
+                ODLog(@"stringAtAddress: based", based);
+            }
             address = based;
             segment = [self segmentContainingAddress:based];
         }
@@ -379,18 +381,18 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     if (address == 0)
         return 0;
     
-    DBLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
+    VerboseLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        DBLog(@"nil segment");
+        VerboseLog(@"nil segment");
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             ODLog(@"based", based);
             address = based;
             segment = [self segmentContainingAddress:based];
-            //DBLog(@"science?? %@", segment);
+            //VerboseLog(@"science?? %@", segment);
         }
-        //DBLog(@"science?? %@", segment);
+        //VerboseLog(@"science?? %@", segment);
         if (segment == nil){
             DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
             //return 0;
@@ -402,20 +404,20 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             segment = [self segmentContainingAddress:address];
         }
         if (segment == nil) {
-            DBLog(@"nil segment");
+            VerboseLog(@"nil segment");
             if (address > 0x60000000000000){
                 address = address - 0x60000000000000;
                 segment = [self segmentContainingAddress:address];
             }
         }
         if (segment == nil){
-            DBLog(@"nil segment");
+            VerboseLog(@"nil segment");
             if (address > 0x40000000000000){
                 address = address - 0x40000000000000;
                 segment = [self segmentContainingAddress:address];
             }
             if (segment == nil) {
-                DBLog(@"nil segment");
+                VerboseLog(@"nil segment");
                 if (address > 0x10000000000000){
                     address = address - 0x10000000000000;
                     segment = [self segmentContainingAddress:address];
@@ -575,10 +577,10 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     // It turns out NSMutableArray is in /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation, so...
     // ... it's an undefined symbol, need to look it up.
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    DBLog(@"rinfo: %@", rinfo);
+    VerboseLog(@"rinfo: %@", rinfo);
     if (rinfo != nil) {
         CDSymbol *symbol = [[self.symbolTable symbols] objectAtIndex:rinfo.symbolnum];
-        DBLog(@"symbol: %@", symbol);
+        VerboseLog(@"symbol: %@", symbol);
 
         // Now we could use GET_LIBRARY_ORDINAL(), look up the the appropriate mach-o file (being sure to have loaded them even without -r),
         // look up the symbol in that mach-o file, get the address, look up the class based on that address, and finally get the class name
@@ -601,7 +603,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 - (BOOL)hasRelocationEntryForAddress:(NSUInteger)address;
 {
     CDRelocationInfo *rinfo = [self.dynamicSymbolTable relocationEntryWithOffset:address - [self.symbolTable baseAddress]];
-    DLog(@"%s, rinfo= %@", _cmds, rinfo);
+    VerboseLog(@"%s, rinfo= %@", _cmds, rinfo);
     return rinfo != nil;
 }
 

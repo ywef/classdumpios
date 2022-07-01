@@ -143,7 +143,7 @@ static NSString *CDTokenDescription(int token)
 - (void)match:(int)token enterState:(CDTypeLexerState)newState;
 {
     if (_lookahead == token) {
-        if (debug) DLog(@"matched %@", CDTokenDescription(token));
+        if (debug) VerboseLog(@"matched %@", CDTokenDescription(token));
         self.lexer.state = newState;
         _lookahead = [self.lexer scanNextToken];
     } else {

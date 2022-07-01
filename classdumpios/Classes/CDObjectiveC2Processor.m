@@ -30,7 +30,7 @@
 
 - (void)loadProtocols;
 {
-    LOG_CMD;
+    VLOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_protolist"];
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
@@ -40,34 +40,34 @@
 
 - (void)loadClasses;
 {
-    LOG_CMD;
+    VLOG_CMD;
     CDLCSegment *segment = [self.machOFile dataConstSegment];
     CDSection *section = [segment sectionWithName:@"__objc_classlist"];
     NSUInteger adjustment = segment.vmaddr - segment.fileoff;
     NSUInteger based = 0;
-    DBLog(@"segment addr: %#010llx section: %@ offset: %#010llx adj: %#010llx", segment.vmaddr, section, section.segment.fileoff, adjustment);
+    VerboseLog(@"segment addr: %#010llx section: %@ offset: %#010llx adj: %#010llx", segment.vmaddr, section, section.segment.fileoff, adjustment);
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
-    DBLog(@"cursor: %#010llx", cursor.offset);
+    VerboseLog(@"cursor: %#010llx", cursor.offset);
     while ([cursor isAtEnd] == NO) {
         uint64_t val = [cursor readPtr];
         if (self.machOFile.chainedFixups != nil){
             based = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
-            DBLog(@"based: %#010llx (%lu)", based, based);
+            VerboseLog(@"based: %#010llx (%lu)", based, based);
         }
         if (based != 0) {
             fixupAdjustment = val - based;
-            DBLog(@"fixup: %#010llx (%llu)", fixupAdjustment, fixupAdjustment);
+            VerboseLog(@"fixup: %#010llx (%llu)", fixupAdjustment, fixupAdjustment);
             val = based;
             
         }
-        DBLog(@"readPtr: %#010llx (%llu)", val, val);
+        VerboseLog(@"readPtr: %#010llx (%llu)", val, val);
         /*
         if (val > 0x10000000000000){
             val = val - 0x10000000000000;
         }*/
         CDOCClass *aClass = [self loadClassAtAddress:val];
-        DBLog(@"aClass: %@", aClass);
+        VerboseLog(@"aClass: %@", aClass);
         if (aClass != nil) {
             [self addClass:aClass withAddress:val];
         }
@@ -76,7 +76,7 @@
 
 - (void)loadCategories;
 {
-    LOG_CMD;
+    VLOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_catlist"];
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
@@ -95,7 +95,7 @@
     if (protocol == nil) {
         protocol = [[CDOCProtocol alloc] init];
         [self.protocolUniquer setProtocol:protocol withAddress:address];
-        DBLog(@"%s, address=%016llx", _cmds, address);
+        VerboseLog(@"%s, address=%016llx", _cmds, address);
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         if ([cursor offset] == 0 ) return nil;
         //NSParameterAssert([cursor offset] != 0);
@@ -124,14 +124,14 @@
             }
         }
         
-        DBLog(@"----------------------------------------");
-        DBLog(@"isa: %016llx name: %016llx protocols: %016llx  instance methods: %016llx", objc2Protocol.isa, objc2Protocol.name, objc2Protocol.protocols, objc2Protocol.instanceMethods);
-        DBLog(@"classMethods: %016llx optionalInstanceMethods: %016llx optionalClassMethods: %016llx instanceProperties: %016llx", objc2Protocol.classMethods, objc2Protocol.optionalInstanceMethods, objc2Protocol.optionalClassMethods, objc2Protocol.instanceProperties);
+        VerboseLog(@"----------------------------------------");
+        VerboseLog(@"isa: %016llx name: %016llx protocols: %016llx  instance methods: %016llx", objc2Protocol.isa, objc2Protocol.name, objc2Protocol.protocols, objc2Protocol.instanceMethods);
+        VerboseLog(@"classMethods: %016llx optionalInstanceMethods: %016llx optionalClassMethods: %016llx instanceProperties: %016llx", objc2Protocol.classMethods, objc2Protocol.optionalInstanceMethods, objc2Protocol.optionalClassMethods, objc2Protocol.instanceProperties);
         
         NSString *str = [self.machOFile stringAtAddress:objc2Protocol.name];
         [protocol setName:str];
         
-        DBLog(@"protocol name: %@", str);
+        VerboseLog(@"protocol name: %@", str);
         
         if (objc2Protocol.protocols != 0) {
             [cursor setAddress:objc2Protocol.protocols];
@@ -183,14 +183,14 @@
     objc2Category.instanceProperties = [cursor readPtr];
     objc2Category.v7                 = [cursor readPtr];
     objc2Category.v8                 = [cursor readPtr];
-    DBLog(@"----------------------------------------");
-    DBLog(@"%016llx %016llx %016llx %016llx", objc2Category.name, objc2Category.class, objc2Category.instanceMethods, objc2Category.classMethods);
-    DBLog(@"%016llx %016llx %016llx %016llx", objc2Category.protocols, objc2Category.instanceProperties, objc2Category.v7, objc2Category.v8);
+    VerboseLog(@"----------------------------------------");
+    VerboseLog(@"%016llx %016llx %016llx %016llx", objc2Category.name, objc2Category.class, objc2Category.instanceMethods, objc2Category.classMethods);
+    VerboseLog(@"%016llx %016llx %016llx %016llx", objc2Category.protocols, objc2Category.instanceProperties, objc2Category.v7, objc2Category.v8);
     
     CDOCCategory *category = [[CDOCCategory alloc] init];
     NSString *str = [self.machOFile stringAtAddress:objc2Category.name];
     [category setName:str];
-    DBLog(@"Category Name: %@", str);
+    VerboseLog(@"Category Name: %@", str);
     for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Category.instanceMethods])
         [category addInstanceMethod:method];
     
@@ -209,18 +209,18 @@
         NSString *externalClassName = nil;
         if ([self.machOFile hasRelocationEntryForAddress2:classNameAddress]) {
             externalClassName = [self.machOFile externalClassNameForAddress2:classNameAddress];
-            DBLog(@"category: got external class name (2): %@ %@", [category className], externalClassName);
+            VerboseLog(@"category: got external class name (2): %@ %@", [category className], externalClassName);
         } else if ([self.machOFile hasRelocationEntryForAddress:classNameAddress]) {
             externalClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
-            DBLog(@"category: got external class name (1): %@ %@", externalClassName, externalClassName);
+            VerboseLog(@"category: got external class name (1): %@ %@", externalClassName, externalClassName);
         } else if (objc2Category.class != 0) {
             NSNumber *num = [NSNumber numberWithUnsignedInteger:OSSwapInt64(objc2Category.class)];
-            DBLog(@"category external class !=0: %016llx (%llu) num: %@", objc2Category.class, objc2Category.class, num);
+            VerboseLog(@"category external class !=0: %016llx (%llu) num: %@", objc2Category.class, objc2Category.class, num);
             //NSString *thing = [[NSData littleEndianHexFromInt:objc2Class.superclass] decimalString];
             //NSString *symbolName = [self.machOFile.chainedFixups symbolNameForAddress:OSSwapInt64(objc2Class.superclass)];
-            //DBLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
+            //VerboseLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
             //CDOCClass *sc = [self loadClassAtAddress:OSSwapInt64(objc2Class.superclass)];
-            //DBLog(@"super class: %@", sc);
+            //VerboseLog(@"super class: %@", sc);
             //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
             externalClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Category.class)];
             /*
@@ -250,7 +250,7 @@
     if (class)
         return class;
     
-    DBLog(@"%s, address=%016llx also: %llu", _cmds, address, address);
+    VerboseLog(@"%s, address=%016llx also: %llu", _cmds, address, address);
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     if ([cursor offset] == 0) return nil;
@@ -269,8 +269,8 @@
     objc2Class.reserved1  = [cursor readPtr];
     objc2Class.reserved2  = [cursor readPtr];
     objc2Class.reserved3  = [cursor readPtr];
-    DBLog(@"isa: %016llx superclass: %016llx cache: %016llx vtable: %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
-    DBLog(@"data: %016llx r1: %016llx r2: %016llx r3: %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
+    VerboseLog(@"isa: %016llx superclass: %016llx cache: %016llx vtable: %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
+    VerboseLog(@"data: %016llx r1: %016llx r2: %016llx r3: %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
     
     NSParameterAssert(objc2Class.data != 0);
     if (self.machOFile.chainedFixups){
@@ -295,16 +295,16 @@
     objc2ClassData.weakIvarLayout = [cursor readPtr];
     objc2ClassData.baseProperties = [cursor readPtr];
     
-    DBLog(@"flags: %08x instanceStart: %08x instanceSize: %08x reserved: %08x", objc2ClassData.flags, objc2ClassData.instanceStart, objc2ClassData.instanceSize, objc2ClassData.reserved);
+    VerboseLog(@"flags: %08x instanceStart: %08x instanceSize: %08x reserved: %08x", objc2ClassData.flags, objc2ClassData.instanceStart, objc2ClassData.instanceSize, objc2ClassData.reserved);
     
-    DBLog(@"ivarLayout: %016llx name: %016llx  baseMethods: %016llx baseProtocols: %016llx", objc2ClassData.ivarLayout, objc2ClassData.name, objc2ClassData.baseMethods, objc2ClassData.baseProtocols);
-    DBLog(@"ivars: %016llx weakIvarLayout: %016llx baseProperties: %016llx", objc2ClassData.ivars, objc2ClassData.weakIvarLayout, objc2ClassData.baseProperties);
+    VerboseLog(@"ivarLayout: %016llx name: %016llx  baseMethods: %016llx baseProtocols: %016llx", objc2ClassData.ivarLayout, objc2ClassData.name, objc2ClassData.baseMethods, objc2ClassData.baseProtocols);
+    VerboseLog(@"ivars: %016llx weakIvarLayout: %016llx baseProperties: %016llx", objc2ClassData.ivars, objc2ClassData.weakIvarLayout, objc2ClassData.baseProperties);
     NSString *str = [self.machOFile stringAtAddress:objc2ClassData.name];
-    DBLog(@"name = %@", str);
+    VerboseLog(@"name = %@", str);
     
     CDOCClass *aClass = [[CDOCClass alloc] init];
     [aClass setName:str];
-    DBLog(@"\nLoading methods...\n");
+    VerboseLog(@"\nLoading methods...\n");
     uint64_t methodAddress = objc2ClassData.baseMethods;
     uint64_t ivarsAddress = objc2ClassData.ivars;
     uint64_t isaAddress = objc2Class.isa;
@@ -328,7 +328,7 @@
     for (CDOCMethod *method in [self loadMethodsAtAddress:methodAddress])
         [aClass addInstanceMethod:method];
     
-    DBLog(@"\nLoading ivars...\n");
+    VerboseLog(@"\nLoading ivars...\n");
     aClass.instanceVariables = [self loadIvarsAtAddress:ivarsAddress];
     
     {
@@ -345,26 +345,26 @@
         if ([self.machOFile hasRelocationEntryForAddress2:classNameAddress]) {
             superClassName = [self.machOFile externalClassNameForAddress2:classNameAddress];
             if (superClassName){
-                DBLog(@"class: got external class name (2): %@", superClassName);
+                VerboseLog(@"class: got external class name (2): %@", superClassName);
                 //aClass.superClassName = superClassName;
             }
         } else if ([self.machOFile hasRelocationEntryForAddress:classNameAddress]) {
             superClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
-            DBLog(@"class: got external class name (1): %@", [aClass superClassName]);
+            VerboseLog(@"class: got external class name (1): %@", [aClass superClassName]);
         } else if (objc2Class.superclass != 0) {
             NSNumber *num = [NSNumber numberWithUnsignedInteger:OSSwapInt64(objc2Class.superclass)];
-            DBLog(@"superclass !=0: %016llx (%llu) num: %@", objc2Class.superclass, objc2Class.superclass, num);
+            VerboseLog(@"superclass !=0: %016llx (%llu) num: %@", objc2Class.superclass, objc2Class.superclass, num);
             //NSString *thing = [[NSData littleEndianHexFromInt:objc2Class.superclass] decimalString];
             //NSString *symbolName = [self.machOFile.chainedFixups symbolNameForAddress:OSSwapInt64(objc2Class.superclass)];
-            //DBLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
+            //VerboseLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
             //CDOCClass *sc = [self loadClassAtAddress:OSSwapInt64(objc2Class.superclass)];
-            //DBLog(@"super class: %@", sc);
+            //VerboseLog(@"super class: %@", sc);
             //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
             superClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Class.superclass)];
         }
         
         if (superClassName) {
-            DBLog(@"super class name: %@", superClassName);
+            VerboseLog(@"super class name: %@", superClassName);
             CDSymbol *superClassSymbol = [[self.machOFile symbolTable] symbolForExternalClassName:superClassName];
             if (superClassSymbol)
                 aClass.superClassRef = [[CDOCClassReference alloc] initWithClassSymbol:superClassSymbol];
@@ -373,17 +373,17 @@
         }
     }
     
-    DBLog(@"\nLoading metaclass methods...\n");
+    VerboseLog(@"\nLoading metaclass methods...\n");
     
     for (CDOCMethod *method in [self loadMethodsOfMetaClassAtAddress:isaAddress])
         [aClass addClassMethod:method];
     
-    DBLog(@"\nProcessing protocols...\n");
+    VerboseLog(@"\nProcessing protocols...\n");
     // Process protocols
     for (CDOCProtocol *protocol in [self.protocolUniquer uniqueProtocolsAtAddresses:[self protocolAddressListAtAddress:objc2ClassData.baseProtocols]])
         [aClass addProtocol:protocol];
     
-    DBLog(@"\nProcessing properties...\n");
+    VerboseLog(@"\nProcessing properties...\n");
     for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2ClassData.baseProperties])
         [aClass addProperty:property];
     
@@ -398,7 +398,7 @@
         
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        DBLog(@"property list data offset: %lu", [cursor offset]);
+        VerboseLog(@"property list data offset: %lu", [cursor offset]);
         
         listHeader.entsize = [cursor readInt32];
         listHeader.count = [cursor readInt32];
@@ -425,7 +425,7 @@
 {
     if (address == 0)
         return nil;
-    DBLog(@"%s, address=%016llx", _cmds, address);
+    VerboseLog(@"%s, address=%016llx", _cmds, address);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
     
@@ -438,8 +438,8 @@
     objc2Class.reserved1  = [cursor readPtr];
     objc2Class.reserved2  = [cursor readPtr];
     objc2Class.reserved3  = [cursor readPtr];
-    DBLog(@"isa: %016llx superclass: %016llx cache: %016llx vtable: %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
-    DBLog(@"data: %016llx r1: %016llx r2: %016llx r3: %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
+    VerboseLog(@"isa: %016llx superclass: %016llx cache: %016llx vtable: %016llx", objc2Class.isa, objc2Class.superclass, objc2Class.cache, objc2Class.vtable);
+    VerboseLog(@"data: %016llx r1: %016llx r2: %016llx r3: %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
     
     NSParameterAssert(objc2Class.data != 0);
     [cursor setAddress:objc2Class.data];
@@ -477,7 +477,7 @@
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         CDMachOFileDataCursor *nameCursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile];
         NSParameterAssert([cursor offset] != 0);
-        DBLog(@"method list data offset: %lu", [cursor offset]);
+        VerboseLog(@"method list data offset: %lu", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         
@@ -516,9 +516,9 @@
                 types = [self.machOFile stringAtAddress:extendedMethodTypes];
             }
             
-            DBLog(@"%3u: %016llx %016llx %016llx", index, objc2Method.name, objc2Method.types, objc2Method.imp);
-            DBLog(@"name: %@", name);
-            DBLog(@"types: %@", types);
+            VerboseLog(@"%3u: %016llx %016llx %016llx", index, objc2Method.name, objc2Method.types, objc2Method.imp);
+            VerboseLog(@"name: %@", name);
+            VerboseLog(@"types: %@", types);
             
             CDOCMethod *method = [[CDOCMethod alloc] initWithName:name typeString:types address:objc2Method.imp];
             [methods addObject:method];
@@ -535,7 +535,7 @@
     if (address != 0) {
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        DBLog(@"ivar list data offset: %lu", [cursor offset]);
+        VerboseLog(@"ivar list data offset: %lu", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         
@@ -561,7 +561,7 @@
                 CDOCInstanceVariable *ivar = [[CDOCInstanceVariable alloc] initWithName:name typeString:typeString offset:offset];
                 [ivars addObject:ivar];
             } else {
-                //DBLog(@"%016lx %016lx %016lx  %08x %08x", objc2Ivar.offset, objc2Ivar.name, objc2Ivar.type, objc2Ivar.alignment, objc2Ivar.size);
+                //VerboseLog(@"%016lx %016lx %016lx  %08x %08x", objc2Ivar.offset, objc2Ivar.name, objc2Ivar.type, objc2Ivar.alignment, objc2Ivar.size);
             }
         }
     }
@@ -572,12 +572,12 @@
 // Returns list of NSNumber containing the protocol addresses
 - (NSArray *)protocolAddressListAtAddress:(uint64_t)address;
 {
-    LOG_CMD;
+    VLOG_CMD;
     NSMutableArray *addresses = [[NSMutableArray alloc] init];;
     
     if (address != 0) {
         
-        DBLog(@"%s, address=%016llx", _cmds, address);
+        VerboseLog(@"%s, address=%016llx", _cmds, address);
         
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         

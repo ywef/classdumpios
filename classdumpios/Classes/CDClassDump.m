@@ -116,8 +116,32 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     return self.containsObjectiveCData || self.hasEncryptedFiles;
 }
 
++ (BOOL)isVerbose {
+    BOOL vb = [[NSUserDefaults standardUserDefaults] boolForKey:@"verbose"];
+    //DLog(@"vb: %d, contains: %d",vb, [[[NSProcessInfo processInfo] arguments] containsObject:@"-v"] );
+    return vb || [[[NSProcessInfo processInfo] arguments] containsObject:@"-v"];
+}
+
++ (void)logLevel:(NSInteger)level stringWithFormat:(NSString *)fmt, ... {
+    //DLog(@"logLevel: %lu", level);
+    //return;
+    va_list args;
+    va_start(args, fmt);
+    va_end(args);
+    //NSString *output = [[NSString alloc] initWithFormat:fmt arguments:args];
+    //DLog(@"we made a output: %@", output);
+    if (level == 0){ //info level
+        DLog(fmt, args);
+    } else {
+        if ([self isVerbose]){
+            DLog(fmt, args);
+        }
+    }
+}
+
 - (BOOL)loadFile:(CDFile *)file error:(NSError *__autoreleasing *)error;
 {
+    VerboseLog(@"loadFile: %@", file);
     //DLog(@"targetArch: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
     CDMachOFile *machOFile = [file machOFileWithArch:_targetArch];
     //DLog(@"machOFile: %@", machOFile);
@@ -184,7 +208,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (void)processObjectiveCData;
 {
-    LOG_CMD;
+    VLOG_CMD;
     for (CDMachOFile *machOFile in self.machOFiles) {
         CDObjectiveCProcessor *processor = [[[machOFile processorClass] alloc] initWithMachOFile:machOFile];
         [processor process];
@@ -270,7 +294,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (void)registerTypes;
 {
-    LOG_CMD;
+    VLOG_CMD;
     for (CDObjectiveCProcessor *processor in self.objcProcessors) {
         [processor registerTypesWithObject:self.typeController phase:0];
     }

@@ -51,7 +51,7 @@
     
     for (NSNumber *key in [[_protocolsByAddress allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
         CDOCProtocol *p1 = _protocolsByAddress[key];
-        DBLog(@"p1 name: %@", p1);
+        VerboseLog(@"p1 name: %@", p1);
         if (p1.name == nil) {
             continue;
         }
@@ -66,7 +66,7 @@
         if (key){
             _uniqueProtocolsByAddress[key] = uniqueProtocol;
         } else {
-            DBLog(@"no key for %@", uniqueProtocol);
+            VerboseLog(@"no key for %@", uniqueProtocol);
         }
     }
     
