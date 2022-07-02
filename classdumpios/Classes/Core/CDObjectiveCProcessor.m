@@ -135,7 +135,7 @@
 
 - (void)process;
 {
-    VLOG_CMD;
+    ILOG_CMD;
     if (self.machOFile.isEncrypted == NO && self.machOFile.canDecryptAllSegments) {
         [self.machOFile.symbolTable loadSymbols];
         //VerboseLog(@"SymbolTable: %@", self.machOFile.symbolTable);

@@ -120,6 +120,12 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
     return [[[NSProcessInfo processInfo] arguments] containsObject:@"-F"];
 }
 
++ (BOOL)isDebug {
+    BOOL vb = [[NSUserDefaults standardUserDefaults] boolForKey:@"debug"];
+    //DLog(@"vb: %d, contains: %d",vb, [[[NSProcessInfo processInfo] arguments] containsObject:@"-v"] );
+    return vb || [[[NSProcessInfo processInfo] arguments] containsObject:@"-d"];
+}
+
 + (BOOL)isVerbose {
     BOOL vb = [[NSUserDefaults standardUserDefaults] boolForKey:@"verbose"];
     //DLog(@"vb: %d, contains: %d",vb, [[[NSProcessInfo processInfo] arguments] containsObject:@"-v"] );
@@ -127,8 +133,10 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 }
 
 + (void)logLevel:(NSInteger)level string:(NSString *)string {
-    if (level == 0){ //info level
-        DLog(@"%@", string);
+    if (level == 0 || [self isVerbose]){ //info level
+        if ([self isDebug] || [self isVerbose]){
+            DLog(@"%@", string);
+        }
     } else {
         if ([self isVerbose]){
             DLog(@"%@", string);
@@ -155,7 +163,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (BOOL)loadFile:(CDFile *)file error:(NSError *__autoreleasing *)error;
 {
-    VerboseLog(@"loadFile: %@", file);
+    InfoLog(@"loadFile: %@", file);
     //DLog(@"targetArch: (%08x, %08x)", targetArch.cputype, targetArch.cpusubtype);
     CDMachOFile *machOFile = [file machOFileWithArch:_targetArch];
     //DLog(@"machOFile: %@", machOFile);
@@ -222,7 +230,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (void)processObjectiveCData;
 {
-    VLOG_CMD;
+    ILOG_CMD;
     for (CDMachOFile *machOFile in self.machOFiles) {
         CDObjectiveCProcessor *processor = [[[machOFile processorClass] alloc] initWithMachOFile:machOFile];
         [processor process];
@@ -308,7 +316,7 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 
 - (void)registerTypes;
 {
-    VLOG_CMD;
+    ILOG_CMD;
     for (CDObjectiveCProcessor *processor in self.objcProcessors) {
         [processor registerTypesWithObject:self.typeController phase:0];
     }

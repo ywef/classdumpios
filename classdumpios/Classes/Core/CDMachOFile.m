@@ -169,7 +169,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                 [runPathCommands addObject:loadCommand];
             }
         }
-        VerboseLog(@"loadCommand: %@", loadCommand);
+        InfoLog(@"loadCommand: %@", loadCommand);
     }
     _loadCommands      = [loadCommands copy];
     _dylibLoadCommands = [dylibLoadCommands copy];
@@ -341,14 +341,14 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             if ([CDClassDump isVerbose]){
-                ODLog(@"stringAtAddress: based", based);
+                OLog(@"stringAtAddress: based", based);
             }
             address = based;
             segment = [self segmentContainingAddress:based];
         }
         
         while (address > 0x10000000000000){
-            VerboseLog(@"h4xxxxxxxx %lu", address);
+            OLog(@"h4xxxxxxxx", address);
             address = address - 0x10000000000000;
             segment = [self segmentContainingAddress:address];
         }
@@ -384,12 +384,12 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     if (address == 0)
         return 0;
     
-    VerboseLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
+    InfoLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
-            ODLog(@"based", based);
+            OLog(@"based", based);
             address = based;
             segment = [self segmentContainingAddress:based];
             //VerboseLog(@"science?? %@", segment);

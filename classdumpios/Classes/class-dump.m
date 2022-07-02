@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
             { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
             { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
             { "hide",                    required_argument, NULL, CD_OPT_HIDE },
+            { "debug",                   no_argument,       NULL, 'd'},
             { "verbose",                 no_argument,       NULL, 'v'},
             { "fixups",                  no_argument,       NULL, 'F'},
             { "silent",                  no_argument,       NULL, 'x'},
@@ -107,12 +108,14 @@ int main(int argc, char *argv[])
             exit(0);
         }
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"verbose"]; //reset it every time
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"debug"];
 #ifdef DEBUG
+        [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:@"debug"];
         [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:@"verbose"]; //make it easier to avoid hardcoded macros to enable logging
 #endif
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFx", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFxd", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -180,7 +183,9 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
-                
+                case 'd':
+                    [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:@"debug"];
+                    break;
                 case 'F':
                     break;
                 case 'x':

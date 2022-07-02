@@ -60,8 +60,12 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 char *symbol = (char *)(fixupBase + header->symbols_offset + import.name_offset);
                 NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
                 //DLog(@"BIND data: %@", data);
-                uint64_t raw = [[[data reverse] decimalString] integerValue];
-                //VerboseLog(@"raw: %lu", raw);
+                NSNumberFormatter *formatter = [NSNumberFormatter new];
+                [formatter numberFromString:[[data reverse] decimalString]];
+                NSNumber     *myNSNumber          = [formatter numberFromString:[[data reverse] decimalString]];
+                //OLog(@"myNSNumber", [myNSNumber unsignedIntegerValue]);
+                uint64_t raw = [myNSNumber unsignedIntegerValue];
+                InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
                             chain, raw, bind.ordinal, bind.addend, bind.reserved, symbol);
@@ -81,6 +85,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //VerboseLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
                 uint64_t raw = [[data decimalString] integerValue];
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
+                InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",
                             chain, raw, rebase.target, rebase.high8);
@@ -182,7 +187,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
 }
 
 - (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address adjustment:(NSUInteger)adj {
-    VerboseLog(@"rebaseTargetFromAddress: %#010llx (%lu)", address-adj, address-adj);
+    InfoLog(@"%s : %#010llx (%lu)", _cmds, address-adj, address-adj);
     NSNumber *key = [NSNumber numberWithUnsignedInteger:address-adj]; // I don't think 32-bit will dump 64-bit stuff.
     return [_based[key] unsignedIntegerValue];
 }
