@@ -14,6 +14,7 @@
 #import "CDLCSymbolTable.h"
 #import "NSData+Flip.h"
 #import "CDSymbol.h"
+#import "CDLCDylib.h"
 
 @implementation CDLCChainedFixups
 {
@@ -65,7 +66,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 NSNumber     *myNSNumber          = [formatter numberFromString:[[data reverse] decimalString]];
                 //OLog(@"myNSNumber", [myNSNumber unsignedIntegerValue]);
                 uint64_t raw = [myNSNumber unsignedIntegerValue];
-                InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
+                //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
                             chain, raw, bind.ordinal, bind.addend, bind.reserved, symbol);
@@ -85,7 +86,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //VerboseLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
                 uint64_t raw = [[data decimalString] integerValue];
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
-                InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
+                //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",
                             chain, raw, rebase.target, rebase.high8);
@@ -108,6 +109,104 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
     }
 }
 
+- (NSString *) getDylibName:(uint16_t) dylibOrdinal {
+    NSString *dylibName = nil;
+
+    switch (dylibOrdinal) {
+        case (uint8_t)BIND_SPECIAL_DYLIB_SELF:
+            dylibName = @"self";
+            break;
+        case (uint8_t)BIND_SPECIAL_DYLIB_MAIN_EXECUTABLE:
+            dylibName = @"main executable";
+            break;
+        case (uint8_t)BIND_SPECIAL_DYLIB_FLAT_LOOKUP:
+            dylibName = @"flat lookup";
+            break;
+        case (uint8_t)BIND_SPECIAL_DYLIB_WEAK_LOOKUP:
+            dylibName = @"weak lookup";
+            break;
+        default:
+            dylibName = [self getDylibNameByOrdinal:dylibOrdinal baseName:true];
+            break;
+    }
+    return [NSString stringWithFormat:@"%lu (%@)", dylibOrdinal, dylibName];
+}
+
+- (NSPredicate *)dyldPredicate {
+    NSPredicate *pred = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        if ([evaluatedObject isKindOfClass:[CDLCDylib class]]){
+            return true;
+        } else {
+            return false;
+        }
+    }];
+    return pred;
+}
+
+- (CDLCDylib *)dylibCommandForOrdinal:(NSInteger)ordinal {
+    NSArray <CDLCDylib *> *dylibCommands = [self.machOFile.loadCommands filteredArrayUsingPredicate:[self dyldPredicate]];
+    if (dylibCommands.count > ordinal){
+        return dylibCommands[ordinal];
+    }
+    return nil;
+}
+
+- (NSString *)getDylibNameByOrdinal:(NSInteger)ordinal baseName:(BOOL)basename {
+    if (ordinal > 0 && ordinal <= MAX_LIBRARY_ORDINAL) { // 0 ~ 253
+        CDLCDylib *dylibCmd = [self dylibCommandForOrdinal:ordinal - 1];
+        InfoLog(@"found dylibCmd: %@ for ordinal: %lu", dylibCmd, ordinal);
+        if (basename) {
+            return dylibCmd.path.lastPathComponent;
+        }
+        return dylibCmd.path;
+    } else if (ordinal == DYNAMIC_LOOKUP_ORDINAL) { // 254
+        return @"dynamic lookup";
+    } else if (ordinal == EXECUTABLE_ORDINAL) { // 255
+        return @"exectuable";
+    }
+    return @"invalid ordinal";
+}
+
+- (void)printImports:(struct dyld_chained_fixups_header *)header {
+    printf("  IMPORTS\n");
+
+    uint32_t maxImportNum = UINT32_MAX;
+    int importCount = 0;
+    for (int i = 0; i < MIN(header->imports_count, maxImportNum); ++i) {
+        struct dyld_chained_import import =
+            ((struct dyld_chained_import *)((uint8_t *)header + header->imports_offset))[i];
+
+        printf("    [%d] lib_ordinal: %-22s   weak_import: %d   name_offset: %d (%s)\n",
+            i, [[self getDylibName:import.lib_ordinal] UTF8String], import.weak_import, import.name_offset,
+            (char *)((uint8_t *)header + header->symbols_offset + import.name_offset));
+
+        importCount++;
+    }
+
+    if (importCount < header->imports_count) {
+        printf("    ... %d more imports ...\n", header->imports_count - importCount);
+    }
+
+    printf("\n");
+}
+
+/*
+ std::string getDylibNameByOrdinal(int ordinal, bool basename = true) {
+     if (ordinal > 0 && ordinal <= MAX_LIBRARY_ORDINAL) { // 0 ~ 253
+         struct dylib_command *dylibCmd = getDylibCommands()[ordinal - 1];
+         std::filesystem::path dylibPath = std::filesystem::path((char *)dylibCmd + dylibCmd->dylib.name.offset);
+         if (basename) {
+             dylibPath = dylibPath.filename();
+         }
+         return dylibPath.string();
+     } else if (ordinal == DYNAMIC_LOOKUP_ORDINAL) { // 254
+         return "dynamic lookup";
+     } else if (ordinal == EXECUTABLE_ORDINAL) { // 255
+         return "exectuable";
+     }
+     return "invalid ordinal";
+ }
+ */
 
 static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     switch(pointer_format) {
@@ -217,6 +316,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     uint8_t *fixup_base = (uint8_t *)[[self linkeditData] bytes];
     struct dyld_chained_fixups_header *header = (struct dyld_chained_fixups_header *)fixup_base;
     printChainedFixupsHeader(header);
+    [self printImports:header];
     struct dyld_chained_starts_in_image *starts_in_image =
     (struct dyld_chained_starts_in_image *)(fixup_base + header->starts_offset);
     
