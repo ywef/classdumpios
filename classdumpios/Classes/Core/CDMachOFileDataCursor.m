@@ -68,7 +68,7 @@
 
 - (void)setAddress:(NSUInteger)address;
 {
-    VerboseLog(@"%s 0x%08lx", _cmds, address);
+    //VerboseLog(@"%s 0x%08lx", _cmds, address);
     NSUInteger dataOffset = [_machOFile dataOffsetForAddress:address];
     VerboseLog(@"dataOffset: 0x%08lx for address: 0x%08lx", dataOffset, address);
     [self setOffset:dataOffset];

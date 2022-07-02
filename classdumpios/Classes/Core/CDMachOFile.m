@@ -375,7 +375,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 
     ptr = (uint8_t *)[self.data bytes] + offset;
     NSString *returnString = [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
-    VerboseLog(@"stringAtAddress: %@", returnString);
+    //VerboseLog(@"stringAtAddress: %@", returnString);
     return returnString;
 }
 
@@ -387,7 +387,6 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     VerboseLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
-        VerboseLog(@"nil segment");
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             ODLog(@"based", based);
@@ -401,39 +400,6 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             //return 0;
             exit(5);
         }
-        /*
-        if (address > 0x80000000000000){
-            address = address - 0x80000000000000;
-            segment = [self segmentContainingAddress:address];
-        }
-        if (segment == nil) {
-            VerboseLog(@"nil segment");
-            if (address > 0x60000000000000){
-                address = address - 0x60000000000000;
-                segment = [self segmentContainingAddress:address];
-            }
-        }
-        if (segment == nil){
-            VerboseLog(@"nil segment");
-            if (address > 0x40000000000000){
-                address = address - 0x40000000000000;
-                segment = [self segmentContainingAddress:address];
-            }
-            if (segment == nil) {
-                VerboseLog(@"nil segment");
-                if (address > 0x10000000000000){
-                    address = address - 0x10000000000000;
-                    segment = [self segmentContainingAddress:address];
-                    if (segment == nil){
-                        DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
-                        //return 0;
-                        exit(5);
-                    }
-                }
-       
-            }
-        }
-        */
     }
 
 //    if ([segment isProtected]) {

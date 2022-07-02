@@ -67,7 +67,7 @@
             val = val - 0x10000000000000;
         }*/
         CDOCClass *aClass = [self loadClassAtAddress:val];
-        VerboseLog(@"aClass: %@", aClass);
+        VerboseLog(@"\naClass: %@", aClass);
         if (aClass != nil) {
             [self addClass:aClass withAddress:val];
         }
@@ -95,7 +95,7 @@
     if (protocol == nil) {
         protocol = [[CDOCProtocol alloc] init];
         [self.protocolUniquer setProtocol:protocol withAddress:address];
-        VerboseLog(@"%s, address=%016llx", _cmds, address);
+        VerboseLog(@"\n%s, address=%016llx", _cmds, address);
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         if ([cursor offset] == 0 ) return nil;
         //NSParameterAssert([cursor offset] != 0);
@@ -131,9 +131,10 @@
         NSString *str = [self.machOFile stringAtAddress:objc2Protocol.name];
         [protocol setName:str];
         
-        VerboseLog(@"protocol name: %@", str);
+        VerboseLog(@"\nProtocol name: %@", str);
         
         if (objc2Protocol.protocols != 0) {
+            ODLog(@"setting protocol address", objc2Protocol.protocols);
             [cursor setAddress:objc2Protocol.protocols];
             uint64_t count = [cursor readPtr];
             for (uint64_t index = 0; index < count; index++) {
@@ -147,18 +148,23 @@
             }
         }
         
+        ODLog(@"Loading protocol instanceMethods", objc2Protocol.instanceMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.instanceMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addInstanceMethod:method];
         
+        ODLog(@"Loading protocol classMethods", objc2Protocol.classMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.classMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addClassMethod:method];
         
+        ODLog(@"Loading protocol optionalInstanceMethods", objc2Protocol.optionalInstanceMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.optionalInstanceMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addOptionalInstanceMethod:method];
         
+        ODLog(@"Loading protocol optionalClassMethods", objc2Protocol.optionalClassMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.optionalClassMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addOptionalClassMethod:method];
         
+        ODLog(@"Loading protocol instanceProperties", objc2Protocol.instanceProperties);
         for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2Protocol.instanceProperties])
             [protocol addProperty:property];
     }
@@ -173,7 +179,7 @@
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
-    
+    VerboseLog(@"\n%s, address=%016llx", _cmds, address);
     struct cd_objc2_category objc2Category;
     objc2Category.name               = [cursor readPtr];
     objc2Category.class              = [cursor readPtr];
@@ -184,22 +190,23 @@
     objc2Category.v7                 = [cursor readPtr];
     objc2Category.v8                 = [cursor readPtr];
     VerboseLog(@"----------------------------------------");
-    VerboseLog(@"%016llx %016llx %016llx %016llx", objc2Category.name, objc2Category.class, objc2Category.instanceMethods, objc2Category.classMethods);
-    VerboseLog(@"%016llx %016llx %016llx %016llx", objc2Category.protocols, objc2Category.instanceProperties, objc2Category.v7, objc2Category.v8);
+    VerboseLog(@"name: %016llx class: %016llx instanceMethods: %016llx  classMethods: %016llx", objc2Category.name, objc2Category.class, objc2Category.instanceMethods, objc2Category.classMethods);
+    VerboseLog(@"protocols: %016llx instanceProperties: %016llx v7: %016llx v8: %016llx", objc2Category.protocols, objc2Category.instanceProperties, objc2Category.v7, objc2Category.v8);
     
     CDOCCategory *category = [[CDOCCategory alloc] init];
     NSString *str = [self.machOFile stringAtAddress:objc2Category.name];
     [category setName:str];
-    VerboseLog(@"Category Name: %@", str);
+    VerboseLog(@"\nCategory Name: %@", str);
+    VerboseLog(@"Processing instance methods...");
     for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Category.instanceMethods])
         [category addInstanceMethod:method];
-    
+    VerboseLog(@"Processing class methods...");
     for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Category.classMethods])
         [category addClassMethod:method];
-
+    VerboseLog(@"Processing protocols...");
     for (CDOCProtocol *protocol in [self.protocolUniquer uniqueProtocolsAtAddresses:[self protocolAddressListAtAddress:objc2Category.protocols]])
         [category addProtocol:protocol];
-    
+    VerboseLog(@"Processing properties...");
     for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2Category.instanceProperties])
         [category addProperty:property];
     
@@ -230,6 +237,7 @@
         }
         
         if (externalClassName != nil) {
+            VerboseLog(@"Found external class name: %@", externalClassName);
             CDSymbol *classSymbol = [[self.machOFile symbolTable] symbolForExternalClassName:externalClassName];
             if (classSymbol != nil)
                 category.classRef = [[CDOCClassReference alloc] initWithClassSymbol:classSymbol];
@@ -250,7 +258,7 @@
     if (class)
         return class;
     
-    VerboseLog(@"%s, address=%016llx also: %llu", _cmds, address, address);
+    VerboseLog(@"\n%s, address=%016llx also: %llu", _cmds, address, address);
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     if ([cursor offset] == 0) return nil;
@@ -398,7 +406,7 @@
         
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        VerboseLog(@"property list data offset: %lu", [cursor offset]);
+        ODLog(@"property list data offset", [cursor offset]);
         
         listHeader.entsize = [cursor readInt32];
         listHeader.count = [cursor readInt32];
@@ -425,7 +433,7 @@
 {
     if (address == 0)
         return nil;
-    VerboseLog(@"%s, address=%016llx", _cmds, address);
+    VerboseLog(@"\n%s, address=%016llx", _cmds, address);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
     
@@ -477,7 +485,7 @@
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         CDMachOFileDataCursor *nameCursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile];
         NSParameterAssert([cursor offset] != 0);
-        VerboseLog(@"method list data offset: %lu", [cursor offset]);
+        ODLog(@"method list data offset", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         
@@ -535,7 +543,7 @@
             
             VerboseLog(@"%3u: %016llx %016llx %016llx", index, objc2Method.name, objc2Method.types, objc2Method.imp);
             VerboseLog(@"name: %@", name);
-            VerboseLog(@"types: %@", types);
+            VerboseLog(@"types: %@\n", types);
             
             CDOCMethod *method = [[CDOCMethod alloc] initWithName:name typeString:types address:objc2Method.imp];
             [methods addObject:method];
@@ -552,7 +560,7 @@
     if (address != 0) {
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        VerboseLog(@"ivar list data offset: %lu", [cursor offset]);
+        ODLog(@"ivar list data offset", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         
@@ -589,13 +597,10 @@
 // Returns list of NSNumber containing the protocol addresses
 - (NSArray *)protocolAddressListAtAddress:(uint64_t)address;
 {
-    VLOG_CMD;
     NSMutableArray *addresses = [[NSMutableArray alloc] init];;
     
     if (address != 0) {
-        
-        VerboseLog(@"%s, address=%016llx", _cmds, address);
-        
+        VerboseLog(@"\n%s, address=%016llx", _cmds, address);
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         
         uint64_t count = [cursor readPtr];
