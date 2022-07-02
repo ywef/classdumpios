@@ -341,14 +341,14 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             if ([CDClassDump isVerbose]){
-                OLog(@"stringAtAddress: based", based);
+                OILog(@"stringAtAddress: based", based);
             }
             address = based;
             segment = [self segmentContainingAddress:based];
         }
         
         while (address > 0x10000000000000){
-            OLog(@"h4xxxxxxxx", address);
+            OILog(@"h4xxxxxxxx", address);
             address = address - 0x10000000000000;
             segment = [self segmentContainingAddress:address];
         }
@@ -389,7 +389,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     if (segment == nil) {
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
-            OLog(@"based", based);
+            OILog(@"based", based);
             address = based;
             segment = [self segmentContainingAddress:based];
             //VerboseLog(@"science?? %@", segment);
@@ -422,6 +422,89 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 - (const void *)bytes;
 {
     return [self.data bytes];
+}
+
+- (uint32_t)peekInt32:(NSUInteger)offset;
+{
+    if (_byteOrder == CDByteOrder_LittleEndian)
+        return [self peekLittleInt32:offset];
+
+    return [self peekBigInt32:offset];
+}
+
+- (uint64_t)peekInt64:(NSUInteger)offset;
+{
+    if (_byteOrder == CDByteOrder_LittleEndian)
+        return [self peekLittleInt64:offset];
+
+    return [self peekBigInt64:offset];
+}
+
+
+- (uint32_t)peekBigInt32:(NSUInteger)offset;
+{
+    uint32_t result;
+
+    if (offset + sizeof(result) <= [[self data] length]) {
+        result = OSReadBigInt32([[self data] bytes], offset);
+    } else {
+        [NSException raise:NSRangeException format:@"Trying to read past end in %s", _cmds];
+        result = 0;
+    }
+
+    return result;
+}
+
+- (uint32_t)peekLittleInt32:(NSUInteger)offset;
+{
+    uint32_t result;
+
+    if (offset + sizeof(result) <= [[self data] length]) {
+        result = OSReadLittleInt32([[self data] bytes], offset);
+    } else {
+        [NSException raise:NSRangeException format:@"Trying to read past end in %s", _cmds];
+        result = 0;
+    }
+
+    return result;
+}
+
+- (uint64_t)peekBigInt64:(NSUInteger)offset
+{
+    uint64_t result;
+
+    if (offset + sizeof(result) <= [[self data] length]) {
+        result = OSReadBigInt64([[self data] bytes], offset);
+    } else {
+        [NSException raise:NSRangeException format:@"Trying to read past end in %s", _cmds];
+        result = 0;
+    }
+
+    return result;
+}
+
+- (uint64_t)peekLittleInt64:(NSUInteger)offset
+{
+    uint64_t result;
+
+    if (offset + sizeof(result) <= [[self data] length]) {
+        result = OSReadLittleInt64([[self data] bytes], offset);
+    } else {
+        [NSException raise:NSRangeException format:@"Trying to read past end in %s", _cmds];
+        result = 0;
+    }
+
+    return result;
+}
+
+
+- (uint64_t)peekPtrAtOffset:(NSUInteger)offset ptrSize:(NSUInteger)ptrSize {
+    uint64_t val = 0;
+    switch (ptrSize) {
+        case sizeof(uint32_t): val = [self peekInt32:offset];
+        case sizeof(uint64_t): val = [self peekInt64:offset];
+    }
+    return val;
 }
 
 - (const void *)bytesAtOffset:(NSUInteger)offset;

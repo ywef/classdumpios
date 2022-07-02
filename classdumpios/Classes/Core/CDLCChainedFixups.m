@@ -25,6 +25,17 @@
     NSMutableDictionary *_based;
 }
 
++ (NSNumberFormatter *)sharedNumberFormatter {
+    static dispatch_once_t minOnceToken;
+    static NSNumberFormatter *sharedNumber = nil;
+    if(sharedNumber == nil) {
+        dispatch_once(&minOnceToken, ^{
+            sharedNumber = [[NSNumberFormatter alloc] init];
+        });
+    }
+    return sharedNumber;
+}
+
 
 static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) {
     const char *imports_format = NULL;
@@ -60,21 +71,23 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 struct dyld_chained_import import = ((struct dyld_chained_import *)(fixupBase + header->imports_offset))[bind.ordinal];
                 char *symbol = (char *)(fixupBase + header->symbols_offset + import.name_offset);
                 NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
+                //uint64_t peeked = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
                 //DLog(@"BIND data: %@", data);
-                NSNumberFormatter *formatter = [NSNumberFormatter new];
-                [formatter numberFromString:[[data reverse] decimalString]];
-                NSNumber     *myNSNumber          = [formatter numberFromString:[[data reverse] decimalString]];
+                NSNumber     *myNSNumber          = [[CDLCChainedFixups sharedNumberFormatter] numberFromString:[[data reverse] decimalString]];
                 //OLog(@"myNSNumber", [myNSNumber unsignedIntegerValue]);
                 uint64_t raw = [myNSNumber unsignedIntegerValue];
+                //OLog(@"DATA RAW", raw);
+                //OLog(@"PEEK RAW", peeked);
+                //OLog(@"SWAP", _OSSwapInt64(peeked));
                 //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
                             chain, raw, bind.ordinal, bind.addend, bind.reserved, symbol);
                 }
                 [self bindAddress:raw type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
-                [self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
-                [self bindAddress:(uint64_t)[data bytes] type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
-                [self rebaseAddress:(uint64_t)[data bytes] target:chain];
+                //[self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
+                //[self bindAddress:(uint64_t)[data bytes] type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
+                //[self rebaseAddress:(uint64_t)[data bytes] target:chain];
                 [self rebaseAddress:raw target:chain];
             } else {
                 // rebase 0x%08lx
@@ -82,9 +95,13 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 
                 
                 NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
+                uint64_t peeked = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
                 //VerboseLog(@"RAW: %@", [data reverse]);
                 //VerboseLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
                 uint64_t raw = [[data decimalString] integerValue];
+                OLog(@"REBASE DATA RAW", raw);
+                OLog(@"REBASE PEEK RAW", peeked);
+                OLog(@"REBASE SWAP", _OSSwapInt64(peeked));
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
                 //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
@@ -154,7 +171,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
 - (NSString *)getDylibNameByOrdinal:(NSInteger)ordinal baseName:(BOOL)basename {
     if (ordinal > 0 && ordinal <= MAX_LIBRARY_ORDINAL) { // 0 ~ 253
         CDLCDylib *dylibCmd = [self dylibCommandForOrdinal:ordinal - 1];
-        InfoLog(@"found dylibCmd: %@ for ordinal: %lu", dylibCmd, ordinal);
+        //InfoLog(@"found dylibCmd: %@ for ordinal: %lu", dylibCmd, ordinal);
         if (basename) {
             return dylibCmd.path.lastPathComponent;
         }
@@ -168,26 +185,23 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
 }
 
 - (void)printImports:(struct dyld_chained_fixups_header *)header {
-    printf("  IMPORTS\n");
-
-    uint32_t maxImportNum = UINT32_MAX;
+    if([CDClassDump printFixupData]){
+        printf("  IMPORTS\n");
+    }
     int importCount = 0;
-    for (int i = 0; i < MIN(header->imports_count, maxImportNum); ++i) {
+    for (int i = 0; i < header->imports_count; ++i) {
         struct dyld_chained_import import =
             ((struct dyld_chained_import *)((uint8_t *)header + header->imports_offset))[i];
-
-        printf("    [%d] lib_ordinal: %-22s   weak_import: %d   name_offset: %d (%s)\n",
-            i, [[self getDylibName:import.lib_ordinal] UTF8String], import.weak_import, import.name_offset,
-            (char *)((uint8_t *)header + header->symbols_offset + import.name_offset));
-
+        if([CDClassDump printFixupData]){
+            printf("    [%d] lib_ordinal: %-22s   weak_import: %d   name_offset: %d (%s)\n",
+                   i, [[self getDylibName:import.lib_ordinal] UTF8String], import.weak_import, import.name_offset,
+                   (char *)((uint8_t *)header + header->symbols_offset + import.name_offset));
+        }
         importCount++;
     }
-
-    if (importCount < header->imports_count) {
-        printf("    ... %d more imports ...\n", header->imports_count - importCount);
+    if([CDClassDump printFixupData]){
+        printf("\n");
     }
-
-    printf("\n");
 }
 
 /*

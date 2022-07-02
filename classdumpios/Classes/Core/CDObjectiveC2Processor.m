@@ -53,19 +53,19 @@
         uint64_t val = [cursor readPtr];
         if (self.machOFile.chainedFixups != nil){
             based = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
-            OLog(@"loadClasses based", based);
+            OILog(@"loadClasses based", based);
         }
         if (based != 0) {
             fixupAdjustment = val - based;
-            OLog(@"loadClasses fixup", fixupAdjustment);
+            OILog(@"loadClasses fixup", fixupAdjustment);
             val = based;
             
         }
-        OLog(@"readPtr", val);
+        OILog(@"readPtr", val);
         /*
-        if (val > 0x10000000000000){
-            val = val - 0x10000000000000;
-        }*/
+         if (val > 0x10000000000000){
+         val = val - 0x10000000000000;
+         }*/
         CDOCClass *aClass = [self loadClassAtAddress:val];
         InfoLog(@"\naClass: %@", aClass);
         if (aClass != nil) {
@@ -134,7 +134,7 @@
         InfoLog(@"\nProtocol name: %@", str);
         
         if (objc2Protocol.protocols != 0) {
-            OLog(@"setting protocol address", objc2Protocol.protocols);
+            OILog(@"setting protocol address", objc2Protocol.protocols);
             [cursor setAddress:objc2Protocol.protocols];
             uint64_t count = [cursor readPtr];
             for (uint64_t index = 0; index < count; index++) {
@@ -149,23 +149,23 @@
             }
         }
         
-        OLog(@"\nLoading protocol instanceMethods", objc2Protocol.instanceMethods);
+        OILog(@"\nLoading protocol instanceMethods", objc2Protocol.instanceMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.instanceMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addInstanceMethod:method];
         
-        OLog(@"\nLoading protocol classMethods", objc2Protocol.classMethods);
+        OILog(@"\nLoading protocol classMethods", objc2Protocol.classMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.classMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addClassMethod:method];
         
-        OLog(@"\nLoading protocol optionalInstanceMethods", objc2Protocol.optionalInstanceMethods);
+        OILog(@"\nLoading protocol optionalInstanceMethods", objc2Protocol.optionalInstanceMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.optionalInstanceMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addOptionalInstanceMethod:method];
         
-        OLog(@"\nLoading protocol optionalClassMethods", objc2Protocol.optionalClassMethods);
+        OILog(@"\nLoading protocol optionalClassMethods", objc2Protocol.optionalClassMethods);
         for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Protocol.optionalClassMethods extendedMethodTypesCursor:extendedMethodTypesCursor])
             [protocol addOptionalClassMethod:method];
         
-        OLog(@"\nLoading protocol instanceProperties", objc2Protocol.instanceProperties);
+        OILog(@"\nLoading protocol instanceProperties", objc2Protocol.instanceProperties);
         for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2Protocol.instanceProperties])
             [protocol addProperty:property];
     }
@@ -232,8 +232,8 @@
             //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
             externalClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Category.class)];
             /*
-            CDOCClass *aClass = [self classWithAddress:objc2Category.class];
-            category.classRef = [[CDOCClassReference alloc] initWithClassObject:aClass];
+             CDOCClass *aClass = [self classWithAddress:objc2Category.class];
+             category.classRef = [[CDOCClassReference alloc] initWithClassObject:aClass];
              */
         }
         
@@ -270,7 +270,7 @@
     objc2Class.superclass = [cursor readPtr];
     objc2Class.cache      = [cursor readPtr];
     objc2Class.vtable     = [cursor readPtr];
-
+    
     uint64_t value        = [cursor readPtr];
     
     class.isSwiftClass    = (value & 0x1) != 0;
@@ -320,17 +320,17 @@
     if (self.machOFile.chainedFixups){
         uint64_t based = [self.machOFile.chainedFixups rebaseTargetFromAddress:methodAddress adjustment:0];
         if (based != 0) {
-            OLog(@"baaaaased", based);
+            OILog(@"baaaaased", based);
             methodAddress = based;
         }
         based = [self.machOFile.chainedFixups rebaseTargetFromAddress:ivarsAddress adjustment:0];
         if (based != 0) {
-            OLog(@"baaaaased ivars", based);
+            OILog(@"baaaaased ivars", based);
             ivarsAddress = based;
         }
         based = [self.machOFile.chainedFixups rebaseTargetFromAddress:isaAddress adjustment:0];
         if (based != 0) {
-            OLog(@"baaaaased isa", based);
+            OILog(@"baaaaased isa", based);
             isaAddress = based;
         }
     }
@@ -409,7 +409,7 @@
         
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        OLog(@"property list data offset", [cursor offset]);
+        OILog(@"property list data offset", [cursor offset]);
         
         listHeader.entsize = [cursor readInt32];
         listHeader.count = [cursor readInt32];
@@ -454,7 +454,7 @@
     
     NSParameterAssert(objc2Class.data != 0);
     [cursor setAddress:objc2Class.data];
-
+    
     struct cd_objc2_class_ro_t objc2ClassData;
     objc2ClassData.flags         = [cursor readInt32];
     objc2ClassData.instanceStart = [cursor readInt32];
@@ -488,7 +488,7 @@
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         CDMachOFileDataCursor *nameCursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile];
         NSParameterAssert([cursor offset] != 0);
-        OLog(@"method list data offset", [cursor offset]);
+        OILog(@"method list data offset", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         
@@ -516,15 +516,15 @@
                 if(self.machOFile.chainedFixups){
                     uint64_t basedName = [self.machOFile.chainedFixups rebaseTargetFromAddress:name adjustment:0];
                     if (basedName != 0) {
-                        OLog(@"basedName", basedName);
+                        OILog(@"basedName", basedName);
                         name = basedName;
                     } else {
-                        OLog(@"size check", name);
-                        OLog(@"peek",[cursor peekPtr]);
+                        OILog(@"size check", name);
+                        OILog(@"peek",[cursor peekPtr]);
                         while (name > fixupAdjustment){
                             InfoLog(@"name was > %lu", fixupAdjustment);
                             name-= fixupAdjustment;
-                            OLog(@"fixupAdjustment", name);
+                            OILog(@"fixupAdjustment", name);
                         }
                         //name-= fixupAdjustment;
                         //ODLog(@"fixupAdjustment", name);
@@ -567,7 +567,7 @@
     if (address != 0) {
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        OLog(@"ivar list data offset", [cursor offset]);
+        OILog(@"ivar list data offset", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         
@@ -615,14 +615,14 @@
             InfoLog(@"cursor: %@", cursor);
         }
         uint64_t count = [cursor readPtr];
-        OLog(@"count", count);
+        OILog(@"count", count);
         if (count == 0) {
             InfoLog(@"didnt find the address, try lookup");
             count = [self.machOFile.chainedFixups rebaseTargetFromAddress:address adjustment:0];
             if (count == 0){
                 InfoLog(@"failed!");
             } else {
-                OLog(@"protocolAddressListAtAddress based", count);
+                OILog(@"protocolAddressListAtAddress based", count);
                 [cursor setAddress:count];
                 count = [cursor readPtr];
             }
@@ -632,11 +632,11 @@
             if (val == 0) {
                 DLog(@"Warning: protocol address in protocol list was 0.");
             } else {
-                OLog(@"protocol", val);
+                OILog(@"protocol", val);
                 if (self.machOFile.chainedFixups) {
                     uint64_t tempVal = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
                     if (tempVal != 0) {
-                        OLog(@"Protocool adjusted", tempVal);
+                        OILog(@"Protocool adjusted", tempVal);
                         val = tempVal;
                     }
                 }

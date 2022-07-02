@@ -121,9 +121,9 @@ NSString *CDErrorKey_Exception    = @"CDErrorKey_Exception";
 }
 
 + (BOOL)isDebug {
-    BOOL vb = [[NSUserDefaults standardUserDefaults] boolForKey:@"debug"];
-    //DLog(@"vb: %d, contains: %d",vb, [[[NSProcessInfo processInfo] arguments] containsObject:@"-v"] );
-    return vb || [[[NSProcessInfo processInfo] arguments] containsObject:@"-d"];
+    BOOL db = [[NSUserDefaults standardUserDefaults] boolForKey:@"debug"];
+    //DLog(@"db: %d, contains: %d",db, [[[NSProcessInfo processInfo] arguments] containsObject:@"-d"] );
+    return db || [[[NSProcessInfo processInfo] arguments] containsObject:@"-d"];
 }
 
 + (BOOL)isVerbose {

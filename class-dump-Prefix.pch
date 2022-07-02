@@ -13,7 +13,8 @@
     #define InfoLog(format, ...)CDLog(0,format, ## __VA_ARGS__)
 //#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat"
-    #define OLog(a,b) InfoLog(@"%@: %016llx (%lu)", a, b, b)
+    #define OLog(a,b) DLog(@"%@: %016llx (%lu)", a, b, b)
+    #define OILog(a,b) InfoLog(@"%@: %016llx (%lu)", a, b, b)
     #define ODLog(a,b) VerboseLog(@"%@: %016llx (%lu)", a, b, b)
 //#pragma clang diagnostic pop
     #define ILOG_CMD        InfoLog(@"%s", __PRETTY_FUNCTION__)
