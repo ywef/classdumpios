@@ -1,0 +1,4 @@
+PrivateHeaders/
+*.xcodeproj/project.xcworkspace/xcuserdata/*.xcuserdatad/
+*.xcodeproj/xcuserdata/*
+build/
