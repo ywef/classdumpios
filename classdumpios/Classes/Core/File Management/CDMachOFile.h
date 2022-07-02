@@ -92,5 +92,5 @@ typedef enum : NSUInteger {
 @property (nonatomic, readonly) Class processorClass;
 
 - (uint64_t)peekPtrAtOffset:(NSUInteger)offset ptrSize:(NSUInteger)ptr;
-
+- (uint64_t)preferredLoadAddress;
 @end

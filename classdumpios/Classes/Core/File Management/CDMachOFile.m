@@ -182,6 +182,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     for (CDLoadCommand *loadCommand in _loadCommands) {
         [loadCommand machOFileDidReadLoadCommands:self];
     }
+    OLog(@"preferredBaseAddress", [self preferredLoadAddress]);
 }
 
 #pragma mark - Debugging
@@ -726,6 +727,25 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 - (NSString *)architectureNameDescription;
 {
     return self.archName;
+}
+/*
+uint64_t MachOFile::preferredLoadAddress() const
+{
+    __block uint64_t textVmAddr = 0;
+    forEachSegment(^(const SegmentInfo& info, bool& stop) {
+        if ( strcmp(info.segName, "__TEXT") == 0 ) {
+            textVmAddr = info.vmAddr;
+            stop = true;
+        }
+    });
+    return textVmAddr;
+}
+ */
+
+- (uint64_t)preferredLoadAddress {
+    CDLCSegment *segment = [self segmentWithName:@"__TEXT"];
+    InfoLog(@"Text Segment: %@", segment);
+    return segment.vmaddr;
 }
 
 @end

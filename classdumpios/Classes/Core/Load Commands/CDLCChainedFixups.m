@@ -70,12 +70,13 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
             if (bind.bind) {
                 struct dyld_chained_import import = ((struct dyld_chained_import *)(fixupBase + header->imports_offset))[bind.ordinal];
                 char *symbol = (char *)(fixupBase + header->symbols_offset + import.name_offset);
-                NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
-                //uint64_t peeked = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
+                //NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
+                uint64_t peeked = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
                 //DLog(@"BIND data: %@", data);
-                NSNumber     *myNSNumber          = [[CDLCChainedFixups sharedNumberFormatter] numberFromString:[[data reverse] decimalString]];
+                //NSNumber     *myNSNumber          = [[CDLCChainedFixups sharedNumberFormatter] numberFromString:[[data reverse] decimalString]];
                 //OLog(@"myNSNumber", [myNSNumber unsignedIntegerValue]);
-                uint64_t raw = [myNSNumber unsignedIntegerValue];
+                //uint64_t raw = [myNSNumber unsignedIntegerValue];
+                uint64_t raw = _OSSwapInt64(peeked);
                 //OLog(@"DATA RAW", raw);
                 //OLog(@"PEEK RAW", peeked);
                 //OLog(@"SWAP", _OSSwapInt64(peeked));
@@ -95,13 +96,13 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 
                 
                 NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
-                uint64_t peeked = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
+                uint64_t raw = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
                 //VerboseLog(@"RAW: %@", [data reverse]);
                 //VerboseLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
-                uint64_t raw = [[data decimalString] integerValue];
-                OLog(@"REBASE DATA RAW", raw);
-                OLog(@"REBASE PEEK RAW", peeked);
-                OLog(@"REBASE SWAP", _OSSwapInt64(peeked));
+                //uint64_t raw = [[data decimalString] integerValue];
+                //OLog(@"REBASE DATA RAW", raw);
+                //OLog(@"REBASE PEEK RAW", peeked);
+                //OLog(@"REBASE SWAP", _OSSwapInt64(peeked));
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
                 //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
