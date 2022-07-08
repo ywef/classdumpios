@@ -77,6 +77,16 @@ static NSString *CDDylibVersionString(uint32_t version)
     return CDDylibVersionString(self.compatibilityVersion);
 }
 
+- (NSString *)path {
+    return _path;
+}
+
+- (NSString *)description {
+    NSString *og = [super description];
+    return [NSString stringWithFormat:@"%@ %@ (compatibility version %@, current version %@)", og,
+            self.path, CDDylibVersionString(self.compatibilityVersion), CDDylibVersionString(self.currentVersion)];
+}
+
 #if 0
 - (NSString *)extraDescription;
 {

@@ -32,7 +32,7 @@
 {
     ILOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_protolist"];
-    
+    VerboseLog(@"section: %@", section);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     while ([cursor isAtEnd] == NO)
         [self protocolAtAddress:[cursor readPtr]];
@@ -43,6 +43,7 @@
     ILOG_CMD;
     CDLCSegment *segment = [self.machOFile dataConstSegment];
     CDSection *section = [segment sectionWithName:@"__objc_classlist"];
+    VerboseLog(@"section: %@", section);
     NSUInteger adjustment = segment.vmaddr - segment.fileoff;
     NSUInteger based = 0;
     VerboseLog(@"\nsegment addr: %#010llx section: %@ offset: %#010llx adj: %#010llx", segment.vmaddr, section, section.segment.fileoff, adjustment);
@@ -67,7 +68,8 @@
          val = val - 0x10000000000000;
          }*/
         CDOCClass *aClass = [self loadClassAtAddress:val];
-        InfoLog(@"\naClass: %@", aClass);
+        InfoLog(@"\naClass: %@\n", aClass);
+        InfoLog(@"\n");
         if (aClass != nil) {
             [self addClass:aClass withAddress:val];
         }
@@ -78,7 +80,7 @@
 {
     ILOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_catlist"];
-    
+    VerboseLog(@"section: %@", section);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     while ([cursor isAtEnd] == NO) {
         CDOCCategory *category = [self loadCategoryAtAddress:[cursor readPtr]];
@@ -95,7 +97,7 @@
     if (protocol == nil) {
         protocol = [[CDOCProtocol alloc] init];
         [self.protocolUniquer setProtocol:protocol withAddress:address];
-        InfoLog(@"\n%s, address=%016llx", _cmds, address);
+        InfoLog(@"\n%s, address=%016llx\n", _cmds, address);
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         if ([cursor offset] == 0 ) return nil;
         //NSParameterAssert([cursor offset] != 0);
@@ -180,7 +182,7 @@
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
-    InfoLog(@"\n%s, address=%016llx", _cmds, address);
+    InfoLog(@"\n%s, address=%016llx\n", _cmds, address);
     struct cd_objc2_category objc2Category;
     objc2Category.name               = [cursor readPtr];
     objc2Category.class              = [cursor readPtr];
@@ -198,16 +200,16 @@
     NSString *str = [self.machOFile stringAtAddress:objc2Category.name];
     [category setName:str];
     InfoLog(@"\nCategory Name: %@", str);
-    InfoLog(@"\nProcessing instance methods...");
+    InfoLog(@"\nProcessing instance methods...\n");
     for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Category.instanceMethods])
         [category addInstanceMethod:method];
-    InfoLog(@"\nProcessing class methods...");
+    InfoLog(@"\nProcessing class methods...\n");
     for (CDOCMethod *method in [self loadMethodsAtAddress:objc2Category.classMethods])
         [category addClassMethod:method];
-    InfoLog(@"\nProcessing protocols...");
+    InfoLog(@"\nProcessing protocols...\n");
     for (CDOCProtocol *protocol in [self.protocolUniquer uniqueProtocolsAtAddresses:[self protocolAddressListAtAddress:objc2Category.protocols]])
         [category addProtocol:protocol];
-    InfoLog(@"\nProcessing properties...");
+    InfoLog(@"\nProcessing properties...\n");
     for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2Category.instanceProperties])
         [category addProperty:property];
     
@@ -259,7 +261,7 @@
     if (class)
         return class;
     
-    InfoLog(@"\n%s, address=%016llx also: %llu", _cmds, address, address);
+    InfoLog(@"\n%s, address=%016llx also: %llu\n", _cmds, address, address);
     
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     if ([cursor offset] == 0) return nil;
@@ -346,7 +348,9 @@
         if (classSymbol != nil)
             aClass.isExported = [classSymbol isExternal];
     }
-    
+    if (aClass.isExported) {
+        InfoLog(@"class %@ is exported, looking up symbol in TRIE if avail", aClass);
+    }
     {
         uint64_t classNameAddress = address + [self.machOFile ptrSize];
         
@@ -436,7 +440,7 @@
 {
     if (address == 0)
         return nil;
-    InfoLog(@"\n%s, address=%016llx", _cmds, address);
+    InfoLog(@"\n%s, address=%016llx\n", _cmds, address);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     NSParameterAssert([cursor offset] != 0);
     
@@ -492,10 +496,12 @@
         
         struct cd_objc2_list_header listHeader;
         
-        // See getEntsize() from http://www.opensource.apple.com/source/objc4/objc4-532.2/runtime/objc-runtime-new.h
-        listHeader.entsize = [cursor readInt32] & ~(uint32_t)3;
-        listHeader.count   = [cursor readInt32];
-        uint32_t small = listHeader.entsize & 0x80000000;
+        // See https://opensource.apple.com/source/objc4/objc4-787.1/runtime/objc-runtime-new.h
+        uint32_t value = [cursor readInt32];
+        listHeader.entsize = value & ~METHOD_LIST_T_ENTSIZE_MASK;
+        bool small = (value & METHOD_LIST_T_SMALL_METHOD_FLAG) != 0;
+        listHeader.count = [cursor readInt32];
+        NSParameterAssert(listHeader.entsize == 3 * (small ? sizeof(int32_t) : [self.machOFile ptrSize]));
         if (self.machOFile.chainedFixups) {
             //small = 0;
         }
@@ -519,6 +525,13 @@
                         OILog(@"basedName", basedName);
                         name = basedName;
                     } else {
+                        
+                        uint32_t top = name >> 32;
+                        uint32_t bottom = name & 0xffffffff;
+                        OILog(@"top", top);
+                        OILog(@"bottom", bottom);
+                        name = bottom + self.machOFile.preferredLoadAddress;
+                        //name = bottom;
                         OILog(@"size check", name);
                         OILog(@"peek",[cursor peekPtr]);
                         while (name > fixupAdjustment){
@@ -607,7 +620,7 @@
     NSMutableArray *addresses = [[NSMutableArray alloc] init];;
     
     if (address != 0) {
-        InfoLog(@"\n%s, address=%016llx", _cmds, address);
+        InfoLog(@"\n%s, address=%016llx\n", _cmds, address);
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         if (!cursor){
             InfoLog(@"no cursor for you!!");

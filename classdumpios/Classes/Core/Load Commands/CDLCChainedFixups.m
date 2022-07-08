@@ -59,6 +59,29 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
     
 }
 
+/*
+ uint64_t MachOLoaded::ChainedFixupPointerOnDisk::Generic64::signExtendedAddend() const
+ {
+     uint64_t addend27     = this->bind.addend;
+     uint64_t top8Bits     = addend27 & 0x00007F80000ULL;
+     uint64_t bottom19Bits = addend27 & 0x0000007FFFFULL;
+     uint64_t newValue     = (top8Bits << 13) | (((uint64_t)(bottom19Bits << 37) >> 37) & 0x00FFFFFFFFFFFFFF);
+     return newValue;
+ }
+ */
+
+- (uint64_t)signExtendedAddend:(struct dyld_chained_ptr_64_bind)fixupBind {
+    
+    uint64_t addend27     = fixupBind.addend;
+    uint64_t top8Bits     = addend27 & 0x00007F80000ULL;
+    uint64_t bottom19Bits = addend27 & 0x0000007FFFFULL;
+    uint64_t newValue     = (top8Bits << 13) | (((uint64_t)(bottom19Bits << 37) >> 37) & 0x00FFFFFFFFFFFFFF);
+    return newValue;
+}
+
+//symbol_offset_address = (virtual_symbol_address - containing_macho_section_virtual_address) + contain_macho_section_file_offset
+
+
 - (void)printFixupsInPage:(uint8_t *)base fixupBase:(uint8_t*)fixupBase header:(struct dyld_chained_fixups_header *)header startsIn:(struct dyld_chained_starts_in_segment *)segment page:(int)pageIndex {
     uint32_t chain = (uint32_t)segment->segment_offset + segment->page_size * pageIndex + segment->page_start[pageIndex];
     bool done = false;
@@ -89,13 +112,15 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //[self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
                 //[self bindAddress:(uint64_t)[data bytes] type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
                 //[self rebaseAddress:(uint64_t)[data bytes] target:chain];
-                [self rebaseAddress:raw target:chain];
+                //[self rebaseAddress:raw target:chain];
+                //void* newValue = (void*)((long)bind.ordinal + [self signExtendedAddend:bind]);
+                //OLog(@"NEWVALUE", (uintptr_t)newValue);
             } else {
                 // rebase 0x%08lx
                 struct dyld_chained_ptr_64_rebase rebase = *(struct dyld_chained_ptr_64_rebase *)&bind;
                 
                 
-                NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
+                //NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
                 uint64_t raw = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
                 //VerboseLog(@"RAW: %@", [data reverse]);
                 //VerboseLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
@@ -105,12 +130,14 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //OLog(@"REBASE SWAP", _OSSwapInt64(peeked));
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
                 //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
+                //uint64_t unpackedTarget = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
+                
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",
                             chain, raw, rebase.target, rebase.high8);
                 }
                 [self rebaseAddress:raw target:rebase.target];
-                [self rebaseAddress:(uint64_t)[data bytes] target:rebase.target];
+                //[self rebaseAddress:(uint64_t)[data bytes] target:rebase.target];
             }
             
             if (bind.next == 0) {
@@ -187,21 +214,21 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
 
 - (void)printImports:(struct dyld_chained_fixups_header *)header {
     if([CDClassDump printFixupData]){
-        printf("  IMPORTS\n");
+        fprintf(stderr,"  IMPORTS\n");
     }
     int importCount = 0;
     for (int i = 0; i < header->imports_count; ++i) {
         struct dyld_chained_import import =
             ((struct dyld_chained_import *)((uint8_t *)header + header->imports_offset))[i];
         if([CDClassDump printFixupData]){
-            printf("    [%d] lib_ordinal: %-22s   weak_import: %d   name_offset: %d (%s)\n",
+            fprintf(stderr,"    [%d] lib_ordinal: %-22s   weak_import: %d   name_offset: %d (%s)\n",
                    i, [[self getDylibName:import.lib_ordinal] UTF8String], import.weak_import, import.name_offset,
                    (char *)((uint8_t *)header + header->symbols_offset + import.name_offset));
         }
         importCount++;
     }
     if([CDClassDump printFixupData]){
-        printf("\n");
+        fprintf(stderr,"\n");
     }
 }
 

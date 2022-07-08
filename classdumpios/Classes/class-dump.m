@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
             { "verbose",                 no_argument,       NULL, 'v'},
             { "fixups",                  no_argument,       NULL, 'F'},
             { "silent",                  no_argument,       NULL, 'x'},
+            { "preprocessor-exit",       no_argument,       NULL, 'z'},
             { NULL,                      0,                 NULL, 0 },
         };
 
@@ -115,7 +116,7 @@ int main(int argc, char *argv[])
 #endif
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFxd", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFxdz", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -183,6 +184,9 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
+                case 'z':
+                    classDump.stopAfterPreProcessor = true;
+                    break;
                 case 'd':
                     [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:@"debug"];
                     break;

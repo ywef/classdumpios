@@ -32,11 +32,13 @@
     NSMutableArray *_categories;
     
     CDProtocolUniquer *_protocolUniquer;
+    BOOL stopEarly; //h4x to stop after 'preprocessing'
 }
 
 - (id)initWithMachOFile:(CDMachOFile *)machOFile;
 {
     if ((self = [super init])) {
+        stopEarly = false;
         _machOFile = machOFile;
         _classes = [[NSMutableArray alloc] init];
         _classesByAddress = [[NSMutableDictionary alloc] init];
@@ -133,9 +135,29 @@
 
 #pragma mark - Processing
 
-- (void)process;
+- (void)processStoppingEarly:(BOOL)stopEarly {
+    ILOG_CMD;
+    if (self.machOFile.isEncrypted == NO && self.machOFile.canDecryptAllSegments) {
+        [self.machOFile.symbolTable loadSymbols];
+        //VerboseLog(@"SymbolTable: %@", self.machOFile.symbolTable);
+        [self.machOFile.dynamicSymbolTable loadSymbols];
+        if (stopEarly){
+            InfoLog(@"end of the line!");
+            exit(0);
+        }
+        [self loadProtocols];
+        [self.protocolUniquer createUniquedProtocols];
+
+        // Load classes before categories, so we can get a dictionary of classes by address.
+        [self loadClasses];
+        [self loadCategories];
+    }
+}
+
+- (void)process
 {
     ILOG_CMD;
+    /*
     if (self.machOFile.isEncrypted == NO && self.machOFile.canDecryptAllSegments) {
         [self.machOFile.symbolTable loadSymbols];
         //VerboseLog(@"SymbolTable: %@", self.machOFile.symbolTable);
@@ -147,7 +169,8 @@
         // Load classes before categories, so we can get a dictionary of classes by address.
         [self loadClasses];
         [self loadCategories];
-    }
+    }*/
+    [self processStoppingEarly:false];
 }
 
 - (void)loadProtocols;

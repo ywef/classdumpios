@@ -14,7 +14,7 @@ typedef enum : NSUInteger {
 } CDByteOrder;
 
 @class CDLCSegment;
-@class CDLCBuildVersion, CDLCDyldInfo, CDLCDylib, CDMachOFile, CDLCSymbolTable, CDLCDynamicSymbolTable, CDLCVersionMinimum, CDLCSourceVersion, CDLCChainedFixups;
+@class CDLCBuildVersion, CDLCDyldInfo, CDLCDylib, CDMachOFile, CDLCSymbolTable, CDLCDynamicSymbolTable, CDLCVersionMinimum, CDLCSourceVersion, CDLCChainedFixups, CDLCExportTRIEData;
 
 @interface CDMachOFile : CDFile
 
@@ -40,6 +40,7 @@ typedef enum : NSUInteger {
 @property (strong) CDLCSymbolTable *symbolTable;
 @property (strong) CDLCDynamicSymbolTable *dynamicSymbolTable;
 @property (strong) CDLCDyldInfo *dyldInfo;
+@property (strong) CDLCExportTRIEData *exportsTrie;
 @property (strong) CDLCChainedFixups *chainedFixups;
 @property (strong) CDLCDylib *dylibIdentifier;
 @property (strong) CDLCVersionMinimum *minVersionMacOSX;

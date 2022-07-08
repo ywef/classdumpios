@@ -26,6 +26,7 @@
 
 - (void)addCategory:(CDOCCategory *)category;
 
+- (void)processStoppingEarly:(BOOL)stopEarly;
 - (void)process;
 - (void)loadProtocols;
 - (void)loadClasses;

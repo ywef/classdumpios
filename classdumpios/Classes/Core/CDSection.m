@@ -78,6 +78,7 @@
 - (NSUInteger)fileOffsetForAddress:(NSUInteger)address;
 {
     NSParameterAssert([self containsAddress:address]);
+    VerboseLog(@"%s %lu + %lu - %lu", _cmds, _section.offset, address, _section.addr);
     return _section.offset + address - _section.addr;
 }
 

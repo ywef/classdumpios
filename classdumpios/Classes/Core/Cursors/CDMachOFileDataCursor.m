@@ -71,6 +71,7 @@
     //VerboseLog(@"%s 0x%08lx", _cmds, address);
     NSUInteger dataOffset = [_machOFile dataOffsetForAddress:address];
     VerboseLog(@"dataOffset: 0x%08lx for address: 0x%08lx", dataOffset, address);
+    if (dataOffset == 0) dataOffset = address;
     [self setOffset:dataOffset];
 }
 
@@ -130,6 +131,17 @@
     }
     [NSException raise:NSInternalInconsistencyException format:@"The ptrSize must be either 4 (32-bit) or 8 (64-bit)"];
     return 0;
+}
+
+- (uint64_t)readPtr:(bool)small;
+{
+    // "small" pointers are signed 32-bit values
+    if (small) {
+        // The pointers are relative to the location in the image, so get the offset before reading the offset:
+        return [self offset] + [self readInt32];
+    } else {
+        return [self readPtr];
+    }
 }
 
 @end

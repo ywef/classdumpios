@@ -217,7 +217,10 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
 
 - (NSUInteger)fileOffsetForAddress:(NSUInteger)address;
 {
-    return [[self sectionContainingAddress:address] fileOffsetForAddress:address];
+    VLOG_CMD;
+    CDSection *section = [self sectionContainingAddress:address];
+    VerboseLog(@"section: %@ address: 0x%08lx", section, address);
+    return [section fileOffsetForAddress:address];
 }
 
 - (NSUInteger)segmentOffsetForAddress:(NSUInteger)address;

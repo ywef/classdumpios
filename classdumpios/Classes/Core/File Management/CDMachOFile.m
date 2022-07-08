@@ -30,6 +30,7 @@
 #import "CDLCSourceVersion.h"
 #import "CDLCBuildVersion.h"
 #import "CDLCChainedFixups.h"
+#import "CDLCExportTRIEData.h"
 
 static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
 {
@@ -163,6 +164,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             else if ([loadCommand isKindOfClass:[CDLCSymbolTable class]])        self.symbolTable = (CDLCSymbolTable *)loadCommand;
             else if ([loadCommand isKindOfClass:[CDLCDynamicSymbolTable class]]) self.dynamicSymbolTable = (CDLCDynamicSymbolTable *)loadCommand;
             else if ([loadCommand isKindOfClass:[CDLCDyldInfo class]])           self.dyldInfo = (CDLCDyldInfo *)loadCommand;
+            else if ([loadCommand isKindOfClass:[CDLCExportTRIEData class]])     self.exportsTrie = (CDLCExportTRIEData *)loadCommand;
             else if ([loadCommand isKindOfClass:[CDLCChainedFixups class]])      self.chainedFixups = (CDLCChainedFixups *)loadCommand;
             else if ([loadCommand isKindOfClass:[CDLCRunPath class]]) {
                 [runPaths addObject:[(CDLCRunPath *)loadCommand resolvedRunPath]];
@@ -347,17 +349,28 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             address = based;
             segment = [self segmentContainingAddress:based];
         }
-        
-        while (address > 0x10000000000000){
-            OILog(@"h4xxxxxxxx", address);
-            address = address - 0x10000000000000;
-            segment = [self segmentContainingAddress:address];
-        }
         if (segment == nil) {
-            DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
-            exit(5);
-            return nil;
+            if (address > 0x10000000000000){
+                uint32_t top = address >> 32;
+                uint32_t bottom = address & 0xffffffff;
+                OILog(@"top", top);
+                OILog(@"bottom", bottom);
+                OILog(@"new",bottom + self.preferredLoadAddress);
+                address = bottom + self.preferredLoadAddress;
+                segment = [self segmentContainingAddress:address];
+            }
+            while (address > 0x10000000000000 && segment == nil){
+                OILog(@"h4xxxxxxxx", address);
+                address = address - 0x10000000000000;
+                segment = [self segmentContainingAddress:address];
+            }
+            if (segment == nil) {
+                DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
+                exit(5);
+                return nil;
+            }
         }
+        
     }
 
     if ([segment isProtected]) {
@@ -373,7 +386,14 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     NSUInteger offset = [self dataOffsetForAddress:address];
     if (offset == 0)
         return nil;
-
+    
+    // Support small methods referencing selector names in __objc_selrefs.
+    CDSection *section = [segment sectionContainingAddress:address];
+    if ([[section sectionName] isEqualToString:@"__objc_selrefs"]) {
+        const void * reference = [self.data bytes] + offset;
+        offset = ([self ptrSize] == 8) ? *((uint64_t *)reference) : *((uint32_t *)reference);
+    }
+    
     ptr = (uint8_t *)[self.data bytes] + offset;
     NSString *returnString = [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
     //VerboseLog(@"stringAtAddress: %@", returnString);
@@ -388,6 +408,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     InfoLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
+        InfoLog(@"%s nil segment", _cmds);
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             OILog(@"based", based);
@@ -744,7 +765,7 @@ uint64_t MachOFile::preferredLoadAddress() const
 
 - (uint64_t)preferredLoadAddress {
     CDLCSegment *segment = [self segmentWithName:@"__TEXT"];
-    InfoLog(@"Text Segment: %@", segment);
+    //InfoLog(@"Text Segment: %@", segment);
     return segment.vmaddr;
 }
 
