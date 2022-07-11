@@ -51,7 +51,9 @@
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     VerboseLog(@"cursor: %#010llx", cursor.offset);
     while ([cursor isAtEnd] == NO) {
+        uint64_t valsmall = [cursor peekPtr:true];
         uint64_t val = [cursor readPtr];
+        OILog(@"readPtr small", valsmall);
         if (self.machOFile.chainedFixups != nil){
             based = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
             OILog(@"loadClasses based", based);

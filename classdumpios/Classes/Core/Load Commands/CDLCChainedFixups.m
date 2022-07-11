@@ -23,6 +23,7 @@
     NSUInteger _ptrSize;
     NSMutableDictionary *_symbolNamesByAddress;
     NSMutableDictionary *_based;
+    NSMutableDictionary *_imports;
 }
 
 + (NSNumberFormatter *)sharedNumberFormatter {
@@ -105,8 +106,9 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //OLog(@"SWAP", _OSSwapInt64(peeked));
                 //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 if ([CDClassDump printFixupData]){
-                    fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    reserved: %d   (%s)\n",
-                            chain, raw, bind.ordinal, bind.addend, bind.reserved, symbol);
+                    NSString *lib = _imports[[NSString stringWithUTF8String:symbol]];
+                    fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    dylib: %s   (%s)\n",
+                            chain, raw, bind.ordinal, bind.addend, [lib UTF8String], symbol);
                 }
                 [self bindAddress:raw type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
                 //[self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
@@ -130,13 +132,17 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //OLog(@"REBASE SWAP", _OSSwapInt64(peeked));
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
                 //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
-                //uint64_t unpackedTarget = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
-                
+                uint64_t unpackedTarget = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
+                if (segment->pointer_format == DYLD_CHAINED_PTR_64){
+                    //unpackedTarget -= self.machOFile.preferredLoadAddress;
+                    //ODLog(@"unpackedTarget adjusted", unpackedTarget);
+                }
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",
-                            chain, raw, rebase.target, rebase.high8);
+                            chain, raw, unpackedTarget, rebase.high8);
                 }
-                [self rebaseAddress:raw target:rebase.target];
+                
+                [self rebaseAddress:raw target:unpackedTarget];
                 //[self rebaseAddress:(uint64_t)[data bytes] target:rebase.target];
             }
             
@@ -220,15 +226,21 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
     for (int i = 0; i < header->imports_count; ++i) {
         struct dyld_chained_import import =
             ((struct dyld_chained_import *)((uint8_t *)header + header->imports_offset))[i];
+        NSString *dylibName = [self getDylibNameByOrdinal:import.lib_ordinal baseName:true];
+        //NSNumber *ordinalNumber = [NSNumber numberWithUnsignedInteger:import.lib_ordinal];
+        char * symbol = (char *)((uint8_t *)header + header->symbols_offset + import.name_offset);
+        _imports[[NSString stringWithUTF8String:symbol]] = dylibName;
+        
         if([CDClassDump printFixupData]){
             fprintf(stderr,"    [%d] lib_ordinal: %-22s   weak_import: %d   name_offset: %d (%s)\n",
                    i, [[self getDylibName:import.lib_ordinal] UTF8String], import.weak_import, import.name_offset,
-                   (char *)((uint8_t *)header + header->symbols_offset + import.name_offset));
+                    symbol);
         }
         importCount++;
     }
     if([CDClassDump printFixupData]){
         fprintf(stderr,"\n");
+        InfoLog(@"imports: %@", _imports);
     }
 }
 
@@ -280,6 +292,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         //[[self.machOFile symbolTable] baseAddress];
         _symbolNamesByAddress = [NSMutableDictionary new];
         _based = [NSMutableDictionary new];
+        _imports = [NSMutableDictionary new];
     }
     
     return self;

@@ -144,4 +144,14 @@
     }
 }
 
+- (uint64_t)peekPtr:(bool)small {
+    // "small" pointers are signed 32-bit values
+    if (small) {
+        // The pointers are relative to the location in the image, so get the offset before reading the offset:
+        return [self offset] + [self peekInt32];
+    } else {
+        return [self peekPtr];
+    }
+}
+
 @end
