@@ -314,6 +314,23 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
     DLog(@"Warning: %@", warning);
 }
 
+/*
+ The ony thing macho files are consistently inconsistent about its weird byte ordering
+ in the new CHAINED_FIXUP style files sometimes we need the 32 bit equivalent of a value discarding
+ 'frivolous' 64 bit data to get a particular address properly, and then to 'rebase' it against our preferred load address
+ this is part of the 'secret sauce' that made class dump work again
+ */
+
+- (uint64_t)fixupBasedAddress:(uint64_t)address {
+    uint32_t top = address >> 32;
+    uint32_t bottom = address & 0xffffffff;
+    OILog(@"top", top);
+    OILog(@"bottom", bottom);
+    OILog(@"new",bottom + self.preferredLoadAddress);
+    address = bottom + self.preferredLoadAddress;
+    return address;
+}
+
 - (NSString *)stringAtAddress:(NSUInteger)address; {
     VLOG_CMD;
     const void *ptr;
@@ -333,12 +350,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
         }
         if (segment == nil) {
             OILog(@"\nstringAtAddress Problem finding address", address);
-            uint32_t top = address >> 32;
-            uint32_t bottom = address & 0xffffffff;
-            OILog(@"top", top);
-            OILog(@"bottom", bottom);
-            OILog(@"new",bottom + self.preferredLoadAddress);
-            address = bottom + self.preferredLoadAddress;
+            address = [self fixupBasedAddress:address];//bottom + self.preferredLoadAddress;
             segment = [self segmentContainingAddress:address];
             if (segment == nil) {
                 DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
@@ -391,11 +403,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
             segment = [self segmentContainingAddress:based];
         } else { // no chained fixup found, maybe we need to discard 'extra' frivolous info and 'rebase' to find the data.
             OILog(@"\nProblem finding address", address);
-            uint32_t top = address >> 32;
-            uint32_t bottom = address & 0xffffffff;
-            OILog(@"top", top);
-            OILog(@"bottom", bottom);
-            address = bottom + self.preferredLoadAddress;
+            address = [self fixupBasedAddress:address];//bottom + self.preferredLoadAddress;
             OILog(@"new value", address);
             segment = [self segmentContainingAddress:address];
         }
