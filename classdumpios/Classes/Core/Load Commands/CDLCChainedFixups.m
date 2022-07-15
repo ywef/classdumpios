@@ -26,17 +26,6 @@
     NSMutableDictionary *_imports;
 }
 
-+ (NSNumberFormatter *)sharedNumberFormatter {
-    static dispatch_once_t minOnceToken;
-    static NSNumberFormatter *sharedNumber = nil;
-    if(sharedNumber == nil) {
-        dispatch_once(&minOnceToken, ^{
-            sharedNumber = [[NSNumberFormatter alloc] init];
-        });
-    }
-    return sharedNumber;
-}
-
 
 static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) {
     const char *imports_format = NULL;
@@ -94,49 +83,24 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
             if (bind.bind) {
                 struct dyld_chained_import import = ((struct dyld_chained_import *)(fixupBase + header->imports_offset))[bind.ordinal];
                 char *symbol = (char *)(fixupBase + header->symbols_offset + import.name_offset);
-                //NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
                 uint64_t peeked = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
-                //DLog(@"BIND data: %@", data);
-                //NSNumber     *myNSNumber          = [[CDLCChainedFixups sharedNumberFormatter] numberFromString:[[data reverse] decimalString]];
-                //OLog(@"myNSNumber", [myNSNumber unsignedIntegerValue]);
-                //uint64_t raw = [myNSNumber unsignedIntegerValue];
                 uint64_t raw = _OSSwapInt64(peeked);
-                //OLog(@"DATA RAW", raw);
-                //OLog(@"PEEK RAW", peeked);
-                //OLog(@"SWAP", _OSSwapInt64(peeked));
-                //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
+
                 if ([CDClassDump printFixupData]){
                     NSString *lib = _imports[[NSString stringWithUTF8String:symbol]];
                     fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    dylib: %s   (%s)\n",
                             chain, raw, bind.ordinal, bind.addend, [lib UTF8String], symbol);
                 }
                 [self bindAddress:raw type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
-                //[self bindAddress:chain type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
-                //[self bindAddress:(uint64_t)[data bytes] type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
-                //[self rebaseAddress:(uint64_t)[data bytes] target:chain];
-                //[self rebaseAddress:raw target:chain];
-                //void* newValue = (void*)((long)bind.ordinal + [self signExtendedAddend:bind]);
-                //OLog(@"NEWVALUE", (uintptr_t)newValue);
             } else {
                 // rebase 0x%08lx
                 struct dyld_chained_ptr_64_rebase rebase = *(struct dyld_chained_ptr_64_rebase *)&bind;
                 
-                
-                //NSData *data = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:chain] length:sizeof(uint64_t)];
                 uint64_t raw = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
-                //VerboseLog(@"RAW: %@", [data reverse]);
-                //VerboseLog(@"RAW: %@ (%lu)", [[data reverse] stringFromHexData], [[data decimalString] integerValue]);
-                //uint64_t raw = [[data decimalString] integerValue];
-                //OLog(@"REBASE DATA RAW", raw);
-                //OLog(@"REBASE PEEK RAW", peeked);
-                //OLog(@"REBASE SWAP", _OSSwapInt64(peeked));
-                //ODLog(@"RAW", [[data reverse] stringFromHexData]);
-                //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 uint64_t unpackedTarget = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
                 if (segment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET){
                     unpackedTarget += self.machOFile.preferredLoadAddress;
-                    //unpackedTarget -= self.machOFile.preferredLoadAddress;
-                    ODLog(@"unpackedTarget adjusted", unpackedTarget);
+                    //ODLog(@"unpackedTarget adjusted", unpackedTarget);
                 }
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",
@@ -144,7 +108,6 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 }
                 
                 [self rebaseAddress:raw target:unpackedTarget];
-                //[self rebaseAddress:(uint64_t)[data bytes] target:rebase.target];
             }
             
             if (bind.next == 0) {
