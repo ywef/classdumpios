@@ -332,12 +332,15 @@
 {
     NSMutableDictionary *propertiesByName = [NSMutableDictionary dictionary];
 
-    for (CDOCProperty *property in _properties)
-        propertiesByName[property.name] = property;
+    for (CDOCProperty *property in _properties) {
+        if (property.name){
+            propertiesByName[property.name] = property;
+        }
+    }
     
     for (CDOCProperty *property in other.properties) {
         CDOCProperty *p2 = propertiesByName[property.name];
-        if (p2 == nil) {
+        if (p2 == nil && property.name != nil) {
             [self addProperty:property];
             propertiesByName[property.name] = property;
         }
