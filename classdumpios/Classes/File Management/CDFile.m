@@ -74,7 +74,9 @@ CDArch CDArchFromName(NSString *name)
             arch.cpusubtype = CPU_SUBTYPE_ARM_ALL;
         } else {
             NSString *ignore;
-            
+            if (!name) {
+                VerboseLog(@"%s NSScanner initWithString: %@", _cmds, name);
+            }
             NSScanner *scanner = [[NSScanner alloc] initWithString:name];
             if ([scanner scanHexInt:(uint32_t *)&arch.cputype]
                 && [scanner scanString:@":" intoString:&ignore]

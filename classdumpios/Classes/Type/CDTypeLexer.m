@@ -34,6 +34,10 @@ static NSString *CDTypeLexerStateName(CDTypeLexerState state)
 - (id)initWithString:(NSString *)string;
 {
     if ((self = [super init])) {
+        if (!string){
+            VerboseLog(@"%s NSScanner initWithString: %@", _cmds, string);
+            return nil;
+        }
         _scanner = [[NSScanner alloc] initWithString:string];
         [_scanner setCharactersToBeSkipped:nil];
         _state = CDTypeLexerState_Normal;
@@ -150,6 +154,9 @@ static NSString *CDTypeLexerStateName(CDTypeLexerState state)
 
 - (NSString *)peekIdentifier;
 {
+    if (![_scanner string]){
+        VerboseLog(@"%s NSScanner initWithString: %@", _cmds, [_scanner string]);
+    }
     NSScanner *peekScanner = [[NSScanner alloc] initWithString:[_scanner string]];
     [peekScanner setScanLocation:[_scanner scanLocation]];
 

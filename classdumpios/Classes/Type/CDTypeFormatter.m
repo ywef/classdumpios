@@ -142,7 +142,10 @@ static BOOL debug = NO;
 
         NSMutableArray *parameterTypes = [NSMutableArray array];
         [typeDict setValue:parameterTypes forKey:@"parametertypes"];
-
+        if (!name) {
+            VerboseLog(@"%s NSScanner initWithString: %@", _cmds, name);
+            name = @"";
+        }
         NSScanner *scanner = [[NSScanner alloc] initWithString:name];
         while ([scanner isAtEnd] == NO) {
             NSString *str;
@@ -217,7 +220,10 @@ static BOOL debug = NO;
         [resultString appendString:@")"];
 
         index += 3;
-
+        if (!methodName) {
+            VerboseLog(@"%s NSScanner initWithString: %@", _cmds, methodName);
+            methodName = @"";
+        }
         NSScanner *scanner = [[NSScanner alloc] initWithString:methodName];
         while ([scanner isAtEnd] == NO) {
             NSString *str;

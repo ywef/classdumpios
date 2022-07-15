@@ -16,6 +16,9 @@
 - (id)initWithString:(NSString *)str;
 {
     if ((self = [super init])) {
+        if (!str){
+            VerboseLog(@"%s NSScanner initWithString: %@", _cmds, str);
+        }
         _scanner = [[NSScanner alloc] initWithString:str];
         _openCloseSet = [NSCharacterSet characterSetWithCharactersInString:@"{}<>()"];
         

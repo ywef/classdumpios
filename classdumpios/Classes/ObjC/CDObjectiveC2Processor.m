@@ -23,7 +23,7 @@
 #import "CDLCChainedFixups.h"
 
 @implementation CDObjectiveC2Processor {
-    NSUInteger fixupAdjustment;
+    NSUInteger fixupAdjustment; //old relic can probably prune...
 }
 
 - (void)loadProtocols; {
@@ -303,17 +303,17 @@
     if (self.machOFile.chainedFixups){
         uint64_t based = [self.machOFile.chainedFixups rebaseTargetFromAddress:methodAddress];
         if (based != 0) {
-            OILog(@"baaaaased", based);
+            OILog(@"fixup methodAddress", based);
             methodAddress = based;
         }
         based = [self.machOFile.chainedFixups rebaseTargetFromAddress:ivarsAddress];
         if (based != 0) {
-            OILog(@"baaaaased ivars", based);
+            OILog(@"fixup ivars", based);
             ivarsAddress = based;
         }
         based = [self.machOFile.chainedFixups rebaseTargetFromAddress:isaAddress];
         if (based != 0) {
-            OILog(@"baaaaased isa", based);
+            OILog(@"fixup isa", based);
             isaAddress = based;
         }
     }
@@ -489,14 +489,8 @@
                         name = basedName;
                     } else { //not in fixups, try discarding 'extra' data and using the uint32_t version of the address. some macho / entsize weirdness
                         OILog(@"\nProblem finding address", name);
-                        uint32_t top = name >> 32;
-                        uint32_t bottom = name & 0xffffffff;
-                        OILog(@"top", top);
-                        OILog(@"bottom", bottom);
-                        // take this new raw 32 bit value and add our load address
-                        name = bottom + self.machOFile.preferredLoadAddress;
+                        name = [self.machOFile fixupBasedAddress:name];
                         OILog(@"new value", name);
-                        OILog(@"peek",[cursor peekPtr]);
                     }
                 }
                 [nameCursor setAddress:name];

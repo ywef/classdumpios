@@ -94,4 +94,5 @@ typedef enum : NSUInteger {
 
 - (uint64_t)peekPtrAtOffset:(NSUInteger)offset ptrSize:(NSUInteger)ptr;
 - (uint64_t)preferredLoadAddress;
+- (uint64_t)fixupBasedAddress:(uint64_t)address;
 @end
