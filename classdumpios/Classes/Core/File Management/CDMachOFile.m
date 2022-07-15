@@ -351,6 +351,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         }
         if (segment == nil) {
             if (address > 0x10000000000000){
+                OILog(@"\nstringAtAddress Problem finding address", address);
                 uint32_t top = address >> 32;
                 uint32_t bottom = address & 0xffffffff;
                 OILog(@"top", top);
@@ -415,6 +416,17 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             address = based;
             segment = [self segmentContainingAddress:based];
             //VerboseLog(@"science?? %@", segment);
+        } else {
+            OILog(@"\nProblem finding address", address);
+            uint32_t top = address >> 32;
+            uint32_t bottom = address & 0xffffffff;
+            OILog(@"top", top);
+            OILog(@"bottom", bottom);
+            address = bottom + self.preferredLoadAddress;
+            //name = bottom;
+            OILog(@"size check", address);
+            segment = [self segmentContainingAddress:address];
+            //OILog(@"peek",[cursor peekPtr]);
         }
         //VerboseLog(@"science?? %@", segment);
         if (segment == nil){

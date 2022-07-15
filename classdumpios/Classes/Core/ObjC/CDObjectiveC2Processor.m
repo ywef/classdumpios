@@ -32,7 +32,7 @@
 {
     ILOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_protolist"];
-    VerboseLog(@"section: %@", section);
+    VerboseLog(@"\nProtocols section: %@", section);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     while ([cursor isAtEnd] == NO)
         [self protocolAtAddress:[cursor readPtr]];
@@ -43,7 +43,7 @@
     ILOG_CMD;
     CDLCSegment *segment = [self.machOFile dataConstSegment];
     CDSection *section = [segment sectionWithName:@"__objc_classlist"];
-    VerboseLog(@"section: %@", section);
+    VerboseLog(@"\nClasses section: %@", section);
     NSUInteger adjustment = segment.vmaddr - segment.fileoff;
     NSUInteger based = 0;
     VerboseLog(@"\nsegment addr: %#010llx section: %@ offset: %#010llx adj: %#010llx", segment.vmaddr, section, section.segment.fileoff, adjustment);
@@ -82,7 +82,7 @@
 {
     ILOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_catlist"];
-    VerboseLog(@"section: %@", section);
+    VerboseLog(@"\nCategories section: %@", section);
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     while ([cursor isAtEnd] == NO) {
         CDOCCategory *category = [self loadCategoryAtAddress:[cursor readPtr]];
@@ -401,14 +401,16 @@
     }
     
     InfoLog(@"\nProcessing properties...\n");
-    for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2ClassData.baseProperties])
+    for (CDOCProperty *property in [self loadPropertiesAtAddress:objc2ClassData.baseProperties]) {
+        InfoLog(@"\nadding property: %@\n", property.name);
         [aClass addProperty:property];
-    
+    }
     return aClass;
 }
 
 - (NSArray *)loadPropertiesAtAddress:(uint64_t)address;
 {
+    ILOG_CMD;
     NSMutableArray *properties = [NSMutableArray array];
     if (address != 0) {
         struct cd_objc2_list_header listHeader;
@@ -512,11 +514,12 @@
         } else {
             NSParameterAssert(listHeader.entsize == 3 * [self.machOFile ptrSize]);
         }
+        InfoLog(@"\nProcessing %lu methods...\n", listHeader.count);
         for (uint32_t index = 0; index < listHeader.count; index++) {
             struct cd_objc2_method objc2Method;
             
             if(small) {
-                VerboseLog(@"biggie smalls is the illest");
+                VerboseLog(@"\nbiggie smalls is the illest\n");
                 uint64_t baseAddress = address + index * 12 + 8;
                 uint64_t name = baseAddress + (int64_t)(int32_t) [cursor readInt32];
                 uint64_t types = baseAddress + 4 + (int64_t)(int32_t) [cursor readInt32];
@@ -527,7 +530,7 @@
                         OILog(@"basedName", basedName);
                         name = basedName;
                     } else {
-                        
+                        OILog(@"\nProblem finding address", name);
                         uint32_t top = name >> 32;
                         uint32_t bottom = name & 0xffffffff;
                         OILog(@"top", top);

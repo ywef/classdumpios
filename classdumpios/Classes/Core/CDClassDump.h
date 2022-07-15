@@ -31,6 +31,7 @@
 @property (assign) BOOL shouldShowHeader;
 @property (assign) BOOL verbose;
 @property (assign) BOOL stopAfterPreProcessor;
+@property (assign) BOOL shallow;
 
 @property (strong) NSRegularExpression *regularExpression;
 - (BOOL)shouldShowName:(NSString *)name;

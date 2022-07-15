@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
         BOOL suppressAllHeaderOutput = NO;
+        BOOL shallow = NO; //whether to skip protocols and categories, for testing
         NSString *outputPath;
         NSMutableSet *hiddenSections = [NSMutableSet set];
 
@@ -101,6 +102,7 @@ int main(int argc, char *argv[])
             { "fixups",                  no_argument,       NULL, 'F'},
             { "silent",                  no_argument,       NULL, 'x'},
             { "preprocessor-exit",       no_argument,       NULL, 'z'},
+            { "shallow",                 no_argument,       NULL, 'h'},
             { NULL,                      0,                 NULL, 0 },
         };
 
@@ -116,7 +118,7 @@ int main(int argc, char *argv[])
 #endif
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFxdz", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFxdzh", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -184,6 +186,12 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
+                case 'h':
+                    shallow = true;
+                    classDump.shallow = true;
+                    VerboseLog(@"SHALLOW");
+                    break;
+                    
                 case 'z':
                     classDump.stopAfterPreProcessor = true;
                     break;

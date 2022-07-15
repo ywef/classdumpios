@@ -133,9 +133,10 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 //ODLog(@"RAW", [[data reverse] stringFromHexData]);
                 //InfoLog(@"reverse: %@ raw: %@", [[data reverse] hexString], [data hexString]);
                 uint64_t unpackedTarget = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
-                if (segment->pointer_format == DYLD_CHAINED_PTR_64){
+                if (segment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET){
+                    unpackedTarget += self.machOFile.preferredLoadAddress;
                     //unpackedTarget -= self.machOFile.preferredLoadAddress;
-                    //ODLog(@"unpackedTarget adjusted", unpackedTarget);
+                    ODLog(@"unpackedTarget adjusted", unpackedTarget);
                 }
                 if ([CDClassDump printFixupData]){
                     fprintf(stderr,"        %#010x RAW: %#010llx REBASE   target: %#010llx   high8: %#010x\n",

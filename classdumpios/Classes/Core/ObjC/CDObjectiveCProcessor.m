@@ -145,12 +145,15 @@
             InfoLog(@"end of the line!");
             exit(0);
         }
-        [self loadProtocols];
-        [self.protocolUniquer createUniquedProtocols];
-
+        if (!_shallow) {
+            [self loadProtocols];
+            [self.protocolUniquer createUniquedProtocols];
+        }
         // Load classes before categories, so we can get a dictionary of classes by address.
         [self loadClasses];
-        [self loadCategories];
+        if (!_shallow) {
+            [self loadCategories];
+        }
     }
 }
 
