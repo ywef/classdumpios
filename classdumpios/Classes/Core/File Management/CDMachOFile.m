@@ -350,22 +350,14 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             segment = [self segmentContainingAddress:based];
         }
         if (segment == nil) {
-            if (address > 0x10000000000000){ // probably frivolous..
-                OILog(@"\nstringAtAddress Problem finding address", address);
-                uint32_t top = address >> 32;
-                uint32_t bottom = address & 0xffffffff;
-                OILog(@"top", top);
-                OILog(@"bottom", bottom);
-                OILog(@"new",bottom + self.preferredLoadAddress);
-                address = bottom + self.preferredLoadAddress;
-                segment = [self segmentContainingAddress:address];
-            }
-            /*
-            while (address > 0x10000000000000 && segment == nil){
-                OILog(@"h4xxxxxxxx", address);
-                address = address - 0x10000000000000;
-                segment = [self segmentContainingAddress:address];
-            } */
+            OILog(@"\nstringAtAddress Problem finding address", address);
+            uint32_t top = address >> 32;
+            uint32_t bottom = address & 0xffffffff;
+            OILog(@"top", top);
+            OILog(@"bottom", bottom);
+            OILog(@"new",bottom + self.preferredLoadAddress);
+            address = bottom + self.preferredLoadAddress;
+            segment = [self segmentContainingAddress:address];
             if (segment == nil) {
                 DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
                 exit(5);
