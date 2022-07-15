@@ -12,7 +12,6 @@
 #include <mach-o/fixup-chains.h>
 #import "CDLCSegment.h"
 #import "CDLCSymbolTable.h"
-#import "NSData+Flip.h"
 #import "CDSymbol.h"
 #import "CDLCDylib.h"
 

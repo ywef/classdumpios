@@ -15,7 +15,7 @@ The latest version and information is available at:
 Usage
 -----
 
-    class-dump-ios 1.0.1 (64 bit)
+    class-dump-c 4.2.0 (64 bit)
     Usage: classdumpios [options] <mach-o-file>
 
       where options are:
