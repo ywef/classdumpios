@@ -556,6 +556,8 @@
 		3266E8F62870FBB9004D730F /* File Management */ = {
 			isa = PBXGroup;
 			children = (
+				4C952D402837E18500BFE504 /* CDFatArch.h */,
+				4C952D852837E18500BFE504 /* CDFatArch.m */,
 				4C952D792837E18500BFE504 /* CDFatFile.h */,
 				4C952D202837E18500BFE504 /* CDFatFile.m */,
 				4C952D642837E18500BFE504 /* CDFile.h */,
@@ -607,6 +609,8 @@
 		3266E8FF2870FC23004D730F /* Type */ = {
 			isa = PBXGroup;
 			children = (
+				4C952D782837E18500BFE504 /* CDMethodType.h */,
+				4C952D1F2837E18500BFE504 /* CDMethodType.m */,
 				4C952D382837E18500BFE504 /* CDType.h */,
 				4C952D8E2837E18500BFE504 /* CDType.m */,
 				4C952D492837E18500BFE504 /* CDTypeController.h */,
@@ -621,6 +625,44 @@
 				4C952D812837E18500BFE504 /* CDTypeParser.m */,
 			);
 			path = Type;
+			sourceTree = "<group>";
+		};
+		4C01BD27288216F8007DEA0F /* Structure */ = {
+			isa = PBXGroup;
+			children = (
+				4C952D262837E18500BFE504 /* CDBalanceFormatter.h */,
+				4C952D722837E18500BFE504 /* CDBalanceFormatter.m */,
+				4C952D602837E18500BFE504 /* CDProtocolUniquer.h */,
+				4C952DB22837E18500BFE504 /* CDProtocolUniquer.m */,
+				4C952D7B2837E18500BFE504 /* CDRelocationInfo.h */,
+				4C952D1C2837E18500BFE504 /* CDRelocationInfo.m */,
+				4C952D2E2837E18500BFE504 /* CDSearchPathState.h */,
+				4C952D672837E18500BFE504 /* CDSearchPathState.m */,
+				4C952D452837E18500BFE504 /* CDSection.h */,
+				4C952DA92837E18500BFE504 /* CDSection.m */,
+				4C952D362837E18500BFE504 /* CDStructureInfo.h */,
+				4C952D902837E18500BFE504 /* CDStructureInfo.m */,
+				4C952D232837E18500BFE504 /* CDStructureTable.h */,
+				4C952D772837E18500BFE504 /* CDStructureTable.m */,
+				4C952D242837E18500BFE504 /* CDSymbol.h */,
+				4C952D732837E18500BFE504 /* CDSymbol.m */,
+				4C952D8C2837E18500BFE504 /* CDTopologicalSortProtocol.h */,
+				4C952D352837E18500BFE504 /* CDTopoSortNode.h */,
+				4C952D922837E18500BFE504 /* CDTopoSortNode.m */,
+			);
+			path = Structure;
+			sourceTree = "<group>";
+		};
+		4C01BD2828821719007DEA0F /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4C952D742837E18500BFE504 /* blowfish.c */,
+				4C952D282837E18500BFE504 /* blowfish.h */,
+				4C952D4A2837E18500BFE504 /* cd_objc2.h */,
+				4C952DAB2837E18500BFE504 /* ULEB128.h */,
+				4C952D662837E18500BFE504 /* ULEB128.m */,
+			);
+			path = Extras;
 			sourceTree = "<group>";
 		};
 		4C0F406C286F741200C2E934 /* Extensions */ = {
@@ -647,41 +689,8 @@
 		4C0F406D286F743400C2E934 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				4C952D742837E18500BFE504 /* blowfish.c */,
-				4C952D282837E18500BFE504 /* blowfish.h */,
-				4C952D4A2837E18500BFE504 /* cd_objc2.h */,
-				4C952D262837E18500BFE504 /* CDBalanceFormatter.h */,
-				4C952D722837E18500BFE504 /* CDBalanceFormatter.m */,
 				4C952D1D2837E18500BFE504 /* CDClassDump.h */,
 				4C952D7A2837E18500BFE504 /* CDClassDump.m */,
-				4C952D402837E18500BFE504 /* CDFatArch.h */,
-				4C952D852837E18500BFE504 /* CDFatArch.m */,
-				4C952D782837E18500BFE504 /* CDMethodType.h */,
-				4C952D1F2837E18500BFE504 /* CDMethodType.m */,
-				4C952D602837E18500BFE504 /* CDProtocolUniquer.h */,
-				4C952DB22837E18500BFE504 /* CDProtocolUniquer.m */,
-				4C952D7B2837E18500BFE504 /* CDRelocationInfo.h */,
-				4C952D1C2837E18500BFE504 /* CDRelocationInfo.m */,
-				4C952D2E2837E18500BFE504 /* CDSearchPathState.h */,
-				4C952D672837E18500BFE504 /* CDSearchPathState.m */,
-				4C952D452837E18500BFE504 /* CDSection.h */,
-				4C952DA92837E18500BFE504 /* CDSection.m */,
-				4C952D362837E18500BFE504 /* CDStructureInfo.h */,
-				4C952D902837E18500BFE504 /* CDStructureInfo.m */,
-				4C952D232837E18500BFE504 /* CDStructureTable.h */,
-				4C952D772837E18500BFE504 /* CDStructureTable.m */,
-				4C952D242837E18500BFE504 /* CDSymbol.h */,
-				4C952D732837E18500BFE504 /* CDSymbol.m */,
-				4C952D8C2837E18500BFE504 /* CDTopologicalSortProtocol.h */,
-				4C952D352837E18500BFE504 /* CDTopoSortNode.h */,
-				4C952D922837E18500BFE504 /* CDTopoSortNode.m */,
-				3266E8F32870FBA6004D730F /* Cursors */,
-				3266E8F62870FBB9004D730F /* File Management */,
-				3266E8F22870FB2B004D730F /* Load Commands */,
-				3266E8F92870FBE7004D730F /* ObjC */,
-				3266E8FA2870FC0F004D730F /* OC */,
-				3266E8FF2870FC23004D730F /* Type */,
-				3266E8F12870FB12004D730F /* Visitors */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -716,11 +725,18 @@
 		4C952D172837E18500BFE504 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				4C0F406C286F741200C2E934 /* Extensions */,
-				4C0F406D286F743400C2E934 /* Core */,
 				4C952D4C2837E18500BFE504 /* class-dump.m */,
-				4C952DAB2837E18500BFE504 /* ULEB128.h */,
-				4C952D662837E18500BFE504 /* ULEB128.m */,
+				4C0F406D286F743400C2E934 /* Core */,
+				3266E8F32870FBA6004D730F /* Cursors */,
+				4C0F406C286F741200C2E934 /* Extensions */,
+				3266E8F62870FBB9004D730F /* File Management */,
+				3266E8F22870FB2B004D730F /* Load Commands */,
+				3266E8F92870FBE7004D730F /* ObjC */,
+				3266E8FA2870FC0F004D730F /* OC */,
+				4C01BD27288216F8007DEA0F /* Structure */,
+				3266E8FF2870FC23004D730F /* Type */,
+				4C01BD2828821719007DEA0F /* Extras */,
+				3266E8F12870FB12004D730F /* Visitors */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
