@@ -340,7 +340,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
         return nil;
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
-    if (segment == nil) {
+    if (segment == nil) { //check for chain fixup rebase
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
         if (based != 0){
             if ([CDClassDump isVerbose]){
@@ -350,7 +350,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             segment = [self segmentContainingAddress:based];
         }
         if (segment == nil) {
-            if (address > 0x10000000000000){
+            if (address > 0x10000000000000){ // probably frivolous..
                 OILog(@"\nstringAtAddress Problem finding address", address);
                 uint32_t top = address >> 32;
                 uint32_t bottom = address & 0xffffffff;
@@ -360,11 +360,12 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
                 address = bottom + self.preferredLoadAddress;
                 segment = [self segmentContainingAddress:address];
             }
+            /*
             while (address > 0x10000000000000 && segment == nil){
                 OILog(@"h4xxxxxxxx", address);
                 address = address - 0x10000000000000;
                 segment = [self segmentContainingAddress:address];
-            }
+            } */
             if (segment == nil) {
                 DLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
                 exit(5);
@@ -415,23 +416,18 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
             OILog(@"based", based);
             address = based;
             segment = [self segmentContainingAddress:based];
-            //VerboseLog(@"science?? %@", segment);
-        } else {
+        } else { // no chained fixup found, maybe we need to discard 'extra' frivolous info and 'rebase' to find the data.
             OILog(@"\nProblem finding address", address);
             uint32_t top = address >> 32;
             uint32_t bottom = address & 0xffffffff;
             OILog(@"top", top);
             OILog(@"bottom", bottom);
             address = bottom + self.preferredLoadAddress;
-            //name = bottom;
-            OILog(@"size check", address);
+            OILog(@"new value", address);
             segment = [self segmentContainingAddress:address];
-            //OILog(@"peek",[cursor peekPtr]);
         }
-        //VerboseLog(@"science?? %@", segment);
         if (segment == nil){
             DLog(@"Error: Cannot find offset for address 0x%08lx in dataOffsetForAddress:", address);
-            //return 0;
             exit(5);
         }
     }

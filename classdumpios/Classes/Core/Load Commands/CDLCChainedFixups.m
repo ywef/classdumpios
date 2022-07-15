@@ -276,6 +276,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     return [_symbolNamesByAddress objectForKey:[NSNumber numberWithUnsignedInteger:address]];
 }
 
+//refactor, the adjustment should never be needed again.
 - (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address adjustment:(NSUInteger)adj {
     InfoLog(@"%s : %#010llx (%lu)", _cmds, address-adj, address-adj);
     NSNumber *key = [NSNumber numberWithUnsignedInteger:address-adj]; // I don't think 32-bit will dump 64-bit stuff.

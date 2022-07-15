@@ -513,9 +513,6 @@
         bool small = (value & METHOD_LIST_T_SMALL_METHOD_FLAG) != 0;
         listHeader.count = [cursor readInt32];
         NSParameterAssert(listHeader.entsize == 3 * (small ? sizeof(int32_t) : [self.machOFile ptrSize]));
-        if (self.machOFile.chainedFixups) {
-            //small = 0;
-        }
         if(small) {
             NSParameterAssert((listHeader.entsize & 0x7FFFFFFF) == 12);
         } else {
@@ -536,24 +533,15 @@
                     if (basedName != 0) {
                         OILog(@"basedName", basedName);
                         name = basedName;
-                    } else {
+                    } else { //not in fixups, try discarding 'extra' data
                         OILog(@"\nProblem finding address", name);
                         uint32_t top = name >> 32;
                         uint32_t bottom = name & 0xffffffff;
                         OILog(@"top", top);
                         OILog(@"bottom", bottom);
                         name = bottom + self.machOFile.preferredLoadAddress;
-                        //name = bottom;
-                        OILog(@"size check", name);
+                        OILog(@"new value", name);
                         OILog(@"peek",[cursor peekPtr]);
-                        /*
-                        while (name > fixupAdjustment){
-                            InfoLog(@"name was > %lu", fixupAdjustment);
-                            name-= fixupAdjustment;
-                            OILog(@"fixupAdjustment", name);
-                        }*/
-                        //name-= fixupAdjustment;
-                        //ODLog(@"fixupAdjustment", name);
                     }
                 }
                 [nameCursor setAddress:name];
