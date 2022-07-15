@@ -26,7 +26,7 @@
     CDClassDump *classDump = [[CDClassDump alloc] init];
     classDump.shouldShowIvarOffsets = true; // -a
     classDump.shouldShowMethodAddresses = true; // -A
-    classDump.shouldSortClassesByInheritance = true; // -I
+    //classDump.shouldSortClassesByInheritance = true; // -I
     NSString *executablePath = [file executablePathForFilename];
     if (executablePath){
         classDump.searchPathState.executablePath = executablePath;

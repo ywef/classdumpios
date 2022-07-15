@@ -21,7 +21,7 @@
 #import "CDProtocolUniquer.h"
 #import "CDOCClassReference.h"
 #import "CDLCChainedFixups.h"
-#import "NSData+Flip.h"
+//#import "NSData+Flip.h"
 
 @implementation CDObjectiveC2Processor
 {

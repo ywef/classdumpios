@@ -13,9 +13,8 @@
 		32B1AB12286966C000CDFF07 /* CDLCChainedFixups.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */; };
 		32B1AB13286966C000CDFF07 /* CDLCChainedFixups.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */; };
 		32B1AB14286966C000CDFF07 /* CDLCChainedFixups.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */; };
+		4C01BD2628810D7F007DEA0F /* NSData+Flip.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F4068286E301800C2E934 /* NSData+Flip.mm */; };
 		4C0F4069286E301800C2E934 /* NSData+Flip.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C0F4067286E301800C2E934 /* NSData+Flip.h */; };
-		4C0F406A286E301800C2E934 /* NSData+Flip.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F4068286E301800C2E934 /* NSData+Flip.mm */; };
-		4C0F406B286E301800C2E934 /* NSData+Flip.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F4068286E301800C2E934 /* NSData+Flip.mm */; };
 		4C952DB72837E18500BFE504 /* CDLCDataInCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D182837E18500BFE504 /* CDLCDataInCode.m */; };
 		4C952DB82837E18500BFE504 /* NSString-CDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D192837E18500BFE504 /* NSString-CDExtensions.m */; };
 		4C952DB92837E18500BFE504 /* NSError-CDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C952D1A2837E18500BFE504 /* NSError-CDExtensions.m */; };
@@ -960,7 +959,7 @@
 				4C952DC02837E18500BFE504 /* NSData-CDExtensions.m in Sources */,
 				4C952DF52837E18500BFE504 /* CDLCLinkeditData.m in Sources */,
 				4C952DE82837E18500BFE504 /* CDLCSubFramework.m in Sources */,
-				4C0F406A286E301800C2E934 /* NSData+Flip.mm in Sources */,
+				4C01BD2628810D7F007DEA0F /* NSData+Flip.mm in Sources */,
 				4C952DF12837E18500BFE504 /* CDOCModule.m in Sources */,
 				4C952DCA2837E18500BFE504 /* CDOCMethod.m in Sources */,
 				4C952DD12837E18500BFE504 /* CDClassDumpVisitor.m in Sources */,
@@ -1047,7 +1046,6 @@
 				4CDA2AD22862646B00566FBB /* CDLCRunPath.m in Sources */,
 				4CDA2A972862646B00566FBB /* CDFile.m in Sources */,
 				4CDA2ABD2862646B00566FBB /* CDClassDump.m in Sources */,
-				4C0F406B286E301800C2E934 /* NSData+Flip.mm in Sources */,
 				4CDA2AD42862646B00566FBB /* CDOCCategory.m in Sources */,
 				4CDA2AD02862646B00566FBB /* CDVisitorPropertyState.m in Sources */,
 				4CDA2A85286263F800566FBB /* classdump.m in Sources */,
@@ -1222,6 +1220,8 @@
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREFIX_HEADER = "$SRCROOT/class-dump-Prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1235,6 +1235,8 @@
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREFIX_HEADER = "$SRCROOT/class-dump-Prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
