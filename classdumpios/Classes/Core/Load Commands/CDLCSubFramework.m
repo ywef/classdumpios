@@ -16,10 +16,10 @@
     if ((self = [super initWithDataCursor:cursor])) {
         _command.cmd     = [cursor readInt32];
         _command.cmdsize = [cursor readInt32];
-        
+#ifdef DEBUG
         uint32_t strOffset = [cursor readInt32];
         NSParameterAssert(strOffset == 12);
-        
+#endif
         NSUInteger length = _command.cmdsize - sizeof(_command);
         //DLog(@"expected length: %u", length);
         

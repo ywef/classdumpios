@@ -15,12 +15,6 @@
 #import "CDVisitorPropertyState.h"
 #import "CDOCInstanceVariable.h"
 
-#ifdef DEBUG
-static BOOL debug = YES;
-#else
-static BOOL debug = NO;
-#endif
-
 @interface CDTextClassDumpVisitor ()
 @end
 
