@@ -7,6 +7,15 @@
 
 // Massive thanks to this repo and everything in it to help me get a better handle on DYLD_CHAINED_FIXUPS https://github.com/qyang-nj/llios/blob/main/dynamic_linking/chained_fixups.md
 
+/**
+ 
+ A few notes about this class, it was originally based around how binding an rebasing worked in CDLCDyldInfo
+ therefore a similar paradigm is kept utilizing the _symbolNamesByAddress
+ 
+ 
+ 
+ */
+
 #import "CDLCChainedFixups.h"
 #include <mach-o/loader.h>
 #include <mach-o/fixup-chains.h>
@@ -15,8 +24,7 @@
 #import "CDSymbol.h"
 #import "CDLCDylib.h"
 
-@implementation CDLCChainedFixups
-{
+@implementation CDLCChainedFixups {
     struct linkedit_data_command _linkeditDataCommand;
     NSData *_linkeditData;
     NSUInteger _ptrSize;
@@ -67,18 +75,19 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
         if (segment->pointer_format == DYLD_CHAINED_PTR_64
             || segment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET) {
             struct dyld_chained_ptr_64_bind bind = *(struct dyld_chained_ptr_64_bind *)(base + chain);
-            if (bind.bind) {
+            if (bind.bind) { //we are binding a symbol
+                
                 struct dyld_chained_import import = ((struct dyld_chained_import *)(fixupBase + header->imports_offset))[bind.ordinal];
                 char *symbol = (char *)(fixupBase + header->symbols_offset + import.name_offset);
                 uint64_t peeked = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
-                uint64_t raw = _OSSwapInt64(peeked);
+                uint64_t raw = _OSSwapInt64(peeked); //honestly not sure why byte swapping is 'necessary' here, but it works.
 
                 if ([CDClassDump printFixupData]){
                     NSString *lib = _imports[[NSString stringWithUTF8String:symbol]];
                     fprintf(stderr,"        0x%08x RAW: %#010llx  BIND     ordinal: %d   addend: %d    dylib: %s   (%s)\n",
                             chain, raw, bind.ordinal, bind.addend, [lib UTF8String], symbol);
                 }
-                [self bindAddress:raw type:0 symbolName:symbol flags:bind.reserved addend:bind.addend libraryOrdinal:bind.ordinal];
+                [self bindAddress:raw symbolName:symbol];
             } else {
                 // rebase 0x%08lx
                 struct dyld_chained_ptr_64_rebase rebase = *(struct dyld_chained_ptr_64_rebase *)&bind;
@@ -86,7 +95,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 uint64_t raw = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
                 uint64_t unpackedTarget = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
                 // The DYLD_CHAINED_PTR_64 target is vmaddr, but
-                // DYLD_CHAINED_PTR_64_OFFSET target is vmoffset, need to add preferredLoadAddress to find it! -- major missing piece to getting this working.
+                // DYLD_CHAINED_PTR_64_OFFSET target is vmoffset. Need to add preferredLoadAddress to find it! -- major missing piece to getting this working.
                 if (segment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET) {
                     unpackedTarget += self.machOFile.preferredLoadAddress;
                     //ODLog(@"unpackedTarget adjusted", unpackedTarget);
@@ -215,8 +224,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     }
 }
 
-- (id)initWithDataCursor:(CDMachOFileDataCursor *)cursor;
-{
+- (id)initWithDataCursor:(CDMachOFileDataCursor *)cursor; {
     if ((self = [super initWithDataCursor:cursor])) {
         _linkeditDataCommand.cmd     = [cursor readInt32];
         _linkeditDataCommand.cmdsize = [cursor readInt32];
@@ -224,7 +232,6 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
         _linkeditDataCommand.dataoff  = [cursor readInt32];
         _linkeditDataCommand.datasize = [cursor readInt32];
         _ptrSize = [[cursor machOFile] ptrSize];
-        //[[self.machOFile symbolTable] baseAddress];
         _symbolNamesByAddress = [NSMutableDictionary new];
         _based = [NSMutableDictionary new];
         _imports = [NSMutableDictionary new];
@@ -235,18 +242,15 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
 
 #pragma mark -
 
-- (uint32_t)cmd;
-{
+- (uint32_t)cmd; {
     return _linkeditDataCommand.cmd;
 }
 
-- (uint32_t)cmdsize;
-{
+- (uint32_t)cmdsize; {
     return _linkeditDataCommand.cmdsize;
 }
 
-- (NSData *)linkeditData;
-{
+- (NSData *)linkeditData; {
     if (_linkeditData == NULL) {
         _linkeditData = [[NSData alloc] initWithBytes:[self.machOFile bytesAtOffset:_linkeditDataCommand.dataoff] length:_linkeditDataCommand.datasize];
     }
@@ -254,8 +258,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     return _linkeditData;
 }
 
-- (NSString *)externalClassNameForAddress:(NSUInteger)address;
-{
+- (NSString *)externalClassNameForAddress:(NSUInteger)address; {
     NSString *str = [self symbolNameForAddress:address];
     
     if (str != nil) {
@@ -270,9 +273,12 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     return nil;
 }
 
-- (NSString *)symbolNameForAddress:(NSUInteger)address;
-{
+- (NSString *)symbolNameForAddress:(NSUInteger)address; {
     return [_symbolNamesByAddress objectForKey:[NSNumber numberWithUnsignedInteger:address]];
+}
+
+- (NSUInteger)rebaseTargetFromAddress:(NSUInteger)address {
+    return [self rebaseTargetFromAddress:address adjustment:0];
 }
 
 //refactor, the adjustment should never be needed again.
@@ -282,16 +288,21 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     return [_based[key] unsignedIntegerValue];
 }
 
-- (void)rebaseAddress:(uint64_t)address target:(uint64_t)target
-{
+- (void)rebaseAddress:(uint64_t)address target:(uint64_t)target {
     NSNumber *key = [NSNumber numberWithUnsignedInteger:address]; // I don't think 32-bit will dump 64-bit stuff.
     NSNumber *val = [NSNumber numberWithUnsignedInteger:target];
     _based[key] = val;
 }
 
+- (void)bindAddress:(uint64_t)address symbolName:(const char *)symbolName {
+    NSNumber *key = [NSNumber numberWithUnsignedInteger:address]; // I don't think 32-bit will dump 64-bit stuff.
+    NSString *str = [[NSString alloc] initWithUTF8String:symbolName];
+    _symbolNamesByAddress[key] = str;
+}
+
+//obsolete, leaving in here in case i ever need those other details and save this in a less hacky fashion
 - (void)bindAddress:(uint64_t)address type:(uint8_t)type symbolName:(const char *)symbolName flags:(uint8_t)flags
-             addend:(int64_t)addend libraryOrdinal:(int64_t)libraryOrdinal;
-{
+             addend:(int64_t)addend libraryOrdinal:(int64_t)libraryOrdinal; {
 #if 0
     VerboseLog(@"    Bind address: %016lx, type: 0x%02x, flags: %02x, addend: %016lx, libraryOrdinal: %ld, symbolName: %s",
                address, type, flags, addend, libraryOrdinal, symbolName);
@@ -302,8 +313,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     _symbolNamesByAddress[key] = str;
 }
 
-- (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
-{
+- (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile; {
     uint8_t *fixup_base = (uint8_t *)[[self linkeditData] bytes];
     struct dyld_chained_fixups_header *header = (struct dyld_chained_fixups_header *)fixup_base;
     printChainedFixupsHeader(header);
@@ -315,11 +325,11 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     for (int i = 0; i < starts_in_image->seg_count; ++i) {
         CDLCSegment *segCmd = self.machOFile.segments[i];
         //struct segment_command_64 *segCmd = machoBinary.segmentCommands[i];
-        if ([CDClassDump printFixupData]){
+        if ([CDClassDump printFixupData]) {
             fprintf(stderr,"  SEGMENT %.16s (offset: %d)\n", [segCmd.name UTF8String], offsets[i]);
         }
         if (offsets[i] == 0) {
-            if ([CDClassDump printFixupData]){
+            if ([CDClassDump printFixupData]) {
                 fprintf(stderr,"\n");
             }
             continue;

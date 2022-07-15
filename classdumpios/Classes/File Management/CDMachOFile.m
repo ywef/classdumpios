@@ -340,7 +340,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) { //check for chain fixup rebase
-        uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
+        uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address];
         if (based != 0){
             if ([CDClassDump isVerbose]){
                 OILog(@"stringAtAddress: based", based);
@@ -396,7 +396,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
     CDLCSegment *segment = [self segmentContainingAddress:address];
     if (segment == nil) {
         InfoLog(@"%s nil segment", _cmds);
-        uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address adjustment:0];
+        uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address];
         if (based != 0){
             OILog(@"based", based);
             address = based;

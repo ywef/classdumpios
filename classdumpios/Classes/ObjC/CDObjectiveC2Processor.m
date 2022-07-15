@@ -49,7 +49,7 @@
     while ([cursor isAtEnd] == NO) {
         uint64_t val = [cursor readPtr];
         if (self.machOFile.chainedFixups != nil){
-            based = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
+            based = [self.machOFile.chainedFixups rebaseTargetFromAddress:val];
             OILog(@"loadClasses based", based);
         }
         if (based != 0) {
@@ -301,17 +301,17 @@
     uint64_t ivarsAddress = objc2ClassData.ivars;
     uint64_t isaAddress = objc2Class.isa;
     if (self.machOFile.chainedFixups){
-        uint64_t based = [self.machOFile.chainedFixups rebaseTargetFromAddress:methodAddress adjustment:0];
+        uint64_t based = [self.machOFile.chainedFixups rebaseTargetFromAddress:methodAddress];
         if (based != 0) {
             OILog(@"baaaaased", based);
             methodAddress = based;
         }
-        based = [self.machOFile.chainedFixups rebaseTargetFromAddress:ivarsAddress adjustment:0];
+        based = [self.machOFile.chainedFixups rebaseTargetFromAddress:ivarsAddress];
         if (based != 0) {
             OILog(@"baaaaased ivars", based);
             ivarsAddress = based;
         }
-        based = [self.machOFile.chainedFixups rebaseTargetFromAddress:isaAddress adjustment:0];
+        based = [self.machOFile.chainedFixups rebaseTargetFromAddress:isaAddress];
         if (based != 0) {
             OILog(@"baaaaased isa", based);
             isaAddress = based;
@@ -483,7 +483,7 @@
                 uint64_t types = baseAddress + 4 + (int64_t)(int32_t) [cursor readInt32];
                 uint64_t imp = baseAddress + 8 + (int64_t)(int32_t) [cursor readInt32];
                 if(self.machOFile.chainedFixups) {
-                    uint64_t basedName = [self.machOFile.chainedFixups rebaseTargetFromAddress:name adjustment:0];
+                    uint64_t basedName = [self.machOFile.chainedFixups rebaseTargetFromAddress:name];
                     if (basedName != 0) {
                         OILog(@"basedName", basedName);
                         name = basedName;
@@ -592,7 +592,7 @@
         OILog(@"protocol count", count);
         if (count == 0) {
             InfoLog(@"didnt find the address, try lookup");
-            count = [self.machOFile.chainedFixups rebaseTargetFromAddress:address adjustment:0];
+            count = [self.machOFile.chainedFixups rebaseTargetFromAddress:address];
             if (count == 0){
                 InfoLog(@"failed!");
             } else {
@@ -608,7 +608,7 @@
             } else {
                 OILog(@"protocol", val);
                 if (self.machOFile.chainedFixups) {
-                    uint64_t tempVal = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
+                    uint64_t tempVal = [self.machOFile.chainedFixups rebaseTargetFromAddress:val];
                     if (tempVal != 0) {
                         OILog(@"Protocool adjusted", tempVal);
                         val = tempVal;
