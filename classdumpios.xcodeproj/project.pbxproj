@@ -269,6 +269,7 @@
 		32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCExportTRIEData.m; sourceTree = "<group>"; };
 		32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCChainedFixups.h; sourceTree = "<group>"; };
 		32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCChainedFixups.m; sourceTree = "<group>"; };
+		4C01BD2928821ECE007DEA0F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4C0F4067286E301800C2E934 /* NSData+Flip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Flip.h"; sourceTree = "<group>"; };
 		4C0F4068286E301800C2E934 /* NSData+Flip.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSData+Flip.mm"; sourceTree = "<group>"; };
 		4C952D0D2837E11D00BFE504 /* classdumpios */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = classdumpios; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -698,6 +699,7 @@
 		4C952D042837E11D00BFE504 = {
 			isa = PBXGroup;
 			children = (
+				4C01BD2928821ECE007DEA0F /* README.md */,
 				32624D2B286D0DD700571352 /* class-dump-Prefix.pch */,
 				4C952D0F2837E11D00BFE504 /* classdumpios */,
 				4CDA2A81286263F800566FBB /* classdump */,
