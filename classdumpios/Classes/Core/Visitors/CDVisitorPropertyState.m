@@ -25,11 +25,15 @@
         _propertiesByName = [[NSMutableDictionary alloc] init];
         
         for (CDOCProperty *property in properties) {
-            //DLog(@"property: %@, getter: %@, setter: %@", [property name], [property getter], [property setter]);
-            _propertiesByName[property.name] = property;
-            _propertiesByAccessor[property.getter] = property;
-            if (property.isReadOnly == NO)
-                _propertiesByAccessor[property.setter] = property;
+            if ([property name] == nil){
+                InfoLog(@"property: %@, getter: %@, setter: %@", property, [property getter], [property setter]);
+            } else {
+                _propertiesByName[property.name] = property;
+                _propertiesByAccessor[property.getter] = property;
+                if (property.isReadOnly == NO) {
+                    _propertiesByAccessor[property.setter] = property;
+                }
+            }
         }
     }
 
