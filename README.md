@@ -2,7 +2,7 @@ class-dump-c
 ==========
 
 This project is an amalgam of a few different versions of classdump. Initially based on a version by [DreamDevLost](https://github.com/DreamDevLost/classdumpios)
-who made his as an iOS port from nygard/class-dump. From there I have manually merged in bits and pieces from various requests against the original [nygard repo](https://github.com/nygard/class-dump) 
+who made his as an iOS port from [nygard/class-dump](https://github.com/nygard/class-dump). From there I have manually merged in bits and pieces from various PR's against the original 
 [ie #78](https://github.com/nygard/class-dump/pull/78) and then made a working macOS version again.
 
 In iOS 13 Apple introduced some new load commands into DYLD (specifically `LC_DYLD_CHAINED_FIXUPS` and `LC_DYLD_EXPORTS_TRIE`) But didn't start widely using them
