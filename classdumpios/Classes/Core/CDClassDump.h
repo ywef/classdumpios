@@ -5,10 +5,10 @@
 
 #import "CDFile.h" // For CDArch
 
-#define CLASS_DUMP_BASE_VERSION "1.0.1 (64 bit)"
+#define CLASS_DUMP_BASE_VERSION "4.2.0 (64 bit)"
 
 #ifdef DEBUG
-#define CLASS_DUMP_VERSION CLASS_DUMP_BASE_VERSION " (iOS port by DreamDevLost)(Debug version compiled " __DATE__ " " __TIME__ ")"
+#define CLASS_DUMP_VERSION CLASS_DUMP_BASE_VERSION " (iOS port by DreamDevLost, Updated by Kevin Bradley.)(Debug version compiled " __DATE__ " " __TIME__ ")"
 #else
 #define CLASS_DUMP_VERSION CLASS_DUMP_BASE_VERSION
 #endif

@@ -33,7 +33,8 @@
     if (newOffset <= [_data length]) {
         _offset = newOffset;
     } else {
-        [NSException raise:NSRangeException format:@"Trying to seek past end of data."];
+        NSString *details = [NSString stringWithFormat:@"%016llx (%lu) > %lu",newOffset, newOffset, [_data length]];
+        [NSException raise:NSRangeException format:@"Trying to seek past end of data: %@", details];
     }
 }
 

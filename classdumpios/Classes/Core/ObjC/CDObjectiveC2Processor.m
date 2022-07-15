@@ -605,11 +605,18 @@
             if (objc2Ivar.name != 0) {
                 NSString *name       = [self.machOFile stringAtAddress:objc2Ivar.name];
                 NSString *typeString = [self.machOFile stringAtAddress:objc2Ivar.type];
-                CDMachOFileDataCursor *offsetCursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:objc2Ivar.offset];
-                NSUInteger offset = (uint32_t)[offsetCursor readPtr]; // objc-runtime-new.h: "offset is 64-bit by accident" => restrict to 32-bit
-                
-                CDOCInstanceVariable *ivar = [[CDOCInstanceVariable alloc] initWithName:name typeString:typeString offset:offset];
-                [ivars addObject:ivar];
+                @try {
+                    CDMachOFileDataCursor *offsetCursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:objc2Ivar.offset];
+                    NSUInteger offset = (uint32_t)[offsetCursor readPtr]; // objc-runtime-new.h: "offset is 64-bit by accident" => restrict to 32-bit
+                    
+                    CDOCInstanceVariable *ivar = [[CDOCInstanceVariable alloc] initWithName:name typeString:typeString offset:offset];
+                    [ivars addObject:ivar];
+                }
+               
+                @catch (NSException *exception) {
+                    ODLog(@"objc2Ivar.offset", objc2Ivar.offset);
+                    InfoLog(@"Caught exception: %@", exception);
+                }
             } else {
                 //VerboseLog(@"%016lx %016lx %016lx  %08x %08x", objc2Ivar.offset, objc2Ivar.name, objc2Ivar.type, objc2Ivar.alignment, objc2Ivar.size);
             }

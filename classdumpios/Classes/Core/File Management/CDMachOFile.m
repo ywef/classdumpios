@@ -184,7 +184,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     for (CDLoadCommand *loadCommand in _loadCommands) {
         [loadCommand machOFileDidReadLoadCommands:self];
     }
-    OLog(@"preferredBaseAddress", [self preferredLoadAddress]);
+    ODLog(@"preferredBaseAddress", [self preferredLoadAddress]);
 }
 
 #pragma mark - Debugging

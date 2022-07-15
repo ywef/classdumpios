@@ -78,8 +78,12 @@
         CDOCProtocol *uniqueProtocol = _uniqueProtocolsByName[p1.name];
         
         // Add the uniqued adopted protocols
-        for (CDOCProtocol *p2 in [p1 protocols])
-            [uniqueProtocol addProtocol:_uniqueProtocolsByName[p2.name]];
+        for (CDOCProtocol *p2 in [p1 protocols]) {
+            id prot = _uniqueProtocolsByName[p2.name];
+            if (prot) {
+                [uniqueProtocol addProtocol:prot];
+            }
+        }
         
         [uniqueProtocol mergeMethodsFromProtocol:p1];
         [uniqueProtocol mergePropertiesFromProtocol:p1];

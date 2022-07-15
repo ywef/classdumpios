@@ -66,7 +66,9 @@
     ILOG_CMD;
     if ([_adoptedProtocolNames containsObject:protocol.name] == NO) {
         [_protocols addObject:protocol];
-        [_adoptedProtocolNames addObject:protocol.name];
+        if (protocol.name){
+            [_adoptedProtocolNames addObject:protocol.name];
+        }
     }
 }
 
@@ -296,7 +298,7 @@
     // Class methods
     for (CDOCMethod *method in other.classMethods) {
         CDOCMethod *m2 = classMethodsByName[method.name];
-        if (m2 == nil) {
+        if (m2 == nil && method.name != nil) {
             // Add if it is not an optional class method.
             if (optionalClassMethodsByName[method.name] == nil) {
                 [self addClassMethod:method];
@@ -307,7 +309,7 @@
     
     for (CDOCMethod *method in other.optionalClassMethods) {
         CDOCMethod *m2 = optionalClassMethodsByName[method.name];
-        if (m2 == nil) {
+        if (m2 == nil && method.name != nil) {
             m2 = classMethodsByName[method.name];
             if (m2 == nil) {
                 [self addOptionalClassMethod:method];
@@ -316,7 +318,9 @@
                 // Move to the optional class methods.
                 [self addOptionalClassMethod:m2];
                 [_classMethods removeObject:m2];
-                optionalClassMethodsByName[m2.name] = m2;
+                if (m2.name){
+                    optionalClassMethodsByName[m2.name] = m2;
+                }
                 [classMethodsByName removeObjectForKey:m2.name];
             }
         }
