@@ -264,8 +264,15 @@
         return class;
     
     InfoLog(@"\n%s, address=%016llx also: %llu\n", _cmds, address, address);
+    CDMachOFileDataCursor *cursor = nil;
+    @try {
+        cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
+    } @catch (NSException *exception) {
+        ODLog(@"address", address);
+        InfoLog(@"Caught exception: %@", exception);
+        return nil;
+    }
     
-    CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
     if ([cursor offset] == 0) return nil;
     //NSParameterAssert([cursor offset] != 0);
     
@@ -539,11 +546,12 @@
                         //name = bottom;
                         OILog(@"size check", name);
                         OILog(@"peek",[cursor peekPtr]);
+                        /*
                         while (name > fixupAdjustment){
                             InfoLog(@"name was > %lu", fixupAdjustment);
                             name-= fixupAdjustment;
                             OILog(@"fixupAdjustment", name);
-                        }
+                        }*/
                         //name-= fixupAdjustment;
                         //ODLog(@"fixupAdjustment", name);
                     }
