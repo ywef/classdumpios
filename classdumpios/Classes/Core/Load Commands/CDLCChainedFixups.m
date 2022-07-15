@@ -49,17 +49,6 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
     
 }
 
-/*
- uint64_t MachOLoaded::ChainedFixupPointerOnDisk::Generic64::signExtendedAddend() const
- {
-     uint64_t addend27     = this->bind.addend;
-     uint64_t top8Bits     = addend27 & 0x00007F80000ULL;
-     uint64_t bottom19Bits = addend27 & 0x0000007FFFFULL;
-     uint64_t newValue     = (top8Bits << 13) | (((uint64_t)(bottom19Bits << 37) >> 37) & 0x00FFFFFFFFFFFFFF);
-     return newValue;
- }
- */
-
 - (uint64_t)signExtendedAddend:(struct dyld_chained_ptr_64_bind)fixupBind {
     
     uint64_t addend27     = fixupBind.addend;
@@ -71,8 +60,7 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
 
 //symbol_offset_address = (virtual_symbol_address - containing_macho_section_virtual_address) + contain_macho_section_file_offset
 
-
-- (void)printFixupsInPage:(uint8_t *)base fixupBase:(uint8_t*)fixupBase header:(struct dyld_chained_fixups_header *)header startsIn:(struct dyld_chained_starts_in_segment *)segment page:(int)pageIndex {
+- (void)processFixupsInPage:(uint8_t *)base fixupBase:(uint8_t*)fixupBase header:(struct dyld_chained_fixups_header *)header startsIn:(struct dyld_chained_starts_in_segment *)segment page:(int)pageIndex {
     uint32_t chain = (uint32_t)segment->segment_offset + segment->page_size * pageIndex + segment->page_start[pageIndex];
     bool done = false;
     int count = 0;
@@ -98,7 +86,9 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
                 
                 uint64_t raw = [self.machOFile peekPtrAtOffset:chain ptrSize:_ptrSize];
                 uint64_t unpackedTarget = (((uint64_t)rebase.high8) << 56) | (uint64_t)(rebase.target);
-                if (segment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET){
+                // The DYLD_CHAINED_PTR_64 target is vmaddr, but
+                // DYLD_CHAINED_PTR_64_OFFSET target is vmoffset, need to add preferredLoadAddress to find it! -- major missing piece to getting this working.
+                if (segment->pointer_format == DYLD_CHAINED_PTR_64_OFFSET) {
                     unpackedTarget += self.machOFile.preferredLoadAddress;
                     //ODLog(@"unpackedTarget adjusted", unpackedTarget);
                 }
@@ -207,24 +197,6 @@ static void printChainedFixupsHeader(struct dyld_chained_fixups_header *header) 
         InfoLog(@"imports: %@", _imports);
     }
 }
-
-/*
- std::string getDylibNameByOrdinal(int ordinal, bool basename = true) {
-     if (ordinal > 0 && ordinal <= MAX_LIBRARY_ORDINAL) { // 0 ~ 253
-         struct dylib_command *dylibCmd = getDylibCommands()[ordinal - 1];
-         std::filesystem::path dylibPath = std::filesystem::path((char *)dylibCmd + dylibCmd->dylib.name.offset);
-         if (basename) {
-             dylibPath = dylibPath.filename();
-         }
-         return dylibPath.string();
-     } else if (ordinal == DYNAMIC_LOOKUP_ORDINAL) { // 254
-         return "dynamic lookup";
-     } else if (ordinal == EXECUTABLE_ORDINAL) { // 255
-         return "exectuable";
-     }
-     return "invalid ordinal";
- }
- */
 
 static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
     switch(pointer_format) {
@@ -374,8 +346,7 @@ static void formatPointerFormat(uint16_t pointer_format, char *formatted) {
             }
             if (page_starts[j] == DYLD_CHAINED_PTR_START_NONE) { continue; }
             
-            [self printFixupsInPage:(uint8_t *)[self.machOFile bytes] fixupBase:fixup_base header:header startsIn:startsInSegment page:j];
-            //printFixupsInPage((uint8_t *)[self.machOFile bytes], fixup_base, header, startsInSegment, j);
+            [self processFixupsInPage:(uint8_t *)[self.machOFile bytes] fixupBase:fixup_base header:header startsIn:startsInSegment page:j];
             
             pageCount++;
             if ([CDClassDump printFixupData]){
