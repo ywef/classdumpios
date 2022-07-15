@@ -21,15 +21,12 @@
 #import "CDProtocolUniquer.h"
 #import "CDOCClassReference.h"
 #import "CDLCChainedFixups.h"
-//#import "NSData+Flip.h"
 
-@implementation CDObjectiveC2Processor
-{
+@implementation CDObjectiveC2Processor {
     NSUInteger fixupAdjustment;
 }
 
-- (void)loadProtocols;
-{
+- (void)loadProtocols; {
     ILOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_protolist"];
     VerboseLog(@"\nProtocols section: %@", section);
@@ -38,8 +35,7 @@
         [self protocolAtAddress:[cursor readPtr]];
 }
 
-- (void)loadClasses;
-{
+- (void)loadClasses; {
     ILOG_CMD;
     CDLCSegment *segment = [self.machOFile dataConstSegment];
     CDSection *section = [segment sectionWithName:@"__objc_classlist"];
@@ -51,9 +47,7 @@
     CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithSection:section];
     VerboseLog(@"cursor: %#010llx", cursor.offset);
     while ([cursor isAtEnd] == NO) {
-        uint64_t valsmall = [cursor peekPtr:true];
         uint64_t val = [cursor readPtr];
-        OILog(@"readPtr small", valsmall);
         if (self.machOFile.chainedFixups != nil){
             based = [self.machOFile.chainedFixups rebaseTargetFromAddress:val adjustment:0];
             OILog(@"loadClasses based", based);
@@ -65,10 +59,6 @@
             
         }
         OILog(@"readPtr", val);
-        /*
-         if (val > 0x10000000000000){
-         val = val - 0x10000000000000;
-         }*/
         CDOCClass *aClass = [self loadClassAtAddress:val];
         InfoLog(@"\naClass: %@\n", aClass);
         InfoLog(@"\n");
@@ -78,8 +68,7 @@
     }
 }
 
-- (void)loadCategories;
-{
+- (void)loadCategories; {
     ILOG_CMD;
     CDSection *section = [[self.machOFile dataConstSegment] sectionWithName:@"__objc_catlist"];
     VerboseLog(@"\nCategories section: %@", section);
@@ -90,8 +79,7 @@
     }
 }
 
-- (CDOCProtocol *)protocolAtAddress:(uint64_t)address;
-{
+- (CDOCProtocol *)protocolAtAddress:(uint64_t)address; {
     if (address == 0)
         return nil;
     
@@ -177,8 +165,7 @@
     return protocol;
 }
 
-- (CDOCCategory *)loadCategoryAtAddress:(uint64_t)address;
-{
+- (CDOCCategory *)loadCategoryAtAddress:(uint64_t)address; {
     if (address == 0)
         return nil;
     
@@ -225,20 +212,10 @@
         } else if ([self.machOFile hasRelocationEntryForAddress:classNameAddress]) {
             externalClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
             InfoLog(@"category: got external class name (1): %@ %@", externalClassName, externalClassName);
-        } else if (objc2Category.class != 0) {
+        } else if (objc2Category.class != 0) { //likely workin with a newer chained fixup style macho
             NSNumber *num = [NSNumber numberWithUnsignedInteger:OSSwapInt64(objc2Category.class)];
             InfoLog(@"category external class !=0: %016llx (%llu) num: %@", objc2Category.class, objc2Category.class, num);
-            //NSString *thing = [[NSData littleEndianHexFromInt:objc2Class.superclass] decimalString];
-            //NSString *symbolName = [self.machOFile.chainedFixups symbolNameForAddress:OSSwapInt64(objc2Class.superclass)];
-            //VerboseLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
-            //CDOCClass *sc = [self loadClassAtAddress:OSSwapInt64(objc2Class.superclass)];
-            //VerboseLog(@"super class: %@", sc);
-            //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
             externalClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Category.class)];
-            /*
-             CDOCClass *aClass = [self classWithAddress:objc2Category.class];
-             category.classRef = [[CDOCClassReference alloc] initWithClassObject:aClass];
-             */
         }
         
         if (externalClassName != nil) {
@@ -254,8 +231,7 @@
     return category;
 }
 
-- (CDOCClass *)loadClassAtAddress:(uint64_t)address;
-{
+- (CDOCClass *)loadClassAtAddress:(uint64_t)address; {
     if (address == 0)
         return nil;
     
@@ -293,11 +269,7 @@
     VerboseLog(@"data: %016llx r1: %016llx r2: %016llx r3: %016llx", objc2Class.data, objc2Class.reserved1, objc2Class.reserved2, objc2Class.reserved3);
     
     NSParameterAssert(objc2Class.data != 0);
-    if (self.machOFile.chainedFixups){
-        [cursor setAddress:objc2Class.data];
-    } else {
-        [cursor setAddress:objc2Class.data];
-    }
+    [cursor setAddress:objc2Class.data];
     struct cd_objc2_class_ro_t objc2ClassData;
     objc2ClassData.flags         = [cursor readInt32];
     objc2ClassData.instanceStart = [cursor readInt32];
@@ -350,49 +322,35 @@
     
     InfoLog(@"\nLoading ivars...\n");
     aClass.instanceVariables = [self loadIvarsAtAddress:ivarsAddress];
+    CDSymbol *classSymbol = [[self.machOFile symbolTable] symbolForClassName:str];
     
-    {
-        CDSymbol *classSymbol = [[self.machOFile symbolTable] symbolForClassName:str];
-        
-        if (classSymbol != nil)
-            aClass.isExported = [classSymbol isExternal];
-    }
-    if (aClass.isExported) {
-        InfoLog(@"class %@ is exported, looking up symbol in TRIE if avail", aClass);
-    }
-    {
-        uint64_t classNameAddress = address + [self.machOFile ptrSize];
-        
-        NSString *superClassName = nil;
-        if ([self.machOFile hasRelocationEntryForAddress2:classNameAddress]) {
-            superClassName = [self.machOFile externalClassNameForAddress2:classNameAddress];
-            if (superClassName){
-                InfoLog(@"class: got external class name (2): %@", superClassName);
-                //aClass.superClassName = superClassName;
-            }
-        } else if ([self.machOFile hasRelocationEntryForAddress:classNameAddress]) {
-            superClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
-            InfoLog(@"class: got external class name (1): %@", [aClass superClassName]);
-        } else if (objc2Class.superclass != 0) {
-            NSNumber *num = [NSNumber numberWithUnsignedInteger:OSSwapInt64(objc2Class.superclass)];
-            InfoLog(@"superclass !=0: %016llx (%llu) num: %@", objc2Class.superclass, objc2Class.superclass, num);
-            //NSString *thing = [[NSData littleEndianHexFromInt:objc2Class.superclass] decimalString];
-            //NSString *symbolName = [self.machOFile.chainedFixups symbolNameForAddress:OSSwapInt64(objc2Class.superclass)];
-            //VerboseLog(@"symbol name: %@ thing: %llu string: %@", symbolName, [thing longLongValue], thing);
-            //CDOCClass *sc = [self loadClassAtAddress:OSSwapInt64(objc2Class.superclass)];
-            //VerboseLog(@"super class: %@", sc);
-            //aClass.superClassRef = [[CDOCClassReference alloc] initWithClassObject:sc];
-            superClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Class.superclass)];
+    if (classSymbol != nil)
+        aClass.isExported = [classSymbol isExternal];
+    uint64_t classNameAddress = address + [self.machOFile ptrSize];
+    
+    NSString *superClassName = nil;
+    if ([self.machOFile hasRelocationEntryForAddress2:classNameAddress]) {
+        superClassName = [self.machOFile externalClassNameForAddress2:classNameAddress];
+        if (superClassName){
+            InfoLog(@"class: got external class name (2): %@", superClassName);
+            //aClass.superClassName = superClassName;
         }
-        
-        if (superClassName) {
-            InfoLog(@"super class name: %@", superClassName);
-            CDSymbol *superClassSymbol = [[self.machOFile symbolTable] symbolForExternalClassName:superClassName];
-            if (superClassSymbol)
-                aClass.superClassRef = [[CDOCClassReference alloc] initWithClassSymbol:superClassSymbol];
-            else
-                aClass.superClassRef = [[CDOCClassReference alloc] initWithClassName:superClassName];
-        }
+    } else if ([self.machOFile hasRelocationEntryForAddress:classNameAddress]) {
+        superClassName = [self.machOFile externalClassNameForAddress:classNameAddress];
+        InfoLog(@"class: got external class name (1): %@", [aClass superClassName]);
+    } else if (objc2Class.superclass != 0) {
+        NSNumber *num = [NSNumber numberWithUnsignedInteger:OSSwapInt64(objc2Class.superclass)];
+        InfoLog(@"superclass !=0: %016llx (%llu) num: %@", objc2Class.superclass, objc2Class.superclass, num);
+        superClassName = [self.machOFile.chainedFixups externalClassNameForAddress:OSSwapInt64(objc2Class.superclass)];
+    }
+    
+    if (superClassName) {
+        InfoLog(@"super class name: %@", superClassName);
+        CDSymbol *superClassSymbol = [[self.machOFile symbolTable] symbolForExternalClassName:superClassName];
+        if (superClassSymbol)
+            aClass.superClassRef = [[CDOCClassReference alloc] initWithClassSymbol:superClassSymbol];
+        else
+            aClass.superClassRef = [[CDOCClassReference alloc] initWithClassName:superClassName];
     }
     
     InfoLog(@"\nLoading metaclass methods...\n");
@@ -415,8 +373,7 @@
     return aClass;
 }
 
-- (NSArray *)loadPropertiesAtAddress:(uint64_t)address;
-{
+- (NSArray *)loadPropertiesAtAddress:(uint64_t)address; {
     ILOG_CMD;
     NSMutableArray *properties = [NSMutableArray array];
     if (address != 0) {
@@ -447,8 +404,7 @@
 }
 
 // This just gets the methods.
-- (NSArray *)loadMethodsOfMetaClassAtAddress:(uint64_t)address;
-{
+- (NSArray *)loadMethodsOfMetaClassAtAddress:(uint64_t)address; {
     if (address == 0)
         return nil;
     InfoLog(@"\n%s, address=%016llx\n", _cmds, address);
@@ -490,13 +446,11 @@
     return [self loadMethodsAtAddress:objc2ClassData.baseMethods];
 }
 
-- (NSArray *)loadMethodsAtAddress:(uint64_t)address;
-{
+- (NSArray *)loadMethodsAtAddress:(uint64_t)address; {
     return [self loadMethodsAtAddress:address extendedMethodTypesCursor:nil];
 }
 
-- (NSArray *)loadMethodsAtAddress:(uint64_t)address extendedMethodTypesCursor:(CDMachOFileDataCursor *)extendedMethodTypesCursor;
-{
+- (NSArray *)loadMethodsAtAddress:(uint64_t)address extendedMethodTypesCursor:(CDMachOFileDataCursor *)extendedMethodTypesCursor; {
     NSMutableArray *methods = [NSMutableArray array];
     
     if (address != 0) {
@@ -528,17 +482,18 @@
                 uint64_t name = baseAddress + (int64_t)(int32_t) [cursor readInt32];
                 uint64_t types = baseAddress + 4 + (int64_t)(int32_t) [cursor readInt32];
                 uint64_t imp = baseAddress + 8 + (int64_t)(int32_t) [cursor readInt32];
-                if(self.machOFile.chainedFixups){
+                if(self.machOFile.chainedFixups) {
                     uint64_t basedName = [self.machOFile.chainedFixups rebaseTargetFromAddress:name adjustment:0];
                     if (basedName != 0) {
                         OILog(@"basedName", basedName);
                         name = basedName;
-                    } else { //not in fixups, try discarding 'extra' data
+                    } else { //not in fixups, try discarding 'extra' data and using the uint32_t version of the address. some macho / entsize weirdness
                         OILog(@"\nProblem finding address", name);
                         uint32_t top = name >> 32;
                         uint32_t bottom = name & 0xffffffff;
                         OILog(@"top", top);
                         OILog(@"bottom", bottom);
+                        // take this new raw 32 bit value and add our load address
                         name = bottom + self.machOFile.preferredLoadAddress;
                         OILog(@"new value", name);
                         OILog(@"peek",[cursor peekPtr]);
@@ -574,8 +529,7 @@
     return [methods reversedArray];
 }
 
-- (NSArray *)loadIvarsAtAddress:(uint64_t)address;
-{
+- (NSArray *)loadIvarsAtAddress:(uint64_t)address; {
     NSMutableArray *ivars = [NSMutableArray array];
     
     if (address != 0) {
@@ -623,8 +577,7 @@
 }
 
 // Returns list of NSNumber containing the protocol addresses
-- (NSArray *)protocolAddressListAtAddress:(uint64_t)address;
-{
+- (NSArray *)protocolAddressListAtAddress:(uint64_t)address; {
     NSMutableArray *addresses = [[NSMutableArray alloc] init];;
     
     if (address != 0) {
@@ -636,7 +589,7 @@
             InfoLog(@"cursor: %@", cursor);
         }
         uint64_t count = [cursor readPtr];
-        OILog(@"count", count);
+        OILog(@"protocol count", count);
         if (count == 0) {
             InfoLog(@"didnt find the address, try lookup");
             count = [self.machOFile.chainedFixups rebaseTargetFromAddress:address adjustment:0];
@@ -671,8 +624,7 @@
     return [addresses copy];
 }
 
-- (CDSection *)objcImageInfoSection;
-{
+- (CDSection *)objcImageInfoSection; {
     return [[self.machOFile dataConstSegment] sectionWithName:@"__objc_imageinfo"];
 }
 
