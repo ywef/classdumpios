@@ -3,7 +3,16 @@
 //  This file is part of class-dump, a utility for examining the Objective-C segment of Mach-O files.
 //  Copyright (C) 1997-2019 Steve Nygard.
 
+#include <mach-o/arch.h>
 #import "CDFile.h" // For CDArch
+#import "CDFindMethodVisitor.h"
+#import "CDClassDumpVisitor.h"
+#import "CDMultiFileVisitor.h"
+#import "CDFile.h"
+#import "CDMachOFile.h"
+#import "CDFatFile.h"
+#import "CDFatArch.h"
+#import "CDSearchPathState.h"
 
 #define CLASS_DUMP_BASE_VERSION "4.2.0 (64 bit)"
 

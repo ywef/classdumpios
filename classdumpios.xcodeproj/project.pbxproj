@@ -476,7 +476,7 @@
 			path = Visitors;
 			sourceTree = "<group>";
 		};
-		3266E8F22870FB2B004D730F /* Load Commands */ = {
+		3266E8F22870FB2B004D730F /* LoadCommands */ = {
 			isa = PBXGroup;
 			children = (
 				4C952D212837E18500BFE504 /* CDLCBuildVersion.h */,
@@ -540,7 +540,7 @@
 				4C952D6B2837E18500BFE504 /* CDLoadCommand.h */,
 				4C952D2C2837E18500BFE504 /* CDLoadCommand.m */,
 			);
-			path = "Load Commands";
+			path = LoadCommands;
 			sourceTree = "<group>";
 		};
 		3266E8F32870FBA6004D730F /* Cursors */ = {
@@ -554,7 +554,7 @@
 			path = Cursors;
 			sourceTree = "<group>";
 		};
-		3266E8F62870FBB9004D730F /* File Management */ = {
+		3266E8F62870FBB9004D730F /* FileManagement */ = {
 			isa = PBXGroup;
 			children = (
 				4C952D402837E18500BFE504 /* CDFatArch.h */,
@@ -566,7 +566,7 @@
 				4C952D482837E18500BFE504 /* CDMachOFile.h */,
 				4C952DA42837E18500BFE504 /* CDMachOFile.m */,
 			);
-			path = "File Management";
+			path = FileManagement;
 			sourceTree = "<group>";
 		};
 		3266E8F92870FBE7004D730F /* ObjC */ = {
@@ -731,8 +731,8 @@
 				4C0F406D286F743400C2E934 /* Core */,
 				3266E8F32870FBA6004D730F /* Cursors */,
 				4C0F406C286F741200C2E934 /* Extensions */,
-				3266E8F62870FBB9004D730F /* File Management */,
-				3266E8F22870FB2B004D730F /* Load Commands */,
+				3266E8F62870FBB9004D730F /* FileManagement */,
+				3266E8F22870FB2B004D730F /* LoadCommands */,
 				3266E8F92870FBE7004D730F /* ObjC */,
 				3266E8FA2870FC0F004D730F /* OC */,
 				4C01BD27288216F8007DEA0F /* Structure */,

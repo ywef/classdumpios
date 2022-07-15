@@ -7,7 +7,7 @@
 
 #import "CDMachOFile.h"
 #import "CDSection.h"
-
+#include <mach-o/arch.h>
 #include <CommonCrypto/CommonCrypto.h>
 #include "blowfish.h"
 
