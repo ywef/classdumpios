@@ -277,8 +277,6 @@
         }
     }
     
-    InfoLog(@"%s 280", _cmds);
-    
     for (CDOCMethod *method in other.optionalInstanceMethods) {
         CDOCMethod *m2 = optionalInstanceMethodsByName[method.name];
         if (m2 == nil && method.name != nil) {
@@ -295,7 +293,6 @@
             }
         }
     }
-    InfoLog(@"%s 298", _cmds);
     // Class methods
     for (CDOCMethod *method in other.classMethods) {
         CDOCMethod *m2 = classMethodsByName[method.name];
@@ -307,8 +304,6 @@
             }
         }
     }
-    
-    InfoLog(@"%s 311", _cmds);
     
     for (CDOCMethod *method in other.optionalClassMethods) {
         CDOCMethod *m2 = optionalClassMethodsByName[method.name];
