@@ -584,7 +584,7 @@
         }
         uint64_t count = [cursor readPtr];
         OILog(@"protocol count", count);
-        if (count == 0) {
+        if (count == 0 && self.machOFile.chainedFixups) {
             InfoLog(@"didnt find the address, try lookup");
             count = [self.machOFile.chainedFixups rebaseTargetFromAddress:address];
             if (count == 0){

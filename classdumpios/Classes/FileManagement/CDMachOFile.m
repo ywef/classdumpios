@@ -322,6 +322,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
  */
 
 - (uint64_t)fixupBasedAddress:(uint64_t)address {
+    if (!self.chainedFixups) return address;
     uint32_t top = address >> 32;
     uint32_t bottom = address & 0xffffffff;
     OILog(@"top", top);
@@ -339,7 +340,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
         return nil;
 
     CDLCSegment *segment = [self segmentContainingAddress:address];
-    if (segment == nil) { //check for chain fixup rebase
+    if (segment == nil && self.chainedFixups) { //check for chain fixup rebase
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address];
         if (based != 0){
             if ([CDClassDump isVerbose]){
@@ -394,7 +395,7 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
     
     InfoLog(@"%s: 0x%08lx (%llu)", _cmds, address, address);
     CDLCSegment *segment = [self segmentContainingAddress:address];
-    if (segment == nil) {
+    if (segment == nil && self.chainedFixups) {
         InfoLog(@"%s nil segment", _cmds);
         uint64_t based = [self.chainedFixups rebaseTargetFromAddress:address];
         if (based != 0){
