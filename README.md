@@ -12,8 +12,6 @@ who made his as an iOS port from [nygard/class-dump](https://github.com/nygard/c
 In iOS 13 Apple introduced some new load commands into dyld (specifically `LC_DYLD_CHAINED_FIXUPS` and `LC_DYLD_EXPORTS_TRIE`) But didn't start widely using them
 until iOS 15, once binaries are built with `-fixup_chains` any class-dump projects that relied on the old methodolgy would no longer work. [This writeup and related code](https://github.com/qyang-nj/llios/blob/main/dynamic_linking/chained_fixups.md) was instrumental in me understanding how to implement this newer methodology.
 
-I used the macho parser as inspiration for a lot of the chained fixup code while merging it with a new load command class that was based on
-
 # Nitty gritty
 
 My only prior experience with working on class dump was the cleanup work I did in classdump-dyld, I didn't really fully understand the process or how dyld and mach-o files fundamentally worked, and in getting this project updated and working I have a much better understanding. I can't overstate how much value I found in the resources gathered at [this repo](https://github.com/qyang-nj/llios) granted the open source apple code is available elsewhere for otools (cctools) et al, it's nice to have a central place of reference. 
