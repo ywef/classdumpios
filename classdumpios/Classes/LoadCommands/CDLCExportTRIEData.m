@@ -64,8 +64,11 @@ static BOOL debugExportedSymbols = NO;
 
 - (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
 {
-    [self logExportedSymbols];
-    InfoLog(@"_symbolData: %@", _symbolData);
+    if ([CDClassDump isVerbose]){
+        [self logExportedSymbols];
+        InfoLog(@"_symbolData: %@", _symbolData);
+    }
+    
 }
 
 - (void)logExportedSymbols;
