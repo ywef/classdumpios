@@ -89,14 +89,14 @@ static BOOL debugExportedSymbols = NO;
 
 - (void)printSymbols:(const uint8_t *)start end:(const uint8_t *)end prefix:(NSString *)prefix offset:(uint64_t)offset;
 {
-    //VerboseLog(@" > %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
+    VerboseLog(@" > %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
 
     const uint8_t *ptr = start + offset;
     NSParameterAssert(ptr < end);
 
     uint8_t terminalSize = *ptr++;
     const uint8_t *tptr = ptr;
-    //VerboseLog(@"terminalSize: %u", terminalSize);
+    VerboseLog(@"terminalSize: %u", terminalSize);
 
     ptr += terminalSize;
 
@@ -128,15 +128,15 @@ static BOOL debugExportedSymbols = NO;
         while (*ptr++ != 0)
             ;
 
-        //NSUInteger length = ptr - edgeStart;
-        //VerboseLog(@"edge length: %u, edge: '%s'", length, edgeStart);
+        NSUInteger length = ptr - edgeStart;
+        VerboseLog(@"edge length: %u, edge: '%s'", length, edgeStart);
         uint64_t nodeOffset = read_uleb128(&ptr, end);
-        //VerboseLog(@"node offset: %lx", nodeOffset);
+        VerboseLog(@"node offset: %lx", nodeOffset);
 
         [self printSymbols:start end:end prefix:[NSString stringWithFormat:@"%@%s", prefix, edgeStart] offset:nodeOffset];
     }
 
-    //VerboseLog(@"<  %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
+    VerboseLog(@"<  %s, %p-%p, offset: %lx = %p", _cmds, start, end, offset, start + offset);
 }
 
 - (uint64_t)getExportedSymbolLocation:(NSString *)symbol {

@@ -100,12 +100,15 @@ static NSString *CDBindTypeDescription(uint8_t type)
 
 - (void)machOFileDidReadLoadCommands:(CDMachOFile *)machOFile;
 {
-    
-    [self logRebaseInfo];
+    if ([CDClassDump isVerbose]) {
+        [self logRebaseInfo];
+    }
     [self parseBindInfo];
     [self parseWeakBindInfo];
-    [self logLazyBindInfo];
-    [self logExportedSymbols];
+    if ([CDClassDump isVerbose]) {
+        [self logLazyBindInfo];
+        [self logExportedSymbols];
+    }
     
     VerboseLog(@"symbolNamesByAddress: %@", _symbolNamesByAddress);
 }
