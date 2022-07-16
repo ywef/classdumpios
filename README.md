@@ -18,7 +18,11 @@ My only prior experience with working on class dump was the cleanup work I did i
 
 I used`CDLCDyldInfo` as a template for the `CDLCChainedFixups` that does most of the heavy lifting for the newer process. It walks the fixup chains and stores the binds and the rebases in two separate dictionaries, which are subsequently referenced as applicable. The biggest 'gotchas' of this process were the need byte swap and/or bitshift in random circumstances for inexplicable reasons. The samples I modified from llios's macho-parser section (included in this repo in the `samples` folder) were instrumental in figuring this process out. Using some of the undocumented flags I added (-v,-d,-F,-z,-x etc..) On these sample files can give a better understanding on what im talking about, and the journey to figure all of this stuff out. The other big piece of the puzzle was making the adjustments for the differing `DYLD_CHAINED_PTR_64_OFFSET` vs `DYLD_CHAINED_PTR_64` pointer_format's when rebinding & rebasing.
 
-More later...
+# otool epiphany
+
+While researching the new `LC_DYLD_CHAINED_FIXUPS` based world I was experimenting with `otool` output on the provided 'sample' files to see what kind of output I would get from the commands based around dumping the obj-c portions of the file and I noticed something curious when dumping iOS binaries.
+
+![macos](https://github.com/lechium/classdumpios/blob/macos/Research/macos.png?raw=true) ![ios](https://github.com/lechium/classdumpios/blob/macos/Research/ios.png?raw=true)
 
 Special thanks to: 
 
