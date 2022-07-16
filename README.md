@@ -18,6 +18,6 @@ Special thanks to:
 - [Qing Yang](https://github.com/qyang-nj) For his [llios](https://github.com/qyang-nj/llios/) repo and related writeups
 - [Noah Martin](https://www.emergetools.com/blog/posts/iOS15LaunchTime) For the linked writeup on `LC_DYLD_CHAINED_FIXUPS`
 
-**NOTE: For a little while I kept the master and macOS branches in sync, but they have since fallen way out of sync, once I finish tidying this up I'll pull them back in sync so the iOS version will have parity with the macOS version.**
+**NOTE: The master branch is now obsolete, the macos branch works on both mobile OSes and macOS**
 
 

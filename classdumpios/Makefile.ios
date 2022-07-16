@@ -1,12 +1,12 @@
 GO_EASY_ON_ME=1
 THEOS_DEVICE_IP=guest-room.local
-DEBUG=0
+DEBUG=1
 #FINALPACKAGE=0
 #ARCH=arm64
 #export ARCH=arm64
 ARCHS=arm64
 
-target = appletv
+target = iphone
 include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = classdumpios
@@ -19,5 +19,4 @@ classdumpios_FILES += $(wildcard Classes/Extras/*.m) $(wildcard Classes/FileMana
 classdumpios_FILES += $(wildcard Classes/OC/*.m) $(wildcard Classes/LoadCommands/*.m)
 classdumpios_FILES += $(wildcard Classes/ObjC/*.m) $(wildcard Classes/Structure/*.m)
 classdumpios_FILES += $(wildcard Classes/Type/*.m) $(wildcard Classes/Visitors/*.m)
-classdumpios_CODESIGN_FLAGS=-Sent.plist
 include $(THEOS_MAKE_PATH)/tool.mk
