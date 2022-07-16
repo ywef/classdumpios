@@ -2,8 +2,8 @@ GO_EASY_ON_ME=1
 THEOS_DEVICE_IP=guest-room.local
 DEBUG=1
 #FINALPACKAGE=0
-ARCH=arm64
-export ARCH=arm64
+#ARCH=arm64
+#export ARCH=arm64
 ARCHS=arm64
 
 target = iphone
