@@ -29,6 +29,10 @@ Special thanks to:
 - [Noah Martin](https://www.emergetools.com/blog/posts/iOS15LaunchTime) For the linked writeup on `LC_DYLD_CHAINED_FIXUPS`
 - [blacktop](https://github.com/blacktop) All that awesome golang code in ipsw and related work, helped me get a better understanding of fixup chains.
 
+Additional Reading:
+
+- [MACHO-O LIBRE](https://www.first.org/resources/papers/conf2016/FIRST-2016-130.pdf)
+
 **NOTE: The master branch is now obsolete, the macos branch works on both mobile OSes and macOS**
 
 
