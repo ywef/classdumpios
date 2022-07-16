@@ -29,25 +29,6 @@ While researching the new `LC_DYLD_CHAINED_FIXUPS` based world I was experimenti
 ![ios](https://github.com/lechium/classdumpios/blob/macos/Research/ios.png?raw=true)
 
 Notice anything different? In the iOS section, even otool has trouble resolving the symbols i.e. `0x4790 (0x10000c460 extends past end of file)`
- 
-`        flags          0x0
-        instanceStart  8
-        instanceSize   8
-        reserved       0x0
-        ivarLayout     0x0
-        name           0x100007ebd SimpleClass
-        baseMethods    0x100007cc8 __OBJC_$_INSTANCE_METHODS_SimpleClass
-            entsize 12 (relative)
-            count   3
-            name    0x4790 (0x10000c460 extends past end of file)
-            types   0x235 (0x100007f09 extends past end of file)
-            imp     0xfffffe94 (0x100007b6c extends past end of file)
-            name    0x476c (0x10000c448 extends past end of file)
-            types   0x20e (0x100007eee extends past end of file)
-            imp     0xfffffefc (0x100007be0 extends past end of file)
-            name    0x4780 (0x10000c468 extends past end of file)
-            types   0x202 (0x100007eee extends past end of file)
-            imp     0xffffff1c (0x100007c0c extends past end of file)`
             
 I also noticed the 'rebased' addresses typically were identical with the upper bits being 'discarded'. ie `0x10000100007cc8` would become `0x100007CC8` So I thought, when I run into these scenarios where the offset would `extend past end of file` I would discard the upper bits and then re-add the `preferredLoadAddress` in an attempt to rectify this problem. Low and behold files that had failed to dump before would finally resolve missing symbols and stop crashing and burning, huzzah!
 
