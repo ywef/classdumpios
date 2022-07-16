@@ -22,8 +22,14 @@
         
         if (_loadCommand.cmdsize > 8) {
             NSMutableData *commandData = [[NSMutableData alloc] init];
-            [cursor appendBytesOfLength:_loadCommand.cmdsize - 8 intoData:commandData];
-            _commandData = [commandData copy];
+            @try {
+                [cursor appendBytesOfLength:_loadCommand.cmdsize - 8 intoData:commandData];
+                _commandData = [commandData copy];
+            } @catch (NSException *exception) {
+                DLog(@"exception caught: %@", exception);
+                commandData = nil;
+            }
+            
         } else {
             _commandData = nil;
         }
