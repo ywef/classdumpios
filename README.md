@@ -4,7 +4,7 @@ class-dump-c
 # Background
 
 This project is an amalgam of a few different versions of classdump. Initially based on a version by [DreamDevLost](https://github.com/DreamDevLost/classdumpios)
-who made his as an iOS port from [nygard/class-dump](https://github.com/nygard/class-dump). From there I have manually merged in bits and pieces from various PR's against the original 
+made as an iOS port from [nygard/class-dump](https://github.com/nygard/class-dump). From there I have manually merged in bits and pieces from various PR's against the original 
 [ie #78](https://github.com/nygard/class-dump/pull/78) and then made a working macOS version again.
 
 # Chained Fixups
@@ -34,6 +34,8 @@ I also noticed the 'rebased' addresses typically were identical with the upper b
 
 I apologize if any of my lingo isn't stated properly, this kind of bit/byte shifting chicanery has never been my strong suit, explaining this as best I can.
 
+# Special Thanks:
+
 - [Steve Nygard](https://github.com/nygard/) for the original class-dump
 - [DreamDevLost](https://github.com/DreamDevLost/classdumpios) for his iOS port
 - [Derek Selander](https://github.com/DerekSelander) for this amazing [writeup](https://derekselander.github.io/dsdump/)
@@ -41,7 +43,7 @@ I apologize if any of my lingo isn't stated properly, this kind of bit/byte shif
 - [Noah Martin](https://www.emergetools.com/blog/posts/iOS15LaunchTime) For the linked writeup on `LC_DYLD_CHAINED_FIXUPS`
 - [blacktop](https://github.com/blacktop) All that awesome golang code in ipsw and related work, helped me get a better understanding of fixup chains.
 
-Additional Reading:
+# Additional Reading:
 
 - [MACHO-O LIBRE](https://www.first.org/resources/papers/conf2016/FIRST-2016-130.pdf)
 
