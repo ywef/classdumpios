@@ -32,4 +32,5 @@
 + (id)sharedInstance;
 - (NSInteger)performClassDumpOnFile:(NSString *)file toFolder:(NSString *)outputPath;
 - (CDClassDump *)classDumpInstanceFromFile:(NSString *)file;
+- (NSDictionary *)getFileEntitlements:(NSString *)file;
 @end

@@ -6,6 +6,7 @@
 //
 
 #import "classdump.h"
+#import "CDClassDump.h"
 
 @implementation classdump
 
@@ -60,6 +61,15 @@
         return classDump;
     }
     return nil;
+}
+
+- (NSDictionary *)getFileEntitlements:(NSString *)file {
+    CDClassDump *classDump = [self classDumpInstanceFromFile:file];
+    if (!classDump){
+        DLog(@"couldnt create class dump instance for file: %@", file);
+        return nil;
+    }
+    return [[[classDump machOFiles] firstObject] entitlementsDictionary];
 }
 
 - (NSInteger)performClassDumpOnFile:(NSString *)file toFolder:(NSString *)outputPath {

@@ -42,6 +42,7 @@ void print_usage(void)
             "        -s             sort classes and categories by name\n"
             "        -S             sort methods by name\n"
             "        -t             suppress header in output, for testing\n"
+            "        -e             dump the entitlements\n"
             "        --list-arches  list the arches in the file, then exit\n"
             "        --sdk-ios      specify iOS SDK version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk\n"
             "                       or /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk)\n"
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
         CDArch targetArch;
         BOOL hasSpecifiedArch = NO;
         BOOL suppressAllHeaderOutput = NO;
+        BOOL dumpEnt = NO; //whether or not to dump entitlements
         BOOL shallow = NO; //whether to skip protocols and categories, for testing
         NSString *outputPath;
         NSMutableSet *hiddenSections = [NSMutableSet set];
@@ -97,6 +99,7 @@ int main(int argc, char *argv[])
             { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
             { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
             { "hide",                    required_argument, NULL, CD_OPT_HIDE },
+            { "entitlements",            no_argument,       NULL, 'e' },
             { "debug",                   no_argument,       NULL, 'd'},
             { "verbose",                 no_argument,       NULL, 'v'},
             { "fixups",                  no_argument,       NULL, 'F'},
@@ -118,7 +121,7 @@ int main(int argc, char *argv[])
 #endif
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFxdzh", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsStvFxdzhe", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -186,6 +189,12 @@ int main(int argc, char *argv[])
                     }
                     break;
                 }
+                    
+                case 'e':
+                    dumpEnt = true;
+                    classDump.dumpEntitlements = true;
+                    break;
+                    
                 case 'h':
                     shallow = true;
                     classDump.shallow = true;
@@ -347,6 +356,12 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "Error: %s\n", [[error localizedFailureReason] UTF8String]);
                     exit(1);
                 } else {
+                    if (dumpEnt) {
+                        NSString *ent = [[classDump.machOFiles firstObject] entitlements];
+                        DLog(@"%@", ent);
+                        exit(0);
+                        //NSString *ent = [classDump.machOFiles]
+                    }
                     [classDump processObjectiveCData];
                     [classDump registerTypes];
                     

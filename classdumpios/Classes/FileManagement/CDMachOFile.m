@@ -389,6 +389,20 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
     return returnString;
 }
 
+- (NSString *)entitlements {
+    CDSection *section = [[self segmentWithName:@"__TEXT"] sectionWithName:@"__entitlements"];
+    if (!section){
+        return nil;
+    }
+    NSData *data = [section data];
+    NSString *stringData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    return stringData;
+}
+
+- (NSDictionary *)entitlementsDictionary {
+    return [[self entitlements] dictionaryRepresentation];
+}
+
 - (NSUInteger)dataOffsetForAddress:(NSUInteger)address; {
     if (address == 0)
         return 0;

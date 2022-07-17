@@ -176,6 +176,10 @@
     [self processStoppingEarly:false];
 }
 
+- (void)checkEntitlements {
+    
+}
+
 - (void)loadProtocols;
 {
     // Implement in subclasses.

@@ -41,6 +41,7 @@
 @property (assign) BOOL verbose;
 @property (assign) BOOL stopAfterPreProcessor;
 @property (assign) BOOL shallow;
+@property (assign) BOOL dumpEntitlements;
 
 @property (strong) NSRegularExpression *regularExpression;
 - (BOOL)shouldShowName:(NSString *)name;
