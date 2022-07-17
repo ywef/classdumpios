@@ -28,9 +28,9 @@ While researching the new `LC_DYLD_CHAINED_FIXUPS` based world I was experimenti
 ## iOS
 ![ios](https://github.com/lechium/classdumpios/blob/macos/Research/ios.png?raw=true)
 
-Notice anything different? In the iOS section, even otool has trouble resolving the symbols i.e. `0x4790 (0x10000c460 extends past end of file)`
+Notice anything different? In the iOS section, even otool has trouble resolving the symbols i.e. `0x4790 (0x10000c460 extends past end of file)` Maybe because of entsize differences? (24 v 12)
             
-I also noticed the 'rebased' addresses typically were identical with the upper bits being 'discarded'. ie `0x10000100007cc8` would become `0x100007CC8` So I thought, when I run into these scenarios where the offset would `extend past end of file` I would discard the upper bits and then re-add the `preferredLoadAddress` in an attempt to rectify this problem. Low and behold files that had failed to dump before would finally resolve missing symbols and stop crashing and burning, huzzah!
+I also noticed the 'rebased' addresses typically were identical with the upper bits being 'discarded'. ie `0x10000100007cc8` would become `0x100007CC8` So I thought, when I run into these scenarios where the offset would `extend past end of file` I would discard the upper bits and then re-add the `preferredLoadAddress` in an attempt to rectify this problem (preferredLoadAddress is re-added as an implementation detail to keep things working the same as the pre chained fixup workflow) Low and behold files that had failed to dump before would finally resolve missing symbols and stop crashing and burning, huzzah!
 
 I apologize if any of my lingo isn't stated properly, this kind of bit/byte shifting chicanery has never been my strong suit, explaining this as best I can.
 
