@@ -1,6 +1,10 @@
 class-dump-c
 ==========
 
+# Building
+
+There are 5 different targets in this Xcode project, the macOS bin & library, an iOS library & bin and a tvOS bin. Choose the respective target and build all of them through Xcode, OR build all the targets using the bundled build scripts for Debug and Release respectively.
+
 # Background
 
 This project is an amalgam of a few different versions of classdump. Initially based on a version by [DreamDevLost](https://github.com/DreamDevLost/classdumpios)
@@ -33,6 +37,10 @@ Notice anything different? In the iOS section, even otool has trouble resolving 
 I also noticed the 'rebased' addresses typically were identical with the upper bits being 'discarded'. ie `0x10000100007cc8` would become `0x100007CC8` So I thought, when I run into these scenarios where the offset would `extend past end of file` I would discard the upper bits and then re-add the `preferredLoadAddress` in an attempt to rectify this problem (preferredLoadAddress is re-added as an implementation detail to keep things working the same as the pre chained fixup workflow) Low and behold files that had failed to dump before would finally resolve missing symbols and stop crashing and burning, huzzah!
 
 I apologize if any of my lingo isn't stated properly, this kind of bit/byte shifting chicanery has never been my strong suit, explaining this as best I can.
+
+# Entitlements
+
+Another thing I realized when trying to do my normal course of header dump repos, was the usual tools (ldid, jtool) I use to dump entitlements from binaries was they were all coming up empty on *OS 15 and *OS 16 binaries. At first to rectify this I used a hacky bruteforce route by tresting the files as pure text files and used NSScanner's to identify the app entitlements. Upon further analysis I realized there is a new section in the __TEXT segment labeled __entitlements. Turns out saving that section to a file is all that is necessary to dump entitlements off of binaries, I still havent fully deciphered how they used to get dumped, so I threw my old hacky string scanning code as a fallback for the time being, and added the `-e` flag to dump entitlements as a new feature in classdump-c.
 
 # Special Thanks:
 
