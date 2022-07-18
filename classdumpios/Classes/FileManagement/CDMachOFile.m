@@ -389,10 +389,50 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
     return returnString;
 }
 
+- (NSString *)hackyEntitlements { //TODO: do this properly
+    //DLog(@"checking file: %@", self.filename);
+    if (![[NSFileManager defaultManager] fileExistsAtPath:self.filename]){
+        //DLog(@"file doesnt exist: %@", self.filename);
+        return nil;
+    }
+    NSString *fileContents = [NSString stringWithContentsOfFile:self.filename encoding:NSASCIIStringEncoding error:nil];
+    NSUInteger fileLength = [fileContents length];
+    if (fileLength == 0) {
+        fileContents = [NSString stringWithContentsOfFile:self.filename]; //if ascii doesnt work, have to use the deprecated (thankfully not obsolete!) method
+    }
+    fileLength = [fileContents length];
+    if (fileLength == 0){
+        //DLog(@"file length is 0, failed: %@", self.filename);
+        return nil;
+    }
+    NSScanner *theScanner;
+    NSString *text = nil;
+    NSString *returnText = nil;
+    theScanner = [NSScanner scannerWithString:fileContents];
+    while ([theScanner isAtEnd] == NO) {
+        [theScanner scanUpToString:@"<?xml" intoString:NULL];
+        [theScanner scanUpToString:@"</plist>" intoString:&text];
+        text = [text stringByAppendingFormat:@"</plist>"];
+        //DLog(@"text: %@", [text dictionaryRepresentation]);
+        NSDictionary *dict = [text dictionaryRepresentation];
+        if (dict && [dict allKeys].count > 0) {
+            if (![[dict allKeys] containsObject:@"CFBundleIdentifier"] && ![[dict allKeys] containsObject:@"cdhashes"]){
+                //DLog(@"got im: %@", [[inputFile lastPathComponent] stringByDeletingPathExtension]);
+                returnText = text;
+                break;
+            }
+        } else {
+            //DLog(@"no entitlements found: %@", self.filename);
+        }
+    }
+    return returnText;
+    
+}
+
 - (NSString *)entitlements {
     CDSection *section = [[self segmentWithName:@"__TEXT"] sectionWithName:@"__entitlements"];
     if (!section){
-        return nil;
+        return [self hackyEntitlements];
     }
     NSData *data = [section data];
     NSString *stringData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
