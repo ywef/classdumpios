@@ -31,6 +31,7 @@ Usage
             -s             sort classes and categories by name
             -S             sort methods by name
             -t             suppress header in output, for testing
+            -e             dump the entitlements
             --list-arches  list the arches in the file, then exit
             --sdk-ios      specify iOS SDK version (will look in /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk
             --sdk-mac      specify Mac OS X version (will look in /Developer/SDKs/MacOSX<version>.sdk
