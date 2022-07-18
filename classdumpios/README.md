@@ -1,5 +1,7 @@
-class-dump-ios
+class-dump-c
 ==========
+
+It is no longer necessary to build using Theos, there are native build targets in the Xcode project as well now.
 
 This is a port for Theos build by me.
 

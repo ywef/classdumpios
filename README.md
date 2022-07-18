@@ -5,6 +5,11 @@ class-dump-c
 
 There are 5 different targets in this Xcode project, the macOS bin & library, an iOS library & bin and a tvOS bin. Choose the respective target and build all of them through Xcode, OR build all the targets using the bundled build scripts for Debug and Release respectively.
 
+# Libraries
+
+The core functionality of classdump has also be made into a separate library for iOS and macOS, its still a bit rough around the edges but I primarily did that to use inside another application I will be open sourcing in the near future, its the app I built to make dumping newer iOS/tvOS version files into the various repos I host with private headers & entitlements. Once I clean that app up a bit and make it more user friendly it will transition from Private to Public as well.
+
+
 # Background
 
 This project is an amalgam of a few different versions of classdump. Initially based on a version by [DreamDevLost](https://github.com/DreamDevLost/classdumpios)
