@@ -609,8 +609,8 @@
 		32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCExportTRIEData.m; sourceTree = "<group>"; };
 		32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCChainedFixups.h; sourceTree = "<group>"; };
 		32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCChainedFixups.m; sourceTree = "<group>"; };
-		4BBC09EF288468F700730798 /* classdumpc-bin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "classdumpc-bin"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4BBC0A4728859ED400730798 /* classdumptvos-bin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "classdumptvos-bin"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BBC09EF288468F700730798 /* classdumpc-ios */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "classdumpc-ios"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BBC0A4728859ED400730798 /* classdumpc-tvos */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "classdumpc-tvos"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C01BD2928821ECE007DEA0F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4C01BDD3288235C5007DEA0F /* libclassdump-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libclassdump-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C0F4067286E301800C2E934 /* NSData+Flip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Flip.h"; sourceTree = "<group>"; };
@@ -1077,8 +1077,8 @@
 				4C952D0D2837E11D00BFE504 /* classdumpc */,
 				4CDA2A80286263F800566FBB /* libclassdump.a */,
 				4C01BDD3288235C5007DEA0F /* libclassdump-ios.a */,
-				4BBC09EF288468F700730798 /* classdumpc-bin */,
-				4BBC0A4728859ED400730798 /* classdumptvos-bin */,
+				4BBC09EF288468F700730798 /* classdumpc-ios */,
+				4BBC0A4728859ED400730798 /* classdumpc-tvos */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1305,38 +1305,40 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		4BBC0998288468F700730798 /* classdumpc-bin */ = {
+		4BBC0998288468F700730798 /* classdumpc-ios */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpc-bin" */;
+			buildConfigurationList = 4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpc-ios" */;
 			buildPhases = (
 				4BBC0999288468F700730798 /* Sources */,
 				4BBC09EA288468F700730798 /* Frameworks */,
 				4BBC09EB288468F700730798 /* CopyFiles */,
+				4C6161B22885CB58002C58C4 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = "classdumpc-bin";
+			name = "classdumpc-ios";
 			productName = classdumpios;
-			productReference = 4BBC09EF288468F700730798 /* classdumpc-bin */;
+			productReference = 4BBC09EF288468F700730798 /* classdumpc-ios */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		4BBC09F028859ED400730798 /* classdumptvos-bin */ = {
+		4BBC09F028859ED400730798 /* classdumpc-tvos */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4BBC0A4428859ED400730798 /* Build configuration list for PBXNativeTarget "classdumptvos-bin" */;
+			buildConfigurationList = 4BBC0A4428859ED400730798 /* Build configuration list for PBXNativeTarget "classdumpc-tvos" */;
 			buildPhases = (
 				4BBC09F128859ED400730798 /* Sources */,
 				4BBC0A4228859ED400730798 /* Frameworks */,
 				4BBC0A4328859ED400730798 /* CopyFiles */,
+				4C6161B32885CB63002C58C4 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = "classdumptvos-bin";
+			name = "classdumpc-tvos";
 			productName = classdumpios;
-			productReference = 4BBC0A4728859ED400730798 /* classdumptvos-bin */;
+			productReference = 4BBC0A4728859ED400730798 /* classdumpc-tvos */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4C01BD2A288235C5007DEA0F /* classdump-ios */ = {
@@ -1346,6 +1348,7 @@
 				4C01BD2B288235C5007DEA0F /* Headers */,
 				4C01BD7F288235C5007DEA0F /* Sources */,
 				4C01BDCF288235C5007DEA0F /* Frameworks */,
+				4C6161B12885CB4F002C58C4 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1363,6 +1366,7 @@
 				4C952D092837E11D00BFE504 /* Sources */,
 				4C952D0A2837E11D00BFE504 /* Frameworks */,
 				4C952D0B2837E11D00BFE504 /* CopyFiles */,
+				4C6161AF2885CAE0002C58C4 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1380,6 +1384,7 @@
 				4CDA2A7C286263F800566FBB /* Headers */,
 				4CDA2A7D286263F800566FBB /* Sources */,
 				4CDA2A7E286263F800566FBB /* Frameworks */,
+				4C6161B02885CB38002C58C4 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1422,11 +1427,99 @@
 				4C952D0C2837E11D00BFE504 /* classdumpc */,
 				4CDA2A7F286263F800566FBB /* classdump */,
 				4C01BD2A288235C5007DEA0F /* classdump-ios */,
-				4BBC0998288468F700730798 /* classdumpc-bin */,
-				4BBC09F028859ED400730798 /* classdumptvos-bin */,
+				4BBC0998288468F700730798 /* classdumpc-ios */,
+				4BBC09F028859ED400730798 /* classdumpc-tvos */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4C6161AF2885CAE0002C58C4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "TARGET_BUILD_BIN=\"$TARGET_BUILD_DIR\"/\"$PRODUCT_NAME\"\nBR=$(/usr/bin/printenv BUILD_ROOT)\nif [[ $BR == *\"DerivedData\"* ]]; then\n    echo \"The substring 'DerivedData' is in the full string.\"\n    echo \"BR: $BR\"\n    echo $TARGET_BUILD_BIN\n    open \"$TARGET_BUILD_DIR\"\nfi\n\n";
+		};
+		4C6161B02885CB38002C58C4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "TARGET_BUILD_BIN=\"$TARGET_BUILD_DIR\"/\"$PRODUCT_NAME\"\nBR=$(/usr/bin/printenv BUILD_ROOT)\nif [[ $BR == *\"DerivedData\"* ]]; then\n    echo \"The substring 'DerivedData' is in the full string.\"\n    echo \"BR: $BR\"\n    echo $TARGET_BUILD_BIN\n    open \"$TARGET_BUILD_DIR\"\nfi\n";
+		};
+		4C6161B12885CB4F002C58C4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "TARGET_BUILD_BIN=\"$TARGET_BUILD_DIR\"/\"$PRODUCT_NAME\"\nBR=$(/usr/bin/printenv BUILD_ROOT)\nif [[ $BR == *\"DerivedData\"* ]]; then\n    echo \"The substring 'DerivedData' is in the full string.\"\n    echo \"BR: $BR\"\n    echo $TARGET_BUILD_BIN\n    open \"$TARGET_BUILD_DIR\"\nfi\n";
+		};
+		4C6161B22885CB58002C58C4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "TARGET_BUILD_BIN=\"$TARGET_BUILD_DIR\"/\"$PRODUCT_NAME\"\nBR=$(/usr/bin/printenv BUILD_ROOT)\nif [[ $BR == *\"DerivedData\"* ]]; then\n    echo \"The substring 'DerivedData' is in the full string.\"\n    echo \"BR: $BR\"\n    echo $TARGET_BUILD_BIN\n    open \"$TARGET_BUILD_DIR\"\nfi\n";
+		};
+		4C6161B32885CB63002C58C4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "TARGET_BUILD_BIN=\"$TARGET_BUILD_DIR\"/\"$PRODUCT_NAME\"\nBR=$(/usr/bin/printenv BUILD_ROOT)\nif [[ $BR == *\"DerivedData\"* ]]; then\n    echo \"The substring 'DerivedData' is in the full string.\"\n    echo \"BR: $BR\"\n    echo $TARGET_BUILD_BIN\n    open \"$TARGET_BUILD_DIR\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4BBC0999288468F700730798 /* Sources */ = {
@@ -2145,7 +2238,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpc-bin" */ = {
+		4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpc-ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4BBC09ED288468F700730798 /* Debug */,
@@ -2154,7 +2247,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4BBC0A4428859ED400730798 /* Build configuration list for PBXNativeTarget "classdumptvos-bin" */ = {
+		4BBC0A4428859ED400730798 /* Build configuration list for PBXNativeTarget "classdumpc-tvos" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4BBC0A4528859ED400730798 /* Debug */,
