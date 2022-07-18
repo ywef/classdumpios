@@ -18,7 +18,7 @@ Usage
 -----
 
     class-dump-c 4.2.0 (64 bit)
-    Usage: classdumpios [options] <mach-o-file>
+    Usage: classdumpc [options] <mach-o-file>
 
       where options are:
             -a             show instance variable offsets

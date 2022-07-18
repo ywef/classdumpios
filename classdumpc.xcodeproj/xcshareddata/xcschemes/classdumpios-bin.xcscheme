@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4BBC09F028859ED400730798"
-               BuildableName = "classdumptvos-bi"
-               BlueprintName = "classdumptvos-bin"
-               ReferencedContainer = "container:classdumpios.xcodeproj">
+               BlueprintIdentifier = "4BBC0998288468F700730798"
+               BuildableName = "classdumpc-bin"
+               BlueprintName = "classdumpc-bin"
+               ReferencedContainer = "container:classdumpc.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -50,10 +50,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4BBC09F028859ED400730798"
-            BuildableName = "classdumptvos-bi"
-            BlueprintName = "classdumptvos-bin"
-            ReferencedContainer = "container:classdumpios.xcodeproj">
+            BlueprintIdentifier = "4BBC0998288468F700730798"
+            BuildableName = "classdumpc-bin"
+            BlueprintName = "classdumpc-bin"
+            ReferencedContainer = "container:classdumpc.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

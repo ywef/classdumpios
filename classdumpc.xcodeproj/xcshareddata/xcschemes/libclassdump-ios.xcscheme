@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4BBC0998288468F700730798"
-               BuildableName = "classdumpios-test"
-               BlueprintName = "classdumpios-bin"
-               ReferencedContainer = "container:classdumpios.xcodeproj">
+               BlueprintIdentifier = "4C01BD2A288235C5007DEA0F"
+               BuildableName = "libclassdump-ios.a"
+               BlueprintName = "classdump-ios"
+               ReferencedContainer = "container:classdumpc.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -50,10 +50,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4BBC0998288468F700730798"
-            BuildableName = "classdumpios-test"
-            BlueprintName = "classdumpios-bin"
-            ReferencedContainer = "container:classdumpios.xcodeproj">
+            BlueprintIdentifier = "4C01BD2A288235C5007DEA0F"
+            BuildableName = "libclassdump-ios.a"
+            BlueprintName = "classdump-ios"
+            ReferencedContainer = "container:classdumpc.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

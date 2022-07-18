@@ -398,7 +398,10 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
     NSString *fileContents = [NSString stringWithContentsOfFile:self.filename encoding:NSASCIIStringEncoding error:nil];
     NSUInteger fileLength = [fileContents length];
     if (fileLength == 0) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         fileContents = [NSString stringWithContentsOfFile:self.filename]; //if ascii doesnt work, have to use the deprecated (thankfully not obsolete!) method
+#pragma clang diagnostic pop
     }
     fileLength = [fileContents length];
     if (fileLength == 0){

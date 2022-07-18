@@ -26,8 +26,8 @@
 void print_usage(void)
 {
     fprintf(stderr,
-            "class-dump-ios %s\n"
-            "Usage: classdumpios [options] <mach-o-file>\n"
+            "class-dump-c %s\n"
+            "Usage: classdumpc [options] <mach-o-file>\n"
             "\n"
             "  where options are:\n"
             "        -a             show instance variable offsets\n"

@@ -609,13 +609,13 @@
 		32B1AACB2869458200CDFF07 /* CDLCExportTRIEData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCExportTRIEData.m; sourceTree = "<group>"; };
 		32B1AB10286966C000CDFF07 /* CDLCChainedFixups.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDLCChainedFixups.h; sourceTree = "<group>"; };
 		32B1AB11286966C000CDFF07 /* CDLCChainedFixups.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CDLCChainedFixups.m; sourceTree = "<group>"; };
-		4BBC09EF288468F700730798 /* classdumpios-bin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "classdumpios-bin"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BBC09EF288468F700730798 /* classdumpc-bin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "classdumpc-bin"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BBC0A4728859ED400730798 /* classdumptvos-bin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "classdumptvos-bin"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C01BD2928821ECE007DEA0F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4C01BDD3288235C5007DEA0F /* libclassdump-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libclassdump-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C0F4067286E301800C2E934 /* NSData+Flip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Flip.h"; sourceTree = "<group>"; };
 		4C0F4068286E301800C2E934 /* NSData+Flip.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSData+Flip.mm"; sourceTree = "<group>"; };
-		4C952D0D2837E11D00BFE504 /* classdumpios */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = classdumpios; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C952D0D2837E11D00BFE504 /* classdumpc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = classdumpc; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C952D182837E18500BFE504 /* CDLCDataInCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDLCDataInCode.m; sourceTree = "<group>"; };
 		4C952D192837E18500BFE504 /* NSString-CDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString-CDExtensions.m"; sourceTree = "<group>"; };
 		4C952D1A2837E18500BFE504 /* NSError-CDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError-CDExtensions.m"; sourceTree = "<group>"; };
@@ -1074,10 +1074,10 @@
 		4C952D0E2837E11D00BFE504 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4C952D0D2837E11D00BFE504 /* classdumpios */,
+				4C952D0D2837E11D00BFE504 /* classdumpc */,
 				4CDA2A80286263F800566FBB /* libclassdump.a */,
 				4C01BDD3288235C5007DEA0F /* libclassdump-ios.a */,
-				4BBC09EF288468F700730798 /* classdumpios-bin */,
+				4BBC09EF288468F700730798 /* classdumpc-bin */,
 				4BBC0A4728859ED400730798 /* classdumptvos-bin */,
 			);
 			name = Products;
@@ -1305,9 +1305,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		4BBC0998288468F700730798 /* classdumpios-bin */ = {
+		4BBC0998288468F700730798 /* classdumpc-bin */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpios-bin" */;
+			buildConfigurationList = 4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpc-bin" */;
 			buildPhases = (
 				4BBC0999288468F700730798 /* Sources */,
 				4BBC09EA288468F700730798 /* Frameworks */,
@@ -1317,9 +1317,9 @@
 			);
 			dependencies = (
 			);
-			name = "classdumpios-bin";
+			name = "classdumpc-bin";
 			productName = classdumpios;
-			productReference = 4BBC09EF288468F700730798 /* classdumpios-bin */;
+			productReference = 4BBC09EF288468F700730798 /* classdumpc-bin */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4BBC09F028859ED400730798 /* classdumptvos-bin */ = {
@@ -1356,9 +1356,9 @@
 			productReference = 4C01BDD3288235C5007DEA0F /* libclassdump-ios.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		4C952D0C2837E11D00BFE504 /* classdumpios */ = {
+		4C952D0C2837E11D00BFE504 /* classdumpc */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4C952D142837E11D00BFE504 /* Build configuration list for PBXNativeTarget "classdumpios" */;
+			buildConfigurationList = 4C952D142837E11D00BFE504 /* Build configuration list for PBXNativeTarget "classdumpc" */;
 			buildPhases = (
 				4C952D092837E11D00BFE504 /* Sources */,
 				4C952D0A2837E11D00BFE504 /* Frameworks */,
@@ -1368,9 +1368,9 @@
 			);
 			dependencies = (
 			);
-			name = classdumpios;
+			name = classdumpc;
 			productName = classdumpios;
-			productReference = 4C952D0D2837E11D00BFE504 /* classdumpios */;
+			productReference = 4C952D0D2837E11D00BFE504 /* classdumpc */;
 			productType = "com.apple.product-type.tool";
 		};
 		4CDA2A7F286263F800566FBB /* classdump */ = {
@@ -1406,7 +1406,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4C952D082837E11D00BFE504 /* Build configuration list for PBXProject "classdumpios" */;
+			buildConfigurationList = 4C952D082837E11D00BFE504 /* Build configuration list for PBXProject "classdumpc" */;
 			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -1419,10 +1419,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4C952D0C2837E11D00BFE504 /* classdumpios */,
+				4C952D0C2837E11D00BFE504 /* classdumpc */,
 				4CDA2A7F286263F800566FBB /* classdump */,
 				4C01BD2A288235C5007DEA0F /* classdump-ios */,
-				4BBC0998288468F700730798 /* classdumpios-bin */,
+				4BBC0998288468F700730798 /* classdumpc-bin */,
 				4BBC09F028859ED400730798 /* classdumptvos-bin */,
 			);
 		};
@@ -2008,6 +2008,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2067,6 +2068,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2143,7 +2145,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpios-bin" */ = {
+		4BBC09EC288468F700730798 /* Build configuration list for PBXNativeTarget "classdumpc-bin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4BBC09ED288468F700730798 /* Debug */,
@@ -2170,7 +2172,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4C952D082837E11D00BFE504 /* Build configuration list for PBXProject "classdumpios" */ = {
+		4C952D082837E11D00BFE504 /* Build configuration list for PBXProject "classdumpc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4C952D122837E11D00BFE504 /* Debug */,
@@ -2179,7 +2181,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4C952D142837E11D00BFE504 /* Build configuration list for PBXNativeTarget "classdumpios" */ = {
+		4C952D142837E11D00BFE504 /* Build configuration list for PBXNativeTarget "classdumpc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4C952D152837E11D00BFE504 /* Debug */,
