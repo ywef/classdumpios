@@ -5,6 +5,10 @@
 
 #import <Foundation/Foundation.h>
 
+@interface NSMutableDictionary (CDExtensions)
+- (NSString *)stringRepresentation;
+@end
+
 @interface NSDictionary (CDExtensions)
 - (NSString *)stringRepresentation;
 @end

@@ -6,12 +6,23 @@
 #import "NSString-CDExtensions.h"
 #import "NSData-CDExtensions.h"
 
-@implementation NSDictionary (CDExtensions)
+@implementation NSMutableDictionary (CDExtensions)
 
 - (NSString *)stringRepresentation {
     NSString *error = nil;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:self format:NSPropertyListXMLFormat_v1_0 errorDescription:&error];
+    NSString *s=[[NSString alloc] initWithData:xmlData encoding: NSUTF8StringEncoding];
+    return s;
+}
+
+@end
+
+@implementation NSDictionary (CDExtensions)
+
+- (NSString *)stringRepresentation {
+    NSString *error = nil;
     NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:self format:NSPropertyListXMLFormat_v1_0 errorDescription:&error];
     NSString *s=[[NSString alloc] initWithData:xmlData encoding: NSUTF8StringEncoding];
     return s;
