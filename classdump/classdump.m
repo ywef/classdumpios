@@ -73,6 +73,10 @@
 }
 
 - (NSInteger)performClassDumpOnFile:(NSString *)file toFolder:(NSString *)outputPath {
+    return [self performClassDumpOnFile:file withEntitlements:YES toFolder:outputPath];
+}
+
+- (NSInteger)performClassDumpOnFile:(NSString *)file withEntitlements:(BOOL)dumpEnt toFolder:(NSString *)outputPath {
     
     CDClassDump *classDump = [self classDumpInstanceFromFile:file];
     if (!classDump){
@@ -88,6 +92,15 @@
     classDump.typeController.delegate = multiFileVisitor;
     multiFileVisitor.outputPath = outputPath;
     [classDump recursivelyVisit:multiFileVisitor];
+    if (dumpEnt) {
+        NSString *newName = [[[[[file executablePathForFilename] lastPathComponent] stringByDeletingPathExtension] stringByAppendingString:@"-Entitlements"] stringByAppendingPathExtension:@"plist"];
+        NSString *entPath = [outputPath stringByAppendingPathComponent:newName];
+        NSDictionary *ent = [[classDump.machOFiles firstObject] entitlementsDictionary];
+        if (ent){
+            DLog(@"writing entitlements to path: %@", entPath);
+            [ent writeToFile:entPath atomically:true];
+        }
+    }
     return 0;
 }
 

@@ -356,12 +356,6 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "Error: %s\n", [[error localizedFailureReason] UTF8String]);
                     exit(1);
                 } else {
-                    if (dumpEnt) {
-                        NSString *ent = [[classDump.machOFiles firstObject] entitlements];
-                        DLog(@"%@", ent);
-                        exit(0);
-                        //NSString *ent = [classDump.machOFiles]
-                    }
                     [classDump processObjectiveCData];
                     [classDump registerTypes];
                     
@@ -376,6 +370,15 @@ int main(int argc, char *argv[])
                         classDump.typeController.delegate = multiFileVisitor;
                         multiFileVisitor.outputPath = outputPath;
                         [classDump recursivelyVisit:multiFileVisitor];
+                        if (dumpEnt) {
+                            NSString *newName = [[[[executablePath lastPathComponent] stringByDeletingPathExtension] stringByAppendingString:@"-Entitlements"] stringByAppendingPathExtension:@"plist"];
+                            NSString *entPath = [outputPath stringByAppendingPathComponent:newName];
+                            NSDictionary *ent = [[classDump.machOFiles firstObject] entitlementsDictionary];
+                            if (ent){
+                                InfoLog(@"writing entitlements to path: %@", entPath);
+                                [ent writeToFile:entPath atomically:true];
+                            }
+                        }
                     } else {
                         if (suppressAllHeaderOutput){
                             exit(0);
@@ -385,6 +388,10 @@ int main(int argc, char *argv[])
                         if ([hiddenSections containsObject:@"structures"]) visitor.shouldShowStructureSection = NO;
                         if ([hiddenSections containsObject:@"protocols"])  visitor.shouldShowProtocolSection  = NO;
                         [classDump recursivelyVisit:visitor];
+                        if (dumpEnt) {
+                            NSString *ent = [[classDump.machOFiles firstObject] entitlements];
+                            DLog(@"%@", ent);
+                        }
                     }
                 }
             }
