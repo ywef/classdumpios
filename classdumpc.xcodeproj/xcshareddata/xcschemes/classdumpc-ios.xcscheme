@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4BBC0998288468F700730798"
-               BuildableName = "classdumpc-bin"
+               BuildableName = "classdumpc-ios"
                BlueprintName = "classdumpc-ios"
                ReferencedContainer = "container:classdumpc.xcodeproj">
             </BuildableReference>
@@ -51,7 +51,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4BBC0998288468F700730798"
-            BuildableName = "classdumpc-bin"
+            BuildableName = "classdumpc-ios"
             BlueprintName = "classdumpc-ios"
             ReferencedContainer = "container:classdumpc.xcodeproj">
          </BuildableReference>

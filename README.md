@@ -7,7 +7,7 @@ There are 5 different targets in this Xcode project, the macOS bin & library, an
 
 # Libraries
 
-The core functionality of classdump has also be made into a separate library for iOS and macOS, its still a bit rough around the edges but I primarily did that to use inside another application I will be open sourcing in the near future, its the app I built to make dumping newer iOS/tvOS version files into the various repos I host with private headers & entitlements. Once I clean that app up a bit and make it more user friendly it will transition from Private to Public as well.
+The core functionality of classdump has also be made into a separate library for iOS and macOS, its still a bit rough around the edges but I primarily did that to use inside [HeaderHelperApp](https://github.com/lechium/HeaderHelperApp), its the app I built to make dumping newer iOS/tvOS version files into the various repos I host with private headers & entitlements. 
 
 
 # Background
