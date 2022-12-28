@@ -26,7 +26,7 @@
                 [cursor appendBytesOfLength:_loadCommand.cmdsize - 8 intoData:commandData];
                 _commandData = [commandData copy];
             } @catch (NSException *exception) {
-                DLog(@"exception caught: %@", exception);
+                CAUGHT_EXCEPTION_LOG;
                 commandData = nil;
             }
             

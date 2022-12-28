@@ -7,6 +7,7 @@
     #import "CDExtensions.h"
     #import "CDClassDump.h"
     #define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
+    #define CAUGHT_EXCEPTION_LOG DLog(@"exception caught: %@", exception);
     #define CDLLog(L, format, ...) [CDClassDump logLevel:L stringWithFormat:format, ## __VA_ARGS__]
     #define CDLog(L, format, ...) [CDClassDump logLevel:L string:[NSString stringWithFormat:format, ## __VA_ARGS__]]
     #define VerboseLog(format, ...)CDLog(1,format, ## __VA_ARGS__)

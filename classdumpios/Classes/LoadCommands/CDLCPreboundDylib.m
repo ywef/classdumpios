@@ -27,7 +27,11 @@
         
         if (_preboundDylibCommand.cmdsize > 20) {
             // Don't need this info right now.
-            [cursor advanceByLength:_preboundDylibCommand.cmdsize - 20];
+            @try {
+                [cursor advanceByLength:_preboundDylibCommand.cmdsize - 20];
+            } @catch (NSException *exception) {
+                CAUGHT_EXCEPTION_LOG;
+            }
         }
     }
 

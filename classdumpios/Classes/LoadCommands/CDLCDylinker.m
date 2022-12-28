@@ -21,8 +21,12 @@
         
         NSUInteger length = _dylinkerCommand.cmdsize - sizeof(_dylinkerCommand);
         //DLog(@"expected length: %u", length);
-        
-        _name = [cursor readStringOfLength:length encoding:NSASCIIStringEncoding];
+        @try {
+            _name = [cursor readStringOfLength:length encoding:NSASCIIStringEncoding];
+        } @catch (NSException *exception) {
+            CAUGHT_EXCEPTION_LOG;
+            _name = nil;
+        }
         //DLog(@"name: %@", name);
     }
 
