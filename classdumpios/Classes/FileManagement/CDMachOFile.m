@@ -408,19 +408,18 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic) {
         //DLog(@"file length is 0, failed: %@", self.filename);
         return nil;
     }
-    NSScanner *theScanner;
     NSString *text = nil;
     NSString *returnText = nil;
-    theScanner = [NSScanner scannerWithString:fileContents];
+    NSScanner *theScanner = [NSScanner scannerWithString:fileContents];
     while ([theScanner isAtEnd] == NO) {
-        [theScanner scanUpToString:@"<?xml" intoString:NULL];
+        [theScanner scanUpToString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist" intoString:NULL];
         [theScanner scanUpToString:@"</plist>" intoString:&text];
         text = [text stringByAppendingFormat:@"</plist>"];
-        //DLog(@"text: %@", [text dictionaryRepresentation]);
+        DLog(@"text: %@", text);
         NSDictionary *dict = [text dictionaryRepresentation];
         if (dict && [dict allKeys].count > 0) {
             if (![[dict allKeys] containsObject:@"CFBundleIdentifier"] && ![[dict allKeys] containsObject:@"cdhashes"]){
-                //DLog(@"got im: %@", [[inputFile lastPathComponent] stringByDeletingPathExtension]);
+                //DLog(@"got im: %@", dict);
                 returnText = text;
                 break;
             }
