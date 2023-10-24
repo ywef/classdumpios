@@ -79,7 +79,11 @@ NSString *CDSegmentEncryptionTypeName(CDSegmentEncryptionType type)
         NSMutableArray *sections = [[NSMutableArray alloc] init];
         for (NSUInteger index = 0; index < _segmentCommand.nsects; index++) {
             CDSection *section = [[CDSection alloc] initWithDataCursor:cursor segment:self];
-            [sections addObject:section];
+            if (section){
+                [sections addObject:section];
+            } else {
+                //NSLog(@"section at index: %lu of %lu was nil", index, _segmentCommand.nsects);
+            }
         }
         _sections = [sections copy];
     }
